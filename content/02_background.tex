@@ -1,100 +1,164 @@
-\chapter{Background}
-The background section guides you through the use of the template and some features we included to make writing a little easier.
+\chapter{Background} % approx. 8 pages
+This chapter is focused on fundamentals to clearly understand the concepts and approaches discussed in the Related Works section and the following.
 
-\section{metadata.tex and title.tex}
-The file \emph{template/metadata.tex} includes all information on you, the title of the thesis and supervisors.
-This information is used during the compilation of the template to fill out all the details.
-Especially in the file \emph{thesis\_template/title.tex}, you will see the use of this metadata.
-Please adjust this title page and the metadata to fit to your thesis topic, thesis category, company, and supervisors.
+\section{Micromobility Sharing Services}
+Micromobility sharing services offer their customers t
+\subsection{Rebalancing}
+
+\subsubsection{User-based Rebalancing}
+
+\subsubsection{Operator-based Rebalancing}
+
+\section{Reinforcement Learning (RL)}
+Reinforcement Learning (RL) is a machine learning technique where an agent interacts with an environment by choosing between multiple actions. This happens in a sequence. The agent decides between the actions to optimize the reward after each time step. The agent gets information about the environment in which it acts through a state representation. This state often simplifies the underlying problem the agent tries to solve. The state is time-dependent, so the state changes after each time step. The general goal of the agent is to maximize the accumulated reward, which is often called return, through trial and error. The agent tries out different actions depending on the current state and learns which ones lead to more reward. The strategy by which the agent chooses its following action based on the current state is called policy \cite{zhang_dive_2023}.
+
+\subsection{Markov Decision Process (MDP) and Dynamic Programming (DP)}
+A fundamental framework in the field of RL is the Markov Decision Process (MDP). An MDP is defined by a tuple consisting of four components (see equation \ref{eq:mdp}). Decision-making in environments where outcomes are not entirely in control of the agent can be modeled using such an MDP. Those MDPs can then be solved with dynamic programming (DP). DP is a technique to solve such complex models by dividing the problem into multiple sub-problems and using estimates to find an optimal policy that solves the problem \cite{zhang_dive_2023}.
+
+\begin{equation}\label{eq:mdp}
+    MDP : (\mathcal{S}; \mathcal{A}; P; R)
+\end{equation}
+
+\begin{itemize}
+    \item $\mathcal{S}$: A set of states representing the environment the RL agent is interacting with. This is often referred to as the state space.
+    \item $\mathcal{A}$: Represents the set of actions the agent can choose from, which is often called the action space.
+    \item $P(s' \mid s, a)$: The state transition probabilities are the probabilities for being in state $s$ and transitioning through action $a$ into the new state $s'$.
+    \item $R(s, a, s')$: The reward function assigns each possible state transition a reward value. That is the reward when transitioning from state $s$ to state $s'$ by the action $a$.
+\end{itemize}
+
+The Markov property is a fundamental assumption when working with MDPs. This property states that the next state depends only on the current state and action, not on previous states. This makes the problem to solve much simpler \cite{zhang_dive_2023}.
+
+\subsubsection{Value Functions}
+Key functions for solving MDPs are the state-value function presented in equation \ref{eq:state-value-function} and the action-value function presented in equation \ref{eq:action-value-function} \cite{zhang_dive_2023}.
+
+The state-value function represents the expected reward of being in state $s$ and acting under the policy $\pi$.
+The action-value function, on the other hand, represents the expected reward of being in state $s$ doing the action $a$ and then acting with regards to the policy $\pi$ \cite{zhang_dive_2023}.
+
+\begin{equation}\label{eq:state-value-function}
+v_\pi(s) = \mathbb{E}_\pi\left[\sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \,\middle|\, S_t = s \right]
+\end{equation}
+
+\begin{equation}\label{eq:action-value-function}
+q_\pi(s, a) = \mathbb{E}_\pi\left[\sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \,\middle|\, S_t = s, A_t = a \right]
+\end{equation}
+
+\subsubsection{Bellman Equations}
+The previously defined state-value and action-value functions describe the rewards for a given state, policy, and action well. However, they are very complex to solve and require complete knowledge of the model. Therefore, the Bellman equations describe an iterative approach for calculating the state-value function (see equation \ref{eq:bellman-action-value-function}) and the action-value function(see equation \ref{eq:bellman-state-value-function}) \cite{zhang_dive_2023}.
+
+\begin{equation}\label{eq:bellman-state-value-function}
+v_\pi(s) = \sum_{a \in \mathcal{A}} \pi(a \mid s) \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma v_\pi(s') \right]
+\end{equation}
+
+\begin{equation}\label{eq:bellman-action-value-function}
+q_\pi(s, a) = \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma \sum_{a' \in \mathcal{A}} \pi(a' \mid s') q_\pi(s', a') \right]
+\end{equation}
+
+\subsubsection{Policy Iteration}
+Policy iteration and value iteration are the two key algorithms used by DP to solve MDPs. They make use of the previously defined Bellman Equations and their recursive approach.
+Policy Iteration consists of two steps: Policy Evaluation and Policy Improvement \cite{zhang_dive_2023}.
+Policy Evaluation estimates how good the policy is in every state; therefore, the State-Value function (see equation \ref{eq:bellman-state-value-function}) is calculated for the current policy $\pi$ for every state. 
+After evaluating the current policy, the next step is to improve it. This is done by solving the equation \ref{eq:policy-improvement}
+
+\begin{equation}\label{eq:policy-improvement}
+\pi'(s) = \arg\max_{a \in \mathcal{A}} \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma v_\pi(s') \right]
+\end{equation}
+
+\subsubsection{Value Iteration}
+On the other hand, Value Iteration tries to solve MDPs by directly updating the value function instead of the two-step process from policy iteration. Value Iteration applies repeatedly the Bellman optimality equation until this function converges and an optimal state-value function $v^*(s)$ is found (see equation \ref{eq:bellman-optimality}). With this optimal state-value function, an optimal policy can be obtained with the equation \ref{eq:value-iteration-optimal-policy} \cite{zhang_dive_2023}.
+
+\begin{equation}\label{eq:bellman-optimality}
+    v_{k+1}(s) = \max_{a \in \mathcal{A}} \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma v_k(s') \right]
+\end{equation}
+
+\begin{equation}\label{eq:value-iteration-optimal-policy}
+\pi^*(s) = \arg\max_{a \in \mathcal{A}} \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma v^*(s') \right]
+\end{equation}
+
+\subsection{Multi-Armed Bandits (MAB)}
+The Multi-Armed Bandit theory is a simplified version of a reinforcement learning agent. An MAB agent has k arms, each representing an action the agent can choose from. Notably, the agent has no state representation of the environment it is interacting with. This means the MAB agent can try out each action and choose based on the previous rewards from trying out the different actions. That way, the MAB agent can learn the underlying probability distributions for the reward of each action. When the MAB agent has explored the actions enough, he can exploit this information to maximize his total reward, which is the goal. The MAB theory describes the trade-off between exploration and exploitation by examining the different actions to estimate their reward distributions. In contrast, the agent uses his gained information to maximize his total reward \cite{sutton_reinforcement_2018}.
+
+The estimated reward for a given action $a$ can be calculated as the average reward for choosing that action. This estimated reward is denoted as $Q_t(a)$ and is presented in equation \ref{eq:mab-sample-average} \cite{sutton_reinforcement_2018}.
+
+\begin{equation}\label{eq:mab-sample-average}
+    Q_t(a) \doteq \frac{\text{sum of rewards when a taken prior to t}}{\text{number of times a taken prior to t}} = \frac{\sum_{i=1}^{t-1} R_i \, \mathbf{1}_{\{A_i = a\}}s}{\sum_{i=1}^{t-1} \mathbf{1}_{\{A_i = a\}}}
+\end{equation}
+
+Numerous algorithms have been developed for MAB agents to balance exploration and exploitation.
+
+\subsubsection{$\mathbf{\varepsilon}$-greedy}
+The $\varepsilon$-greedy algorithm is a relatively simple approach to balance exploration and exploitation. The agent chooses a random arm with the probability of $\varepsilon$. In the other cases, e.g., $1-\varepsilon$, the agent exploits the current best arm, which has the highest estimated reward. The algorithm is presented in equation \ref{eq:epsilon-greedy} \cite{sutton_reinforcement_2018}.
+
+\begin{equation}\label{eq:epsilon-greedy}
+A_t =
+\begin{cases}
+\arg\max_{a} Q_t(a) & \text{with probability } 1-\epsilon, \\
+\text{a random action uniformly chosen from } \mathcal{A} & \text{with probability } \epsilon.
+\end{cases}
+\end{equation}
+
+\subsubsection{Upper Confidence Bound (UCB)}
+The Upper Confidence Bound (UCB) is an often-used algorithm to balance exploration and exploitation of MAB agents. This approach chooses the arm based on the highest estimated reward and the uncertainty of those estimates. Therefore, the UCB algorithm improves estimates based on the variance of each estimate. The algorithm is presented in equation \ref{eq:upper-confidence-bound} \cite{sutton_reinforcement_2018}.
+
+\begin{equation}\label{eq:upper-confidence-bound}
+A_t \doteq \arg\max_a \left[ Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}} \right]
+\end{equation}
+
+\subsection{Q-Learning}
+Q-Learning is an often-used RL method that does not require complete knowledge of the environment and, therefore, is a model-free method. In Q-Learning, the approach is to optimize the quality function iteratively. A state-value function and a policy can be derived from this optimized quality function. Q-Learning is an off-policy algorithm, meaning two distinct policies are used. This algorithm will optimize the target policy and a different policy is used for exploration. In contrast, on-policy algorithms like SARSA use one policy online, which is used for exploration and is the target policy to be optimized. Equation \ref{eq:q-learning} shows the update rule for the Q-Learning algorithm, where $\alpha$ is the learning rate, $r$ is the immediate reward, and $s'$ is the next state. With this update rule, the algorithm iteratively updates the action-value function by sampling transitions from state $s$ to state $s'$, until the algorithm converges to an optimal action-value function $q^*(s,a)$ \cite{zhang_dive_2023}.
+
+\begin{equation}\label{eq:q-learning}
+    q(s,a) \leftarrow q(s,a) + \alpha \left[ r + \gamma \max_{a'} q(s',a') - q(s,a) \right]
+\end{equation}
+
+\subsection{Deep-Q-Networks (DQN)}
+Deep-Q-Networks (DQN) solve the problem of high-dimensional or large state spaces. Traditional RL algorithms struggle with large state spaces and require long and complex training. In DQN, a multi-layer CNN (convolutional neural network) approximates the Q-value function $q(s, a;\theta)$, with network weights $\theta$. The network takes the state as input and outputs estimated Q-values for each possible action. By training this network, the agent can generalize past experiences to new states \cite{arulkumaran_deep_2017}. 
+
+DQN became so popular due to several innovations in this field. Experience Replay stabilizes training by instead of updating from consecutive, correlated state transitions, DQN uses a replay memory to store the agent’s experiences, e.g., transitions $(s_t, a_t, s_{t+1}, r_{t+1})$ at each time step. From this memory, mini-batches are sampled uniformly to break temporal correlations between state transitions and stabilize training \cite{arulkumaran_deep_2017}.
+
+A second network, the target network, can be used to compute Q-Learning target values. Theses targets get computed after several iterations, which reduces the fluctuation in theses targets and therefore stabalizes training \cite{arulkumaran_deep_2017}. 
+
+\subsection{Policy Gradient Methods}
+One limitation of the previously discussed RL methods is the constraint that the action space must be deterministic. Value-based methods like Q-Learning estimate the optimal value function and derive from this their policy. In contrast, policy gradient methods directly optimize the policy. Therefore, these methods use a parameterized policy whose parameters $\theta$ are iteratively updated in order to maximize rewards. To update these policy parameters, a performance measure is introduced, which represents the true value function for the policy $\pi_\theta$. This performance function $J(\theta)$ is then differentiated by the policy parameters $\theta$ and can be used to update the policy in such a way as to optimize the value function and maximize rewards. The update rule and performance measure are defined as follows \cite{sewak_policy-approximation_2022}:
+
+\begin{equation}\label{eq:policy-gradient-update-rule}
+    \theta_{t+1} = \theta_t + \alpha \nabla J(\theta)
+\end{equation}
+
+\begin{equation}\label{eq:policy-gradient-performance-measure}
+\nabla J(\theta) = \nabla v_{\pi_\theta}(s_0)
+\end{equation}
+
+\subsubsection{Actor-critic Methods}
+Policy gradient methods often struggle with high variance and sample inefficiency. This leads to a slow and unstable learning process. Therefore, Actor-critic methods were introduced in order to address these issues with policy gradient methods. Actor-critic methods use two agents, one learning the policy called the "actor" and the "critic" learning to estimate the value function for the given policy. In every step, both the "actor" and the "critic" receive the new state, and only the "critic" receives the reward. Based on the reward and the state, the "critic" estimates the state-value function. Then the "actor" updates its policy based on the TD-Error between the "critic's" estimate and the reward. The "critic" updates its state value approximation based on this TD-Error as well. Another very common approach for Actor-critic methods is to use the advantage $A(s, a)=q(s, a) - v(s)$ as the feedback to the "actor", which stabilizes training even more \cite{sewak_policy-approximation_2022}.
+
+\subsection{Hierarchical Reinforcement Learning (HRL)}
+Hierarchical Reinforcement Learning (HRL) describes a different approach to how RL algorithms are combined. In HRL, the task is decomposed into different subtasks, which are much easier to solve. Another benefit of HRL is that some of those subtasks are often more abstract representations and can therefore be reused for similar use-cases. HRL uses Semi-Markov Decision Processes (SMDP) instead of regular MDPs due to the variability of SMDP to model actions of different levels of abstraction \cite{shubham_hierarchical_2024}.
+
+A very common framework for HRL is the options framework from Sutton et al. \cite{sutton_between_1999}. Whereby, options generalize one-step actions into multi-step actions. This means options consist of multiple actions that are chosen autonomously in a series. The agent then learns a higher-level policy over options instead of actions. The biggest challenge with this options framework is modeling the options. This is normally done by experts with a lot of domain knowledge. Several approaches have been employed to learn such options, but they aren't generally applicable and often fail to find optimal options.
 
 
-\section{packages.tex}
-The file \emph{template/packages.tex} includes all used packages.
-Please only add your packages here!
-This makes debugging of conflicts between packages easier, as you have them all together.
+\subsection{Multi-Agent Reinforcement Learning (MARL)}
+The previously discussed RL frameworks involve only one agent learning through interaction with the environment. Multi-Agent Reinforcement Learning (MARL) extends this framework by introducing a setting that involves multiple agents that interact and or compete against each other. This multi-agent approach increases the use case of RL for many real-world problems that involve not only one agent. MARL involves a much more complex setting through the interaction of multiple agents. Therefore, the state is not only influenced by the actions of one agent, but the agents need to account for changes in the state due to actions from the other agents. In competitive settings, the agents need a channel for communication. This communication can be implicit through observation or explicit as part of the agent's actions \cite{busoniu_multi-agent_2008}.
 
+MARL can't be formalized with an MDP due to the lack of support for multiple agents. Therefore, numerous approaches have been introduced to formalize MARL models. A well-known approach is the Markov game (MG). In MG, each agent has its own set of actions and its own reward function. The state space and the state transition probabilities are shared between all agents. The reward functions should be chosen according to the type of interaction of the agents. A zero-sum reward is often used for competitive agents, where one's gain in reward is another's loss. For a cooperative task, a shared reward is often recommended \cite{busoniu_multi-agent_2008}.
 
-\section{macros.tex}
-This section introduces the use of the predefined macros.
-You are free to extend this list of macros in the file \emph{template/macros.tex}.
+\section{Heuristics}
+Heuristics are a strategy similar to a rule-of-thumb that tries to improve a good solution. Heuristics do not guarantee that they will find an optimal solution for the given problem. The key advantage of heuristics is their performance. The most common heuristic is the greedy algorithm, which greedily chooses the action with the biggest immediate reward. Heuristics often struggle with their simplified problem definition, which often results in suboptimal solutions.
 
-\subsection{todonotes}
-\emph{todonotes} is a very useful package to track open items within a document and not mess around with special identifies to search for your TODOs.
+\subsection{Metaheuristic Optimization}
+Metaheuristics are frameworks that try to improve heuristics by guiding their actions to improve the search space to find more optimal solutions than can be found solely with the heuristics themselves. Metaheuristics often generate multiple candidates and compare those to each other in order to find more optimal heuristics. This is often done through physical processes like evolution or swarm behavior in a simulation environment.
 
-\subsubsection{List of TODOs}
-In the \emph{thesis.tex} document, you can find the \emph{\textbackslash listoftodos} line. 
-This generates a list of all TODOs defined in this document.
+\subsubsection{Genetic Algorithm (GA)}
+Genetic Algorithms (GA) use an evolutionary approach to find more optimal solutions. A population of candidate solutions is maintained. Those candidates are evaluated by a fitness function. After each episode, a new generation of candidates is generated by combining parts of two well-performing candidates and or by mutating candidates, e.g., randomly tweaking candidates to explore different behaviors. This is done through multiple generations of candidates until the fitness function converges and an optimal candidate is found.
 
-\subsubsection{TODOs}
-In your document, you have two options to mark TODOs on your text. 
-The first option is the one for short notes: \emph{\textbackslash todonote}\todonote{Short TODO}.
-This todonote will pop up on the side of the document and point to the location in the paragraph, where it is linked to.
-Do not use if for long texts.
-In case you have long notes that you want to remember, you can use \emph{\textbackslash todoinline}.
-\todoinline{This is a very long TODO note that might go across multiple lines. You can really write some meaningful text in here and still read it later on.}
-You will notice, that after such an inline TODO, the text is indented, even if you did not create the paragraph yourself.
-But as you are on a work-in-progress document, this does not matter too much.
+\subsubsection{Ant Colony Optimization (ACO)}
+Ant Colony Optimization (ACO) uses a different approach than GA. ACO is a swarm intelligence algorithm that mimics the behavior of ants. The problem for ACO is modeled as a Graph with different paths to find the optimal solutions. The "Ants" try out different solution paths. Good solution paths will be marked with more pheromone than bad performing paths. In new Iterations the "Ants" will follow paths with more pheromone, but will also try out different paths to find more optimal solutions. This graph representation of the problem makes ACO well suited for routing problems or similar, because this kind of problem can be naturally modeled as a graph. 
 
-\subsubsection{REVIEW}
-\review
-The review notice shows that a section is ready for review. 
-Use it to show your supervisor that you would like to get feedback for this section.
-Just add the \emph{\textbackslash review} command after the headline and the according information will be inserted into the PDF document.
+\section{Mathematical Optimization}
+Mathematical optimization uses a drastically different approach from RL and heuristics. Mathematical optimization approaches decision problems by formulating them as mathematical expressions consisting of objective functions and constraints that can be solved mathematically. This approach contrasts the previously discussed RL and heuristic methods with the trial-and-error approach used in combination with simulation environments. Formulating a mathematical expression comes with some limitations. A simplified model of the environment is often formulated due to the high complexity of real-world scenarios, which can not be formulated as a mathematical expression in a feasible time. The most common approaches to compute such expressions are through Linear Programming (LP) and Mixed Integer Linear Programming (MILP).
 
-\subsubsection{FEEDBACK}
-\feedback{Is this a correct use of a feedback mark?}
-If you want to document a question you have for your supervisor, just use the command \emph{\textbackslash feedback}.
-This will generate an inline comment with the note that feedback is required.
+\subsubsection{Linear Programming (LP)}
+Linear Programming (LP) is an optimization technique to solve mathematical expressions for decision-making problems. In LP, objective functions and constraints are linear, and their variables are continuous. This makes LP models a rather limited approach to modeling complex real-world scenarios.
 
-\subsection{Text Suggestions}
-We developed a macro to indicate suggestions for change.
-This macro keeps the old text striked through and prints the suggested text colored in olive next to it.
-For example, \suggest{this is the old text}{this is the new text}.
-
-\subsection{Marked Text}
-You do not need to create TODOs for all elements that you need to recheck.
-For example, you can just \marktext{mark text sections with the command \emph{\textbackslash marktext}} and the macros will highlight this text for you.
-These are not listed in the list of todos.
-
-\subsection{Thesis Goals and Numbered Elements}
-In the file \emph{template/macros.tex}, we included the definition of goals for your thesis.
-You can use the numbering of goals through the section \emph{goal} as used in Section~\ref{sec:goals}.
-If necessary, you can also create such numbering for other elements that come up in your thesis.
-One student started the thesis by defining anomalies that should be detected with an \gls{IDS}.
-He used this mechanism to reference the individual anomalies.
-
-
-\section{Acronyms}
-When writing your thesis, you might use a lot of acronyms.
-In order to have the fully written on the first use, and after that only use the short version you would need to go through the document at the end.
-Therefore, we recommend to use the following package: \emph{glossaries-extra} with the module \emph{acronym}.
-In the file \emph{content/acronyms.tex}, we defined a few acronyms as example and will explain the use in the following.
-
-In your text, you should always use the command \emph{\textbackslash gls\{gPTP\}} to call an acronym.
-With that, the first appearance will include both, short and long form (to visualize the effect, we mark the output red): \marktext{\gls{gPTP}}
-With the second use, you will only have the short form: \marktext{\gls{gPTP}}
-
-If you need to use the full term, you can use the command \emph{\textbackslash acrlong\{gPTP\}}: \marktext{\glsxtrlong{gPTP}}.
-Alternatively, you can force the short version with the command \emph{\textbackslash acrshort\{gPTP\}}: \marktext{\glsxtrshort{gPTP}}.
-
-To update the list of acronyms, you must enter the following command in your terminal: \emph{makeglossaries thesis}
-Please remember to do that also before you generate your final version.
-
-\section{Finalize your Document}
-
-\subsection{Remove unused Tables of Entries}
-In the \emph{thesis.tex}, you find a number of tables for different kinds of entries (see \emph{\textbackslash listof.....}).
-Depending on if you use Tables or Code snippets, you need them, or you don't.
-Please remove all unused ones, such that you do not have empty ones in the final document.
-Also make sure, that the \emph{\textbackslash listoftodos} is empty and then remove it as well.
-
-\subsection{Preparing for the Print}
-If you want to print your document with a binding, you should adjust the document, depending on the type of print.
-Most likely, you will have a binding on the left.
-Therefore, you need to adjust the use of the package \emph{geometry} in \emph{template/packages.tex} to include the \emph{bindingoffset=15mm}.
-Otherwise, you will squeeze you text into the binding on the left.
-Additionally, you need to choose, if you will print on both sides of the paper or only on the front side.
-For the front side only, you need to set the option \emph{oneside} in the first row of the \emph{thesis.tex} file.
-Make sure, that you configure the printer to only use the front side.
-Alternatively, you can tell teh document to start chapters on the right-hand side and also print on the back side of the paper.
-For this, you need to set the option \emph{twoside} in the first row of the \emph{thesis.tex} file instead of the \emph{oneside}.
+\subsubsection{Mixed Integer Linear Programming (MILP)}
+Mixed Integer Linear Programming (MILP) extends LP by allowing not only continuous variables but also integer variables. This allows modeling binary variables (0/1) as well. MILP problems are often solved by branch-and-cut algorithms. These algorithms solve numerous LP relaxations in order to be able to prune impossible or inefficient branches. These branch-and-cut algorithms work well for a moderately complex system and will find optimal solutions. The computing time for such algorithms increases exponentially, which makes them unsuitable for highly complex systems with large numbers of equations to solve. Nevertheless, MILP is still useful for such highly complex systems. They can be split into multiple subproblems or can be used in combination with heuristic approaches.

@@ -1,128 +1,88 @@
-\chapter{Related Work}
-The related work section is often underrated. Make sure that you focus on this topic BEFORE your thesis, but do not leave it out of sight during and after the thesis.
+\chapter{Related Work} % approx. 15 pages
+\todo{Introduce the different approaches for optimizing rebalancing}
+\todo{Explain my research approach, e.g., summaries generation, categorization, and so on}
 
-\section{Structure}
-The related work section can have different structures:
-\begin{description}
-    \item[Grouped by Topic] 
-        The easiest way for you is to group the related work by topic.
-        This means that you group the literature by common attributes and discuss them together.
-    \item[Grouped by Relevance]
-        You can also group the work by relevance. This means, you start with work impacting your thesis the most.
-        Towards the end of the section, you introduce related work least relevant.
-\end{description}
+\section{Reinforcement Learning Approaches}
+Losapio et al. \cite{losapio_smart_2022} present the Multi Agent Deep Reinforcement Learning system called E-Scooter Balancing Deep Q-Network (ESB-DQN). This system consists of two agents, the pick-up agent and the drop-off agent. These agents suggest an alternative zone for picking up and dropping off e-scooters. 
+Users receive incentives to pick up or drop off e-scooters in zones different from those initially planned. The operational area for the dockless e-scooter service is divided into 279 zones, each measuring 200 x 200 meters. Both agents are implemented as Deep Q-Networks (DQNs), utilizing an $\epsilon$-greedy strategy combined with experience replay.
 
-We will give a small example on the grouping by topic in the following.
+Cederle et al. \cite{cederle_fairness-oriented_2025} implemented an RL approach to improve the fairness of micromobility sharing services (MSS). They address the problem of previous rebalancing algorithms, which mostly focus on efficiency and not on fairness. Such rebalancing algorithms prefer rebalancing to wealthier areas while excluding poorer areas. Therefore, they introduced a combination of fairness metrics to combat this issue. These metrics and efficiency measures are integrated into Q-Learning agents for rebalancing tasks. Instead of employing a classic multi-agent reinforcement learning (MARL) approach, they utilize one agent for each zone. Each agent undergoes independent training, which breaks the MARL problem into multiple single-agent subproblems. The fairness metric employed is the Gini index, which is combined with a weighting parameter to balance the optimization of fairness and efficiency.\\
 
-\section{Searching for Literature}
-A related work chapter starts with the literature research.
-There are two main sources, and many others, which you should use in parallel!
-In general, you should not only use the keywords that you come up with first, but continue your search with synonyms or other phrasings for the same topic.
+Pan et al. \cite{pan_deep_2019} proposed the Hierarchical Reinforcement Pricing (HRP) algorithm. HRP is a hierarchical RL approach for large-scale micromobility sharing services to tackle user-based rebalancing. The rebalancing problem for large-scale sharing services is very complex and therefore, hard to solve with single and multi-agent RL. They divided the service area into regions to divide the rebalancing problem into subproblems accordingly. The rebalancing problem is modeled as an MDP. The state is defined by the current bike supply, historical demand, arrivals, and the unmet to met demand ratio in each region. Additionally, the state includes the remaining budget for incentives. The action space is continuous to model region-specific incentives. HRP employs a Deep Deterministic Policy Gradient (DDPG) algorithm. The Q-values are decomposed into additive combinations of sub-Q-values for each region. Additionally, a bias-correction model is used to leverage states from neighboring regions.\\
 
-Google Scholar~\cite{googlescholar} is the largest search engine for scientific literature.
-Sometimes, you do not find the PDF version of a document directly, but below the documents, you can find the \emph{All XYZ versions} link, as shown in Figure~\ref{fig:googlescholar}.
-Often, this helps to get the PDF version without a paywall.
+Xie et al. \cite{xie_censored_2023} used a different approach than the previously discussed papers. They proposed a censored semi-bandit model to allocate bikes of a docked bike sharing system to other zones. Therefore, they divided the operating area into 12 different zones. The authors formulated a censored semi-bandit problem where each arm corresponds to one of the zones. By using a semi-bandit model instead of an MAB in each round, multiple arms can be picked by the model. In each decision round, which is done once a day, the model allocates bikes to each zone. The model aims to maximize the cumulated number of successful bike pick-ups. The policy of this model is an Upper Confidence Bound-based policy, which adds an exploration bonus to zones where the demand is uncertain. The authors address the common problem of micromobility service data censored data, which describes that the available historical trip or booking data only contains data that meets demand. Unmet or latent demand, demand that the system couldn't handle, is not represented in most of these datasets. To test and evaluate rebalancing strategies, the unmet demand is of high value because this demand is what rebalancing algorithms try to minimize. In this research paper, the authors use a non-parametric estimator that estimates the survival function of demand by comparing the frequency of observed pick-ups above a threshold to the number of opportunities to observe such demand. This estimate is then used as the exploration bonus for zones with uncertainty through limited data. Two extensions were proposed, one adding contextual data such as weather data that affects user demand to improve the relocation, and the second one incorporating relocation cost to balance the benefits and costs of relocation. The proposed UCB policy is compared to different benchmark strategies, such as a greedy or naive policy ignoring censored data. Results show that the proposed UCB-based policy achieves higher numbers of successful pick-ups.
 
-\begin{figure}
-    \includegraphics[width=\linewidth]{content/figures/templatetext/googlescholar.png}
-    \caption{An example search in Google Scholar}
-    \label{fig:googlescholar}
-\end{figure}
+\begin{table}[!htb]
+    \centering
+    \begin{tabular}{ccc}
+        \hline
+         & model & sharing system \\
+        \hline
+        \cite{cederle_fairness-oriented_2025} & Q-Learning & BSS, ESS \\
+        \cite{liang_dual_2024} & DQN & BSS\\
+        \cite{yun_price_2024} & & ESS\\
+        \cite{xie_censored_2023} & MAB & BSS\\
+        \cite{losapio_smart_2022} & DQN & ESS\\
+        \cite{schofield_handling_2021} & PPO & BSS\\
+        \cite{pan_deep_2019} & HRL & BSS\\
+        \cite{duan_optimizing_2019} & DDPG & BSS\\
+        \cite{li_dynamic_2018} & DQN & BSS\\
+    \end{tabular}
+    \caption{Reinforcement Learning}
+    \label{tab:related-works_reinforcement-learning}
+\end{table}
 
-Another good source for scientific literature is ResearchGate~\cite{researchgate}.
-Many authors upload the full text versions of their papers here.
-Alternatively, you can request the full text by the authors (sadly, they often do not respond...).
+\section{Heuristic-based Approaches}
 
-You need to enter all references that you want to use in the \emph{content/thesis.bib} file.
-Both, Google Scholar and ResearchGate give you export formats in BibTex style, such that you can copy and paste the entry.
-Additionally, some tools presented in Section~\ref{sec:rw-tools} do the same thing.
-However, please make sure to double-check the BibTeX entry yourself!!
-\marktext{One common mistake is that you assume the capitalization stays the same, but it does not.}
-Make sure to use double brackets \emph{\{\{SOME TEXT\}\}} around the text you want to keep the capitalization.
-Finally, you can also use the library DBPL~\cite{dbpllibrary} to retrieve well maintained BibTeX entries for a very large number of scientific literature.
+Shen et al. \cite{shen_enhancing_2024} propose a framework for evaluating and optimizing greenhouse gas emissions of shared e-biked systems, both docked and dockless systems. Part of their work is a rebalancing algorithm based on Ant Colony Optimization (ACO), focusing on optimizing routes for their service vehicle. They employ a hierarchical clustering and a Voronoi diagram to create zones based on demand similarity. They decompose the rebalancing problem into two problems, one for the intra-zone and the other for inter-zone routing. In the first phase, focusing on intra-zone rebalancing, the algorithms determine points for pick-up and drop-off based on the current number of available bikes and the expected demand for the next day. This is done for each zone, treating the pick-up and drop-off points as a Traveling Salesman Problem (TSP), which ACO solves. This algorithm's second phase addresses the service vehicles' inter-zone routing. In this phase, the ACO determines the optimal path for visiting every zone. Each zone's geometric center is treated as a node in the TSP problem.\\
 
-With scientific literature, it is important that you state the authors name, if you refer to their work in detail.
-For example, Müller et al.~\cite{DBLP:conf/sicherheit/MullerRWWH22} present a scanning pipeline for the analysis of software versions on the internet.
-This pipeline includes banner grabbing to retrieve version information of services.
-It is important that you put the \~{} between the name (always use the first author's last name and add \emph{et al.} if there are multiple authors) and the \emph{\textbackslash cite}.
-To have a good understanding of the differences to your work, you \textbf{need} to put a relation between your work and the related work.
-Compared to Müller et al., we also include the probes for cryptographic configurations.
-With that, we are able to analyze the landscape of offered cypher suites in, e.g., TLS or OPC~UA.
+Kim et al. \cite{kim_optimal_2023} developed an optimal rebalancing strategy using a Genetic Algorithm (GA) approach. Their work builds upon previous work on rebalancing bike sharing systems and reworking those to work for e-scooter sharing systems. They formulate the rebalancing problem as a TSP seeking to distribute the available e-scooters to fit the target demand. The first goal of this algorithm is to balance between supply and demand. If that goal is met, the agents try to minimize the expected rebalancing time. The target demand is defined by forecasted demand in the morning peak, and the rebalancing is done in a low-demand period in the early morning before the morning peak. Therefore, this approach does not involve dynamic rebalancing throughout the day and cannot account for unexpected fluctuations in demand. Another limitation of this work is the simplified model of the sharing system. Euclidean distances, constant vehicle speed, and similar simplifications are used, potentially affecting accuracy.\\
 
-Alternatively, you can also group literature that is very similar.
-The modeling of TSN networks is well researched for numerous use cases~\cite{DBLP:conf/rtns/HellmannsHHDKH21, DBLP:conf/conext/WusteneyHSOHMH22}, including detailed forwarding latency, jitter, and interference models.
-However, none of these components models load dependent delays, such as firewalls.
-Therefore, we present the first model of a firewall to be included in TSN network simulation.
-We recommend grouping literature only, if they are far away from the own research, and you want to show that a certain field of research (not too important for you) is well covered.
+Tolomei et al. \cite{tolomei_benefits_2021} propose a data-informed framework to optimize e-scooter sharing fleets. Their framework consists of two main components: a predictive demand model and a relocation heuristic. The e-scooter trip data is open data from the US cities of Louisville and Austin.
 
-\section{Writing Scientific Text}
-In general, scientific text differs from what you learned in school.
-The text should not be entertaining or exciting, but present technical information.
-Therefore, do not be afraid to repeat technical terms, without finding synonyms.
-Also, keep your sentences simple and short (especially in English).
+\begin{table}[!htb]
+    \centering
+    \begin{tabular}{ccc}
+        \hline
+         & model & sharing system \\
+        \hline
+        \cite{shen_enhancing_2024} & ACO & BSS\\
+        \cite{kim_optimal_2023} & GA & ESS\\
+        \cite{tolomei_benefits_2021} & Greedy & ESS\\
+        \cite{sessa_online_2021} & Greedy & BSS, ESS\\
+        \cite{wu_challenges_2020} & GREED \& MATCH & BSS\\
+        \cite{peiyu_yi_rebalancing_2019} & Greedy & BSS\\
+    \end{tabular}
+    \caption{Heuristic-based Approaches}
+    \label{tab:related-works_heuristics}
+\end{table}
 
-\subsection{In German}
-German texts are typically written in a passive form.
-\todonote{Add some information on German texts}
+\section{Mathematical Optimization Approaches}
 
-\subsection{In English}
-Writing in English is different from German.
-In English texts, you use active voice.
-A good source for detailed information is the book ``Scientific Writing'' from Justin Zobel~\cite{DBLP:books/sp/Zobel14}.
-Students from HS Esslingen can read it for free.
-\todonote{Add some information on English texts}
+Lee et al. \cite{lee_battery_2024} present a study on operational management of free-floating shared e-scooter systems addressing the problems of battery swapping, rebalancing, and staff routing. The authors formulate a MILP problem consisting of the decision variables, which scooters to service, whether to swap the battery of a given e-scooter, routing decisions of the rebalancing staff, and the number of e-scooters relocating between zones. This MILP problem aims to maximize the total profit, which is calculated by the revenue through fulfilled user demand and costs that arise through rebalancing and battery swapping actions. The MILP includes several constraints: routing viability, staff limitations, and vehicle limitations.
 
-\section{Tools to Support Writing}\label{sec:rw-tools}
-\todoinline{Include details on tool support}
-\subsection{Tools for Writing}
-A very useful tool for your thesis is Visual Studio Code (VS Code)~\cite{vscode}.
-With this tool, all programming, but also writing of the thesis is made easier!
-To write your thesis with VS-Code, we recommend the following extensions:
-\begin{itemize}
-    \item VS Code Extension: LaTeX Workshop (c.f. Figure~\ref{fig:latexworkshop})
-    \item VS Code Extension: LaTeX Utils (c.f. Figure~\ref{fig:latexutils})
-    \item VS Code Extension: LTex - LanguageTool (c.f. Figure~\ref{fig:ltexlanguage})
-\end{itemize}
+To solve the MILP problem, a Clustered Iterative Construction Approach (CICA) is proposed. This CICA is a heuristic solution that splits the calculation into two phases. This is done due to the complexity of this large-scale MILP problem. The first phase of this CICA clusters multiple service area regions, each associated with one staff member, to decompose the complexity. Routing costs for traveling between areas are approximated by a Minimal Spanning Tree (MST), and the operational costs inside each region are approximated through the number of battery swaps and rebalancing operations based on state of charge and regional demand. Imbalances between available scooters and demand are incorporated as well by a penalty. The second phase is split into three steps. In the first step, the algorithm generates an initial sequence of regions to visit for each cluster. In the second step, the algorithm assigns specific operations for each of the previously generated sequences for each stop, such as pick-up, dropoff, and battery swap. This is done iteratively until the constraints are exceeded or the estimated demand is fully met. In the last step, the sequences with the highest profit are chosen. The results show that the proposed CICA algorithm consistently delivers near-optimal solutions, outperforming baselines in effectiveness and efficiency through reduced computational times.
 
-With these extensions, VS Code will automatically compile the LaTeX code of this thesis template and the previewed PDFs are updated automatically in the background.
-You can view the compiled PDFs in VS-Code using the shortcut \textit{cmd + alt + v}.
-Other useful shortcuts include:
-\begin{itemize}
-\item jumping from the code to the PDF:
-    \begin{itemize}
-    \item \textbf{mac:} \emph{cmd + option + j}
-    \item \textbf{windows/linux:} \emph{ctrl + alt + j}
-    \end{itemize}
-\item jumping from the PDF to the code:
-    \begin{itemize}
-    \item \textbf{mac:} \emph{cmd + click}
-    \item \textbf{windows/linux}: \emph{ctrl + click}
-    \end{itemize}
-\end{itemize}
+\begin{table}[!htb]
+    \centering
+    \begin{tabular}{ccc}
+        \hline
+         & model & sharing system \\
+        \hline
+        \cite{villa-zapata_incorporating_2024} & MILP & ESS, BSS\\
+        \cite{lee_battery_2024} & MILP & ESS\\
+        \cite{saum_optimizing_2024} & LP & ESS\\
+        \cite{emami_integrated_2024} & Branch \& Bound & BSS, ESS\\
+        \cite{jimenez-merono_optimization_2024} & MILP & BSS\\
+        \cite{paparella_optimization-based_2023} & MILP & ESS, BSS\\
+        \cite{sanchez_simulation_2022} & Hitchcock-Koopmans-Transportmodell & BSS\\
+        \cite{schroer_online_2019} & MINLP & CSS\\
+        \cite{shuai_wang_towards_2019} & LP & BSS\\
+        \cite{s_k_ghosh_dynamic_2017} & MILP & BSS\\
+    \end{tabular}
+    \caption{Mathematical Optimization}
+    \label{tab:related-works_mathematical optimization}
+\end{table}
 
-Additionally, \emph{LTex} will highlight grammar and spelling mistakes.
-Please follow the documentation of this plugin to change the language to something else than English if necessary.
+\section{Simulation Environments}
 
-\begin{figure}
-    \includegraphics[width=\linewidth]{content/figures/templatetext/vscode-latexworkshop.png}
-    \caption{VS Code Plugin: LaTeX Workshop}
-    \label{fig:latexworkshop}
-\end{figure}
-
-
-\begin{figure}
-    \includegraphics[width=\linewidth]{content/figures/templatetext/vscode-latexutils.png}
-    \caption{VS Code Plugin: LaTeX Utils}
-    \label{fig:latexutils}
-\end{figure}
-
-
-\begin{figure}
-    \includegraphics[width=\linewidth]{content/figures/templatetext/vscode-ltex-languagetool.png}
-    \caption{VS Code Plugin: LTeX - LanguageTool}
-    \label{fig:ltexlanguage}
-\end{figure}
-
-\subsection{Tools to Organize References}
-We reccomend the use of the tool Zotero~\cite{zotero} to manage your references.
-\todoinline{Include details on Zotero}
