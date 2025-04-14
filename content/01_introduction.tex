@@ -2,26 +2,33 @@
 
 
 \section{Motivation}
-In most cases, your introduction will start with a motivation section.
-This section summarizes an existing problem and presents the environment for the solution.
-This environment also highlights the technical boundaries of your design and implementation.
+Shared micromobility services, such as electric scooter sharing, are a large, growing part of urban and suburban mobility.
+Shared micromobility offers an ecologically friendly and convenient way to bridge short distances.
+They address the common problem of the "first and last mile gap", which describes the distance between public transport stations and the trip's origin and destination.
+The growing popularity of micromobility sharing services comes from their flexibility, ease of use, low environmental impacts, and the possibility of reducing private car rides.
+To fulfill all these benefits from a user perspective, the operators of such sharing services face challenges in keeping service quality high.
+Rebalancing is a common approach to maintaining a balanced fleet of vehicles and, therefore, providing a high service quality.
+Fleet rebalancing refers to the operation of moving vehicles from low-demand areas to high-demand areas to increase satisfied user demand.
+Traditional rebalancing strategies often only focus on periodically rebalancing operations based on static demand models.
+These rebalancing strategies miss out on the dynamics of shared micromobility services, where user demand fluctuates and is highly dynamic.
+Demand can peak unexpectedly due to public events, which static rebalancing strategies can not account for. Therefore, there is a need for rebalancing strategies that can react to such unexpected demand fluctuations.
+A simulation environment that can reflect the highly dynamic environment of such sharing services is a key enabler to test and evaluate such rebalancing strategies.
 
-\section{Goals}\label{sec:goals}
-After the motivation, you can shortly summarize the main goals of the thesis.
-These goals enable an evaluation that measures your implementation against these goals.
-For each goal, you can always highlight the evaluation technique to verify the achievement.
 
-The following approach is fully optional and only recommended, if you have clear and distinct goals for your thesis.
-You can list the goals with an explicit label as follows.
-\begin{goal}\label{goal:somegoal}
-    This is an example goal to test the counter of the goal for correct references.
-\end{goal}
-\begin{goal}\label{goal:educatestudents}
-    Students should have a seamless start in writing the thesis, without unnecessary LaTeX troubles.
-\end{goal}
-You can reference the goals from anywhere in the document and always link decisions to original goals.
-For example, we write this document to fulfill Goal~\ref{goal:educatestudents}.
+\section{Research Gap and Objectives}
+The literature often uses highly abstract simulation environments to evaluate rebalancing strategies. 
+These can not simulate the dynamics of sharing services that are needed to develop rebalancing strategies that can react to dynamic changes in user demand.
+Therefore, this thesis focuses on developing a fine-grained and dynamic simulation environment to train and test rebalancing strategies that can operate in real-time and offer suggestions on optimizing the fleet.
+Additionally, this thesis develops multiple rebalancing strategies using reinforcement learning, heuristics, or other techniques for testing in the developed simulation environment.
+
+
+
 
 \section{Structure}
-Finally, you should quickly highlight the structure of your thesis and the solution, but keep it short and leave out details.
-It is important that you already present a little insight into your structure, as the reader can follow easier through background and related work.
+The remainder of this thesis is structured as follows.
+\autoref{sec:background} introduces the key foundations for fleet optimization in a dynamic context.
+\autoref{sec:related-work} surveys related works on optimizing shared micromobility services through rebalancing algorithms.
+\autoref{sec:design} describes the available data for this study, details the simulation environment built to test and evaluate different rebalancing algorithms, presents different rebalancing algorithms, and formulates baselines and metrics for evaluation of the proposed algorithms.
+\autoref{sec:implementation} focuses on the implementation details of the simulation framework and rebalancing algorithms.
+\autoref{sec:evaluation} presents and discusses the results from evaluating the different rebalancing algorithms.
+Lastly, \autoref{sec:conclusion} summarizes the key findings from this thesis and gives recommendations on future work in this research area.
