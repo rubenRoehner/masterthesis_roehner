@@ -66,3 +66,10 @@
 \defcaptionname*{english}{\sectionautorefname}{Section}
 \defcaptionname*{english}{\subsectionautorefname}{Section}
 \defcaptionname*{english}{\subsubsectionautorefname}{Section}
+
+
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{makecell}
+\renewcommand\tabularxcolumn[1]{m{#1}}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}

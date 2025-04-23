@@ -1,40 +1,56 @@
 \chapter{Background}\label{sec:background} % approx. 8 pages
 This chapter is focused on fundamentals to clearly understand the concepts and approaches discussed in the Related Works section and the following.
+The following chapter is structured as follows: \autoref{sec:background-mss} focuses on fundamentals of micromobility sharing services, including rebalancing. \autoref{sec:background-reinforcement_learning} describes different reinforcement learning (RL) algorithms and approaches. \autoref{sec:background-heuristics} introduces heuristics and meta-heuristics. Lastly, \autoref{sec:background-mathematical_optimization} presents mathematical optimization techniques.
 
-\section{Micromobility Sharing Services}
+\section{Micromobility Sharing Services}\label{sec:background-mss}
 Shared micromobility refers to a service that allows users to rent a vehicle for short trips within the service provider's operating area.
 Typically, the vehicles are lightweight electric vehicles such as electric scooters or electric bikes.
 Micromobility sharing services offer customers a flexible and environmentally friendly alternative for individual mobility.
-Micromobility sharing services often use electric scooters (e-scooters) or electric bikes (e-bikes) as their preferred vehicles.
+Electric scooters (e-scooters) or electric bikes (e-bikes) are the preferred vehicles of micromobility sharing services, due to their compactness, motor-assistance, and sufficient speed \cite{liao_electric_2022}.
+
+
 E-scooters and e-bikes both offer many benefits.
 E-scooters typically serve shorter-distance journeys, averaging approximately 1.8 kilometers per trip, whereas e-bikes are generally preferred for slightly longer distances, averaging about 2 kilometers.
 Trips of e-scooters and e-bikes not only differ in length but also in their purpose.
 E-scooter trips are often for leisure, such as shopping or social events.
-The second most common use of e-scooters is commuting trips, which is the dominant use of shared e-bikes.
-Such sharing services try to increase user satisfaction to maximize profit.
+The second most common use of e-scooters is commuting trips, which is the dominant use of shared e-bikes \cite{liao_electric_2022}.
+
+In urban areas, e-scooters and e-bikes have been identified as promising modes for reducing carbon emissions and air pollutants.
+Electrically powered vehicles have the potential to achieve carbon neutrality when powered by renewable energy sources.
+Recent studies in the United States have shown that private electric scooters have replaced about 34\% of car trips, while electric bicycles have replaced between 5\% and 17\% of such trips \cite{liao_electric_2022}.
+The high substitution rates observed for private electric micro-mobility suggest that the deployment of shared micro-mobility services can effectively encourage a modal shift from high-emission automobile travel to low-emission shared micro-mobility alternatives.
+
+Micromobility sharing services try to increase user satisfaction to maximize profit.
 Users of micromobility sharing services are often willing to walk a short distance to a sharing vehicle.
 Demand that the sharing service has met, i.e., the sharing service could satisfy the user's demand by providing an available vehicle within the user's walking radius, is often referred to in the literature as met or satisfied demand.
 Unmet or unsatisfied demand is user demand that the sharing service cannot satisfy, i.e., when a user cannot find an available vehicle within the walking radius.
 This unmet demand is what sharing services try to minimize.
-Balancing the fleet of a shared micromobility service reduces the amount of unmet demand and thereby increases profit.
-\cite{liao_electric_2022}
+Balancing the fleet of a shared micromobility service reduces the amount of unmet demand and thereby increases profit \cite{liao_electric_2022}.
 
-\subsection{Rebalancing}
-Rebalancing refers to the operation of moving vehicles part of the sharing fleet from locations with more supply than demand to locations with less supply than expected demand.
-The goal of rebalancing is to satisfy more demand by allocating vehicles to locations where they are needed.
-Rebalancing strategies often rely on forecasts of future demand to anticipate areas with higher demand and relocate vehicles to these locations, which makes rebalancing strategies highly dependent on the quality of demand forecasts.
+\subsection{Rebalancing}\label{sec:background-mss-rebalancing}
+Rebalancing refers to the operation of moving vehicles from locations with more supply than demand to locations with less supply than expected demand.
+The goal of rebalancing is to satisfy more demand by allocating vehicles to locations where they are more needed.
+Rebalancing strategies often rely on forecasts of demand to anticipate areas with higher demand and relocate vehicles to these locations, which makes rebalancing strategies highly dependent on the quality of demand forecasts.
+
+Rebalancing can broadly be classified as dynamic and static approaches.
+Static rebalancing includes pre-planned or periodic rebalancing operations, which are typically based on historical demand data.
+Static rebalancing operations are often done overnight to improve fleet distribution for the upcoming day.
+This approach benefits from lower operational costs and management complexity, but it is not flexible and is incapable of reacting to demand fluctuations over the day.
+Dynamic rebalancing, on the other hand, leverages real-time system data and short-term demand forecasts to do rebalancing operations during service hours.
+This dynamic approach can reduce unsatisfied demand and therefore improve user satisfaction more effectively.
+However, the operational costs for dynamic rebalancing are much higher.
+Additionally, this approach requires continuous data collection and more advanced rebalancing strategies.
+Hybrid schemes can combine the benefits of both while balancing operational cost and flexibility by using both static and dynamic rebalancing.
+
 There exist numerous approaches to tackling rebalancing.
 The most common approaches, user-based and operator-based rebalancing, are discussed in the following sections.
-\todo{goals and limitations of rebalancing}
-\todo{problems of rebalancing}
-\todo{scope of rebalancing: dynamic and static rebalancing}
 
 \subsubsection{User-based Rebalancing}
 User-based rebalancing describes rebalancing operations done by the users of sharing services.
 Mostly, users are offered an incentive, often as a monetary incentive or a bonus, to allocate vehicles to different locations.
 This incentive is often done through recommendations of different pick-up and drop-off locations.
-This makes the approach of user-based rebalancing highly dependent on users' willingness to accept the incentive to reposition vehicles.
-Therefore, the scope of rebalancing is limited to a factor that can only be partially influenced.
+This user-based rebalancing highly depends on users' willingness to accept the incentive to reposition vehicles.
+Therefore, the scope of rebalancing is somewhat limited to the users' willingness, which the operator can only partially influence.
 User-based rebalancing is often cheaper than operator-based rebalancing.
 Often, a combination of both user-based and operator-based rebalancing offers a good trade-off between the benefits and drawbacks of both types of rebalancing.
 
@@ -44,8 +60,8 @@ These trucks are often equipped with battery charging technologies and/or spare 
 Operator-based rebalancing is often costly for the sharing service since service workers and equipment must be paid for.
 Nevertheless, operator-based rebalancing can be much better controlled than user-based rebalancing since no willingness needs to be considered.
 
-
-\section{Reinforcement Learning (RL)}
+\newpage
+\section{Reinforcement Learning (RL)}\label{sec:background-reinforcement_learning}
 Reinforcement Learning (RL) is a machine learning technique where an agent interacts with an environment by choosing between multiple actions. 
 This happens in a sequence.
 After each time step, the agent decides between the actions to optimize the reward.
@@ -114,11 +130,10 @@ q_\pi(s, a) = \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \ga
 \end{equation}
 
 \subsubsection{Policy Iteration}
-Policy iteration and value iteration are the two key algorithms used by DP to solve MDPs. They make use of the previously defined Bellman Equations and their recursive approach.
+Policy iteration and value iteration are the two key algorithms DP uses to solve MDPs. They make use of the previously defined Bellman Equations and their recursive approach.
 Policy Iteration consists of two steps: Policy Evaluation and Policy Improvement \cite{zhang_dive_2023}.
 Policy Evaluation estimates how good the policy is in every state; therefore, the State-Value function (see equation \ref{eq:bellman-state-value-function}) is calculated for the current policy $\pi$ for every state.
-After evaluating the current policy, the next step is to improve it.
-This is done by solving the equation \ref{eq:policy-improvement}.
+After evaluating the current policy, the next step is to improve it, which is done by solving the equation \ref{eq:policy-improvement}.
 
 \begin{equation}\label{eq:policy-improvement}
 \pi'(s) = \arg\max_{a \in \mathcal{A}} \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma v_\pi(s') \right]
@@ -246,7 +261,6 @@ The agent then learns a higher-level policy over options instead of actions.
 The biggest challenge with this options framework is modeling the options.
 Experts usually do this with a lot of domain knowledge.
 Several approaches have been employed to learn such options, but they are not generally applicable and often fail to find optimal options.
-\todo{Add a summary section for previously discussed algorithms}
 
 
 \subsection{Multi-Agent Reinforcement Learning (MARL)}
@@ -260,65 +274,110 @@ This communication can be implicit through observation or explicit as part of th
 
 MARL cannot be formalized with an MDP due to the lack of support for multiple agents.
 Therefore, numerous approaches have been introduced to formalize MARL models.
-A well-known approach is the Markov game (MG). In MG, each agent has its own set of actions and its reward function.
+A well-known approach is the Markov game (MG). 
+In MG, each agent has its own set of actions and its reward function.
 The state space and the state transition probabilities are shared between all agents.
 The reward functions should be chosen according to the agents' interaction type.
 A zero-sum reward is often used for competitive agents, where one's gain in reward is another's loss.
 For a cooperative task, a shared reward is often recommended \cite{busoniu_multi-agent_2008}.
-\todo{Discuss single agent vs multi agent}
 
-\section{Heuristics}
-Heuristics are a strategy similar to a rule-of-thumb that tries to improve a good solution.
-Heuristics do not guarantee that they will find an optimal solution for the given problem.
-The key advantage of heuristics is their performance.
-The most common heuristic is the greedy algorithm, which greedily chooses the action with the most significant immediate reward.
-Heuristics often struggle with their simplified problem definition, resulting in suboptimal solutions.
+\subsection{Summary}
+Multi-armed bandits, which address the exploration–exploitation dilemma in isolation without state transitions, offer an intuitive framework for understanding decision trade-offs.
+However, due to the simplicity of these models, their application is limited to isolated decision-making problems.
+Q-learning, a model-free and off-policy algorithm, learns optimal action value functions by iteratively updating estimates based on observed rewards.
+While Q-learning is effective in discrete environments, it faces challenges in scalability and often suffers from overestimation bias.
+DQN uses deep neural networks to approximate Q-values from high-dimensional inputs, improving generalization for complex real-world tasks at the cost of increased computational complexity.
+In contrast, policy gradient methods optimize the policy directly and are particularly well-suited for continuous action spaces.
+Their ability to learn stochastic policies is essential for adapting to rapidly changing environments. 
+
+HRL further decomposes complex tasks into hierarchical subtasks through abstraction, allowing high-level policies to set sub-goals for lower-level controllers, which can improve learning efficiency. 
+However, designing an effective hierarchy often requires additional human intervention and extensive optimization.
+Finally, MARL extends these methodologies to settings involving multiple interacting agents, though it introduces additional challenges such as non-stationarity and scalability concerns.
+In summary, the various reinforcement learning approaches discussed in this section provide a comprehensive foundation for optimizing shared micromobility fleets.
+These approaches provide a balance between ease of use and the scalability and complexity required to effectively handle a complex and dynamic environment, found in shared micromobility systems.
+
+\newpage
+\section{Heuristics}\label{sec:background-heuristics}
+A heuristic is a strategy, similar to a rule of thumb, that tries to find a good solution fast.
+Heuristics do not guarantee the finding of an optimal solution for a given problem.
+The main advantage of heuristics is their performance.
+The most common heuristic is the greedy heuristic, which greedily chooses the action with the most significant immediate reward, i.e., the optimal local choice.
+Greedy does not consider previous decisions and treats every choice individually.
+This simple approach makes greedy heuristics computationally efficient, but it lacks complexity, which leads to globally suboptimal solutions.
+In contrast, greed-and-match enhances the simple greedy heuristic by incorporating a simple matching strategy.
+This matching strategy assesses multiple decision elements and matches them to find more optimal solutions.
+This addition of a matching strategy improves the overall solution created by the greed-and-match algorithm, leading to more globally optimal solutions than solutions from the simpler greedy algorithm.
 
 \subsection{Metaheuristic Optimization}
 Metaheuristics are frameworks that try to improve heuristics by guiding their actions to improve the search space and find more optimal solutions than can be found solely with the heuristics themselves.
 Metaheuristics often generate multiple candidates and compare those to each other to find more optimal heuristics.
 This is often done through physical processes like evolution or swarm behavior in a simulation environment.
 
-\subsubsection{Genetic Algorithm (GA)}
-Genetic Algorithms (GA) use an evolutionary approach to find more optimal solutions.
-A population of candidate solutions is maintained.
-A fitness function evaluates those candidates.
-After each episode, a new generation of candidates is generated by combining parts of two well-performing candidates or by mutating candidates, e.g., randomly tweaking candidates to explore different behaviors.
-This is done through multiple generations of candidates until the fitness function converges and an optimal candidate is found. \todo{Add common terms for tweaking, combining, ...}
+\subsubsection{Genetic Algorithms (GAs)}
+Genetic algorithms (GAs) use an evolutionary strategy to improve a population of candidate solutions iteratively. 
+Each candidate is evaluated by a fitness function, which quantifies its suitability relative to the optimization objective. 
+The algorithm generates a new population in each generation through three primary operators: selection, crossover, and mutation. 
+Candidate solutions are probabilistically chosen during selection based on their fitness value, ensuring that higher-performing candidates are more likely to contribute to subsequent generations. 
+The crossover operator then recombines elements from pairs of selected candidates to create new solutions. At the same time, the mutation operator randomly modifies individual candidates to preserve genetic diversity and prevent too-early convergence. 
+This iterative process, involving the selection, crossover, and mutation operators, is repeated across multiple generations until the fitness values converge to a stable optimum or a pre-defined termination criterion is met.
 
 \subsubsection{Ant Colony Optimization (ACO)}
 Ant Colony Optimization (ACO) uses a different approach than GA.
 ACO is a swarm intelligence algorithm that mimics the behavior of ants.
 The problem for ACO is modeled as a Graph with different paths to find the optimal solutions.
-The "Ants" try out different solution paths. Good solution paths will be marked with more pheromones than bad-performing paths.
+The "Ants" try out different solution paths.
+Good solution paths will be marked with more pheromones than bad-performing paths.
 In new iterations, the "Ants" will follow paths with more pheromones but will also try out different paths to find more optimal solutions.
-This graph representation of the problem makes ACO well-suited for routing problems or similar because this kind of problem can be naturally modeled as a graph. 
+This graph representation of the problem makes ACO well-suited for routing problems or similar because this kind of problem can be naturally modeled as a graph.
 
-\todo{Add a summary section for previously discussed algorithms}
+\subsection{Summary}
+Heuristic and metaheuristic methods offer different approaches to optimization problems, each with distinct advantages and limitations.
+Greedy heuristics operate by making a locally optimal choice at each decision point, providing fast and computationally inexpensive solutions.
+However, this results in suboptimal global performance.
+Greed-and-match heuristics extend the greedy approach by incorporating matching strategies, which help improve overall solution quality, but also introduce additional computational overhead and complexity compared to simple greedy algorithms.
+In contrast, GAs simulate the process of natural selection by evolving a population of candidate solutions.
+GAs can explore larger search spaces by combining features from different solutions.
+However, they often require significantly more computational resources to avoid premature convergence and maintain genetic diversity.
+ACO mimics the pheromone-based foraging behavior of ant swarms, where artificial ants traverse a graph representing the problem space.
+This method is particularly well-suited for routing and network design problems.
+However, ACO can sometimes suffer from getting trapped in local optima, resulting in less optimal solutions.
+In summary, while greedy and greed-and-match heuristics offer simplicity and speed, they may not be sufficient to address global optimization challenges.
+Conversely, GAs and ACO provide more robust frameworks that are better equipped to handle complex, dynamic problem spaces, but at the cost of increased computational complexity.
 
-\section{Mathematical Optimization}
+\newpage
+\section{Mathematical Optimization}\label{sec:background-mathematical_optimization}
 Mathematical optimization uses a drastically different approach from RL and heuristics.
 Mathematical optimization approaches decision problems by formulating them as mathematical expressions consisting of objective functions and constraints that can be solved mathematically.
 This approach contrasts the previously discussed RL and heuristic methods with the trial-and-error approach combined with simulation environments.
 Formulating a mathematical expression comes with some limitations.
 A simplified model of the environment is often formulated due to the high complexity of real-world scenarios, which can not be formulated as a mathematical expression in a feasible time.
-Linear Programming (LP) and Mixed Integer Linear Programming (MILP) are the most common approaches to computing such expressions.
+Linear Programming (LP) and Mixed Integer Linear Programming (MILP) are the most common approaches for problem formulation in the field of mathematical optimization.
 
-\subsubsection{Linear Programming (LP)}
-Linear programming (LP) is an optimization technique that solves mathematical expressions for decision-making problems.
-In LP, objective functions and constraints are linear, and their variables are continuous.
-This makes LP models a somewhat limited approach to modeling complex real-world scenarios.
+\subsection{Linear Programming (LP)}
+Linear programming (LP) is an optimization technique that is used to solve mathematical expressions for decision-making problems.
+In the context of LP, objective functions and constraints are linear, and their variables are continuous.
+This restriction, however, limits the scope of applications of the LP approach when confronted with complex real-world scenarios.
+A variety of algorithms exist to solve LPs for optimal solutions, but the most common are the simplex algorithm and the interior-point method.
+The simplex algorithm utilizes a convex-shaped polytope, defined by the intersections of the LP constraints.
+The algorithm starts with a base solution located at one of the vertices of the polytope.
+Thereafter, the algorithm systematically moves from one vertex to the adjacent vertex, which provides the most significant improvement in terms of the objective function.
+This iterative process continues until no neighboring vertex improves the objective function value, at which point the algorithm achieves optimality.
+In contrast, the interior-point method traverses the interior of the feasible region rather than on the edges or the vertices.
+To ensure that the method remains within the boundaries of the formulated LP, it incorporates barrier functions into the objective function.
+By calculating a gradient, the algorithm determines its traversal direction.
+As the iterations progress, the influence of the barrier functions decreases to ensure convergence to an optimal solution.
+The simplex algorithm is particularly well-suited for moderately sized LPs due to its potential for nonconvergence when applied to larger LPs.
+In contrast, the interior-point method is a more robust alternative when scaled to large LPs with much more complex constraints to find an optimal solution.
+While the interior-point method scales better, it comes with more computational overhead.
+In summary, the simplex method is more suited for solving smaller or repetitive LPs, while the interior point method is better suited for larger and more complex LPs.
 
-\subsubsection{Mixed Integer Linear Programming (MILP)}
-Mixed integer linear programming (MILP) extends LP by allowing continuous and integer variables.
-This allows modeling binary variables (0/1) as well.
+
+\subsection{Mixed Integer Linear Programming (MILP)}
+Mixed integer linear programming (MILP) extends LP by allowing integer variables to be an alternative to continuous variables.
+These integer variables allow modeling of binary variables (0/1) as well, which increases the usability of MILPs in contrast to LPs.
 Branch-and-cut algorithms often solve MILP problems.
 These algorithms solve numerous LP relaxations in order to prune impossible or inefficient branches.
 These branch-and-cut algorithms work well for a moderately complex system and will find optimal solutions.
 The computing time for such algorithms increases exponentially, which makes them unsuitable for highly complex systems with large numbers of equations to solve.
 Nevertheless, MILP is still helpful for such highly complex systems.
 They can be split into multiple subproblems or can be used in combination with heuristic approaches.
-
-
-\todo{Discuss algorithms to solve such problem formulations: Branch and Cut}
-\todo{Add a summary section for previously discussed algorithms}
