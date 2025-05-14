@@ -1,32 +1,149 @@
-\chapter{Design}\label{sec:design} % approx. 15 pages
-
+\chapter{Design}\label{sec:design} % approx. 8 pages
+The following chapter is structured as follows: the first section describes the data used for training and testing the rebalancing 
 \section{Data}
 \subsection{Data Collection}
 \subsection{Preprocessing}
 \subsection{Descriptive Statistics}
 
 
-\section{Simulation Environment}
-
-\begin{table}[]
+\begin{figure}[!htb]
     \centering
-    \begin{tabular}{c|c}
-         Symbol &  Description \\
-         \hline
-         $\mathcal{N}$ & Fleet size, i.e., total number of e-scooters available to the service. \\
-         $\mathcal{Z}$ & The set of zones or grid cells. \\
-         $n_z(t)$ & The number of e-scooters available in zone $z$ at time $t$. \\
-         $D_{ij}(t)$ & The expected demand from zone $i$ to zone $j$ at time $t$. \\
-         $\tilde{n}_z(t)$ & The target number of e-scooters in zone $z$ at time $t$.
-    \end{tabular}
-    \caption{Caption}
-    \label{tab:my_label}
+    \includegraphics[width=0.8\linewidth]{content/figures/Net_imbalance_aggregated.png}
+    \caption{Net imbalance aggreageted hourly}
+    \label{fig:demand_net_imbalance}
+\end{figure}
+
+\begin{figure}[!htb]
+  \centering
+  \begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\linewidth]{content/figures/Demand_Imbalance_Morning.png}
+    \caption{3-8 AM net imbalance}
+  \label{fig:demand_net_imbalance_morning}
+  \end{subfigure}\quad
+  \begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\linewidth]{content/figures/Demand_Imbalance_Evening.png}
+    \caption{3-8 PM net imbalance}
+  \label{fig:demand_net_imbalance_map_evening}
+  \end{subfigure}
+  \caption{E-scooter imbalance hotspots. Red = deficit, blue = surplus.}
+  \label{fig:demand_net_imbalance_map}
+\end{figure}
+
+
+\section{Problem Definition}
+The operator- and user-based combined rebalancing of a shared e-scooter service can be mathematically defined as follows:
+The service area is divided into zones defined by a grid system to address the issues associated with the nature of free-floating e-scooters, which can be picked up and dropped off at any position within the service area.
+The use of such a grid system creates an abstraction layer for the continuous spatial space and thus reduces complexity.
+For large-scale shared e-scooter services, a community structure is often employed to aggregate the service area further.
+Each community 
+At each time $t$
+
+\begin{table}[!htb]
+    \centering
+    \begin{tabularx}{\textwidth}{cX}
+        \toprule
+        Symbol &  Description \\
+        \midrule
+        $\mathcal{N}$ & Fleet size, i.e., total number of e-scooters available to the service. \\
+        $\mathcal{V}$ & The set of rebalancing vehicles. \\
+        $\mathcal{Z}$ & The set of zones or grid cells. \\
+        $\mathcal{C}$ & The set of communites \\
+        $\mathcal{T}$ & The set of time steps. \\
+        $\mathcal{Z}_c$ & The set of zones or grid cells corresponding to community $c$ \\
+        \midrule
+        $n_z(t)$ & The number of e-scooters available in zone $z$ at time $t$. \\
+        $P_z(t)$ & The actual pick-up demand at zone $z$ at time $t$. \\
+        $\hat{P_z}(t)$ & The forecasted pick-up demand at zone $z$ at time $t$. \\
+        $D_z(t)$ & The actual number of drop-offs at zone $z$ at time $t$. \\
+        $\hat{D_z}(t)$ & The forecasted number of drop-offs at zone $z$ at time $t$. \\
+        $\tilde{n}_z(t)$ & The target number of e-scooters in zone $z$ at time $t$. \\
+        $\tilde{n}_c(t)$ & The net number of e-scooters in community $c$ at time $t$. \\
+        $x_{v, z\rightarrow z'}(t)$ & Number of e-scooters moved by service vehicle $v$ from zone $z$ to zone $z'$ at time step t $t$. \\
+        $u_{z\rightarrow z'}(t)$ & Number of e-scooters repositioned by users from zone $z$ to zone $z'$ at time step t $t$ through incetives. \\
+        $s_z(t)$ & Unmet demand in zone $z$ at time $t$.\\
+        \midrule
+        $T_{manager}$ & Manager decision interval in minutes. \\
+        $T_{worker}$ & Worker decision interval in minutes. \\
+        $n_z(0)$ & Initial number of e-scooters available in zone $z$. \\
+        $V_k$ & The capacity of the service vehicles.\\
+        \bottomrule
+    \end{tabularx}
+    \caption{Sets, variables, and parameters of the rebalancing problem}
+    \label{tab:problem_symbols}
 \end{table}
-\todo{Summary of the most relevant symbols like Losapio et al.}
-\todo{MDP definition}
+\todo{Summary of the most relevant symbols split by sets, variables, and parameters. Split into multiple tables if needed.}
 
-\section{Algorithms}
+\subsubsection{Constraints}
 
-\section{Baseline}
+\begin{equation}
+    \sum_{z \in \mathcal{Z}}n_z(t) = \mathcal{N}, \forall t\in \mathcal{T}
+\end{equation}
 
-\section{Evaluation Metrics}
+\begin{equation}
+    x_{v, z\rightarrow z'}(t) \leq V_k, \forall z\in \mathcal{Z}, z' \in \mathcal{Z}, v \in \mathcal{V}, t \in \mathcal{T}
+\end{equation}
+
+\begin{equation}
+    s_z(t) = \max\{0, P_z(t) - [n_z(t) + D_z(t)]\}
+\end{equation}\label{eq:problem-definition-unmet-demand}
+
+
+\[
+\begin{aligned}
+n_z(t+1) =\;&\ n_z(t) - P_z(t) + D_z(t) \\
+&+ \sum_{v \in V} \sum_{z' \in Z} x_{v,z'\rightarrow z}(t) - \sum_{v \in V} \sum_{z' \in Z} x_{v,z\rightarrow z'}(t) \\
+&+ \sum_{z' \in Z} u_{z'\rightarrow z}(t) - \sum_{z' \in Z} u_{z\rightarrow z'}(t)
+\end{aligned}
+\]\label{eq:problem-definition-demand-flow}
+
+\begin{align}
+\min\;\sum_{t\in T}\sum_{z\in Z} s_z(t)
+\end{align}\label{eq:problem-definition-objective}
+
+\section{Framework}
+A hierarchical reinforcement learning (HRL) framework is used to tackle the rebalancing problem.
+The HRL framework consists of two tiers.
+The first tier is the allocator agent, which tackles the imbalances between communities.
+Then, for each community, a rebalancer agent is assigned who addresses the imbalances within their community.
+The allocator assigns each community a target number of vehicles.
+This imbalance is then addressed by employing service workers who pick-up the desired number of vehicles at communities with oversupply and drop them off at communities with undersupply.
+The second tier of this rebalancing framework comprises rebalancer agents that address the imbalances occurring within the communities.
+Therefore, for each community, there is one rebalancer agent employed, which balances the vehicle distribution through user incentives.
+These incentives are given to the users for dropping off vehicles at the end of their trip at different locations where they are initially intended to drop-off.
+
+
+\subsubsection{Allocator Agent}
+Implemented as a Multi-Head DQN (1 head for each community with the actions [-15, -10, -5, 0, 5, 10, 15] per community). Start with 8 communities. Inter-community imbalances.
+\begin{itemize}
+    \item \textbf{State}
+    \begin{itemize}
+        \item Demand forecast ($\hat{P_z}(t)$, $\hat{D_z}(t)$ $\forall z \in \mathcal{Z}$), current vehicle counts per community ($n_z(t), \forall z \in \mathcal{Z}$), 
+    \end{itemize}
+    \item \textbf{Action}
+    \begin{itemize}
+        \item assigns quotas to each of the communities (e-scooters to add or remove)
+    \end{itemize}
+    \item \textbf{Reward}
+    \begin{itemize}
+        \item Satisfied demand, negative rebalancing costs, (negative gini coefficient)
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Rebalancer Agent}
+Implemented with the PPO algorithm due to the large action space. Intra-community imbalances.
+\begin{itemize}
+    \item \textbf{State}
+    \begin{itemize}
+        \item Local demand forecast ($\hat{P_z}(t)$, $\hat{D_z}(t)$ $\forall z \in \mathcal{Z}_c$), local vehicle counts per grid cell($n_z(t)$ $\forall z \in \mathcal{Z}_c$)
+    \end{itemize}
+    \item \textbf{Action}
+    \begin{itemize}
+        \item Assigns price incentives for each grid cell for dropping off at these grid cells
+    \end{itemize}
+    \item \textbf{Reward}
+    \begin{itemize}
+        \item Satisfied demand ($s_z(t)$ $\forall z \in \mathcal{Z}_c$), negative incentive costs
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Demand Forecasting Module}

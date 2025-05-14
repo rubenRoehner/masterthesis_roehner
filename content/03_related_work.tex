@@ -1,4 +1,4 @@
-\chapter{Related Work}\label{sec:related-work} % approx. 12 pages
+\chapter{Related Work}\label{sec:related-work} % approx. 13 pages
 The literature review presented in this chapter is built upon a systematic approach to identify, organize, and review the relevant existing research in the domain of rebalancing strategies in shared micromobility systems.
 Initially, a comprehensive search was conducted using primarily Google Scholar with keywords like \textit{micromobility}, \textit{fleet optimization}, \textit{rebalancing}, \textit{e-scooter sharing}, and \textit{bike sharing}. 
 This primary research was further enhanced by examining the citations of the previously retrieved articles.
@@ -331,34 +331,58 @@ Consequently, future research should prioritize the development of dynamic deman
 \\
 
 \section{Simulation Environments}\label{sec:related-work_simulator}
-Developing and tuning rebalancing algorithms is challenging due to the complex dynamics of urban demand and the high cost of operational trials.
-Therefore, high-fidelity simulation environments can be used for evaluating rebalancing methods before real-world deployment.
-Simulation allows safe, repeatable testing of rebalancing frameworks under various scenarios.
+Developing and tuning rebalancing frameworks is challenging due to the complex dynamics of urban demand and the high costs associated with operational trials.
+High-fidelity simulation environments can be utilized to evaluate rebalancing methods prior to their deployment in the real world.
+Simulation enables safe and repeatable testing of rebalancing frameworks under various scenarios.
+This section introduces the most commonly used simulation frameworks for evaluating rebalancing frameworks.
+\\
+\todo{Discuss the missing realism or oversimplification of current simulators}
 
 \subsubsection{SUMO}
 The Simulation of Urban Mobility (SUMO) is an open-source, microscopic traffic simulation platform widely used in mobility research \cite{alvarez_lopez_simulation_2025}.
 SUMO models individual vehicle movements with high granularity, using car-following and lane-changing models to reproduce realistic traffic dynamics.
 SUMO can be vastly extended due to its modularity and open-source nature.
-An external control API (TraCI) enables users to observe and update the current state, which opens up many opportunities, for example, incorporating rebalancing algorithms.
-Overall, SUMO offers a high-fidelity representation of urban mobility, making it well-suited to evaluate how rebalancing frameworks perform under realistic conditions.
+An external control API (TraCI) enables users to observe and update the current state via Python scripts, which opens up numerous opportunities, such as incorporating rebalancing algorithms.
+Overall, SUMO provides a high-fidelity representation of urban mobility, making it well-suited for evaluating how rebalancing frameworks perform under realistic conditions.
+SUMO does not explicitly offer agent-based modeling of users or vehicles, but could be extended via TraCI.
+
+SUMO has been utilized primarily in studies for traffic simulation.
 \\
 
 \subsubsection{ODySSEUS}
-ODySSEUS is a specialized simulation environment focused on the operations of shared micromobility systems.
-ODySSEUS concentrates on modeling the fleet and service dynamics of e-bike and e-scooter systems, including user demand generation, vehicle usage, battery charging, and repositioning activities.
-While ODySSEUS may not simulate per-vehicle traffic interactions at the level of SUMO’s road network, it can integrate simplified mobility models to approximate travel delays.
+ODySSEUS is a specialized simulation environment focused on the operations of shared micromobility systems \cite{smartdatapolito_smartdatapolitoodysseus_2022}.
+ODySSEUS focuses on modeling the fleet and service dynamics of shared micromobility systems, including demand generation and forecasting, vehicle utilization, battery charging, and rebalancing operations.
+While ODySSEUS cannot simulate per-vehicle traffic interactions at the level of SUMO's road network, it can integrate simplified mobility models to approximate travel delays.
+Its strength lies in modeling the specific operational complexities of micro-mobility sharing systems, such as peak demand periods, staff schedules, and depot logistics for battery swapping and spare vehicles.
 
-Losapio et al. \cite{losapio_smart_2022} employ a relatively complex simulation environment to evaluate their ESB-DQN rebalancing framework. 
-This simulator is based on the ODySSEUS simulator introduced by Ciociola et al. \cite{ciociola_e-scooter_2020}.
+Losapio et al. \cite{losapio_smart_2022} employed a simulation environment based on ODySSEUS to evaluate their ESB-DQN rebalancing framework. 
+They discretized the operational area using a grid and implemented individual algorithms for both battery swapping and rebalancing, rather than utilizing the built-in queue systems.
+This simulator is then wrapped inside a gym environment for training and evaluating the ESB-DQN framework.
+However, utilizing ODySSEUS for training resulted in a very long training process, which is often unfeasible and costly.
 \\
 
 \subsubsection{MATSim}
+MATSim (Multi-Agent Transport Simulation) is an open-source, activity-based, multi-agent simulator that models travel demand and network loading at the city scale.
+It represents each traveler as an agent with a daily plan of activities, and simulates their mode choice and routes in an iterative way.
+Its level of detail is coarser than SUMO's.
+Traffic flow is simulated using queue models, rather than through explicit vehicle-tracking.
+While MATSim does not natively model operational interventions, such as rebalancing, its flexible architecture allows for custom modules to do so.
+MATSim is Java-based, which makes it harder to integrate RL or similar algorithms, which are most commonly written in Python.
 
-\subsubsection{AnyLogic}
-
-
+MATSim has been used in several studies for evaluating rebalancing algorithms \cite{chouaki_review_2025}.
 \\
-\todo{Discuss the missing realism or oversimplification of current simulators}
+
+\subsubsection{Summary}
+Several platforms have been used in recent research for simulating shared micromobility fleets, enabling the testing and evaluation of various rebalancing strategies.
+SUMO is a microscopic traffic simulator that enables high-fidelity analysis of detailed vehicle interactions, energy consumption (especially relevant for electric fleets considering factors like elevation), and the localized traffic impacts of rebalancing operations.
+However, implementing specific service logic and rebalancing strategies typically requires custom development via its TraCI interface.
+ODySSEUS provides a specialized environment explicitly focused on the operational dynamics of shared fleets, leveraging real-world data to model and optimize fleet performance metrics, such as vehicle availability and rebalancing efficiency.
+This makes it particularly suitable for data-driven analysis from a service provider's perspective.
+Nevertheless, ODySSEUS simulates at a higher abstraction level than SUMO, which affects the realism of simulations performed using ODySSEUS.
+In contrast, MATSim employs a large-scale, agent-based, mesoscopic approach centered on modeling traveler behavior and activity planning.
+The program's strength lies in simulating how changes in service attributes affect user mode choice, overall travel patterns, demand satisfaction, and the system's equilibrium state.
+This makes it ideal for strategic analysis and exploring user responses to incentives.
+The implementation of custom rebalancing frameworks is more complex because MATSim is Java-based, whereas machine learning and similar algorithms are predominantly written in Python.
 
 
 \section{Summary and Research Gaps}
