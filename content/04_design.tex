@@ -1,8 +1,46 @@
 \chapter{Design}\label{sec:design} % approx. 8 pages
-The following chapter is structured as follows: the first section describes the data used for training and testing the rebalancing 
+The following chapter is structured as follows: the first section describes the data used for training and testing the rebalancing algorithms, the second section formulates the rebalancing problem, and the third section focuses on the proposed framework to tackle the rebalancing problem.
+
 \section{Data}
+The data underlying this thesis was collected from a General Bike Sharing Specification (GBFS) feed that publishes the live locations of e-scooters from sharing services operating in the greater Stuttgart area \cite{noauthor_gebundelte_nodate}. These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations. The raw GBFS data undergoes a pre-processing stage to extract pick-up and drop-off events. These events were subsequently spatially and temporally aggregated using the H3 grid system \cite{noauthor_h3_2018} and hourly time bins for analysis, as well as for training and evaluating the proposed rebalancing framework.
+
 \subsection{Data Collection}
+The GBFS feed is crawled every 15 minutes to extract the locations of e-scooters from the services providers bolt and voi.
+The data has been crawled in the time between 11.02.2025 and 28.04.2025 e.g. 76 days. The GBFS data format includes the parameters 
+
+\begin{table}[!htb]
+    \centering
+    \begin{tabularx}{\textwidth}{lX}
+        \toprule
+        \textbf{Field} & \textbf{Description} \\ 
+        \midrule
+        \texttt{bike\_id}              & Unique identifier for the vehicle. \\
+        \texttt{lat}                   & Latitude coordinate of the vehicle’s location (in decimal degrees). \\
+        \texttt{lon}                   & Longitude coordinate of the vehicle’s location (in decimal degrees). \\
+        \texttt{is\_reserved}          & Boolean flag: \texttt{true} if the vehicle is currently reserved. \\
+        \texttt{is\_disabled}          & Boolean flag: \texttt{true} if the vehicle is out of service or unavailable. \\
+        \texttt{rental\_uris.android}  & Platform-specific URI to initiate rental on Android. \\
+        \texttt{rental\_uris.ios}      & Platform-specific URI to initiate rental on iOS. \\
+        \texttt{vehicle\_type\_id}     & Identifier for the vehicle type (e.g.\ e-bike, scooter). \\
+        \texttt{current\_range\_meters}& Estimated remaining travel range (in meters). \\
+        \texttt{current\_fuel\_percent}& Current battery level expressed as a fraction (0–1). \\
+        \texttt{pricing\_plan\_id}     & Identifier for the pricing plan applicable to this rental. \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Raw GBFS data fields}
+    \label{tab:gbfs_fields}
+\end{table}
 \subsection{Preprocessing}
+The raw GBFS data is preprocessed to extract pick-up and drop-off events.
+Both GBFS feeds randomize vehicle identification for anonymization, making it impossible to extract information on the actual trips driven by the users.
+Therefore, we only extracted pick-up and drop-off events, which reduced the usability of this data.
+To extract those events, neighbouring snapshots are compared.
+Vehicle Identifiers that disappear or reappear in a snapshot compared to the previous snapshot reveal the occurrence of pick-ups and drop-offs.
+After those events were derived from the datasets, 200.000 pick-up and drop-off events for the service bolt and 590.000 pick-up and drop-off event for the service provider voi has been counted.
+After that, outliers have been removed from the dataset. Therefore, a boundary for the city of Stuttgart has been defined to filter the pick-up and drop-off events that occurred only inside this boundary. This has been done to focus on a smaller region instead of outer city regions like Leinfelden.
+
+
+
 \subsection{Descriptive Statistics}
 
 
@@ -12,6 +50,8 @@ The following chapter is structured as follows: the first section describes the 
     \caption{Net imbalance aggreageted hourly}
     \label{fig:demand_net_imbalance}
 \end{figure}
+
+Analysis of the collected GBFS data revealed distinct spatio-temporal patterns in vehicle movement. For instance, a significant net imbalance was observed during morning hours (3-8 a.m.), characterized by a flow of e-scooters from suburban areas towards Stuttgart's city center. \autoref{fig:demand_net_imbalance_map} illustrates this pattern, with H3 grid zones color-coded to indicate undersupply (red) or oversupply (blue) of vehicles. This observed imbalance underscores the importance of rebalancing. Conversely, the evening hours demonstrate an opposite trend, with most trips originating in the city center and ending in suburban areas.
 
 \begin{figure}[!htb]
   \centering
@@ -44,75 +84,109 @@ At each time $t$
         \toprule
         Symbol &  Description \\
         \midrule
-        $\mathcal{N}$ & Fleet size, i.e., total number of e-scooters available to the service. \\
-        $\mathcal{V}$ & The set of rebalancing vehicles. \\
-        $\mathcal{Z}$ & The set of zones or grid cells. \\
-        $\mathcal{C}$ & The set of communites \\
-        $\mathcal{T}$ & The set of time steps. \\
-        $\mathcal{Z}_c$ & The set of zones or grid cells corresponding to community $c$ \\
+        $\mathcal{C}$   & The set of communites \\
+        $\mathcal{Z}$   & The set of zones or grid cells. \\
+        $\mathcal{N}$   & Fleet size, i.e., total number of e-scooters available to the service. \\
+        $\mathcal{T}$   & The set of time steps. \\
+        $\mathcal{Z}_c$ & The subset of zones corresponding to community $c$ \\
+        $\kappa(z)$     & Community assignment function returns the community given a zone.\\
         \midrule
-        $n_z(t)$ & The number of e-scooters available in zone $z$ at time $t$. \\
-        $P_z(t)$ & The actual pick-up demand at zone $z$ at time $t$. \\
-        $\hat{P_z}(t)$ & The forecasted pick-up demand at zone $z$ at time $t$. \\
-        $D_z(t)$ & The actual number of drop-offs at zone $z$ at time $t$. \\
-        $\hat{D_z}(t)$ & The forecasted number of drop-offs at zone $z$ at time $t$. \\
-        $\tilde{n}_z(t)$ & The target number of e-scooters in zone $z$ at time $t$. \\
-        $\tilde{n}_c(t)$ & The net number of e-scooters in community $c$ at time $t$. \\
-        $x_{v, z\rightarrow z'}(t)$ & Number of e-scooters moved by service vehicle $v$ from zone $z$ to zone $z'$ at time step t $t$. \\
-        $u_{z\rightarrow z'}(t)$ & Number of e-scooters repositioned by users from zone $z$ to zone $z'$ at time step t $t$ through incetives. \\
-        $s_z(t)$ & Unmet demand in zone $z$ at time $t$.\\
+        $n_z(t)$        & The number of e-scooters available in zone $z$ at time $t$. \\
+        $P_z(t)$        & The actual pick-up demand at zone $z$ at time $t$. \\
+        $D_z(t)$        & The actual number of drop-offs at zone $z$ at time $t$. \\
+        $X_{c\rightarrow c'}(t)$ 
+            & Number of e-scooters moved by a service worker from community $c$ to zone $c'$ at time step t $t$. \\
+        $Y_{z\rightarrow z'}(t)$ 
+            & Number of e-scooters repositioned by users from zone $z$ to zone $z'$ at time step t $t$ through incetives. \\
+        $U_z(t)$        & Unmet demand in zone $z$ at time $t$.\\
         \midrule
-        $T_{manager}$ & Manager decision interval in minutes. \\
-        $T_{worker}$ & Worker decision interval in minutes. \\
-        $n_z(0)$ & Initial number of e-scooters available in zone $z$. \\
-        $V_k$ & The capacity of the service vehicles.\\
+        $K^{op}$           & Operator rebalancing capacity (maximum number of scooters the operator can relocate per period)\\
+        $K^{user}$       & Maximum total user-based relocations per period.\\
+        $c^{op}_{c \to c'}$  & Cost per e-scooter moved by the operator from community $c$ to $c'$.\\
+        $c^{user}_{z \to z'}$   & Cost per scooter moved via user incentives from zone $z$ to $z'$.\\
+        $A_{ij}$        & Binary adjacency: 1 if zone $j$ is a designated neighbor of zone $i$, 0 otherwise\\
         \bottomrule
     \end{tabularx}
-    \caption{Sets, variables, and parameters of the rebalancing problem}
-    \label{tab:problem_symbols}
+    \caption{Notation for the rebalancing problem}
+    \label{tab:problem_notation}
 \end{table}
-\todo{Summary of the most relevant symbols split by sets, variables, and parameters. Split into multiple tables if needed.}
 
-\subsubsection{Constraints}
+\subsubsection{Operator-based rebalancing}
+Operator-based rebalancing is performed to relocate e-scooter between communities.
+Service workers move e-scooter between zones which is represented by $X_{c\rightarrow c'}(t)$, describing the number of vehicles relocated from community $c$ to zone $c'$ at time step $t$.
+Theses relocations incur a cost defined by $c^{op}_{c \to c'}$ per relocated e-scooter.
+The maximum number of operator-based relocations performed in a single period is capped by the following equation:
+
+\begin{equation}
+    \sum_{c \in \mathcal{C}}\sum_{c' \in \mathcal{C}} X_{c\rightarrow c'}(t) \leq K^{op}, \forall t \in \mathcal{T}
+\end{equation}\label{eq:rb-operator-constraint}
+
+\subsubsection{Operator-based rebalancing}
+User-based rebalancing is performed between zones.
+Users are offered an incentive to drop-off vehicles at a different zone then they originally intended to.
+The decision variable $Y_{z\rightarrow z'}(t)$ describes such a relocation done by a user from zone $z$ to $z'$.
+
+\begin{equation}
+    \sum_{z \in \mathcal{Z}}\sum_{z' \in \mathcal{Z}} Y_{z\rightarrow z'}(t) \leq K^{user}, \forall t \in \mathcal{T}
+\end{equation}\label{eq:rb-user-constraint}
+
+\subsection{Constraints}
+Now the core constraints and objectives are presented.
+
+\autoref{eq:rp-fleet-conservation} formulates the global fleet conservation.
+The sum of e-scooters across all zones is fixed and must be equal at every time period $t$.
 
 \begin{equation}
     \sum_{z \in \mathcal{Z}}n_z(t) = \mathcal{N}, \forall t\in \mathcal{T}
-\end{equation}
+\end{equation}\label{eq:rp-fleet-conservation}
 
-\begin{equation}
-    x_{v, z\rightarrow z'}(t) \leq V_k, \forall z\in \mathcal{Z}, z' \in \mathcal{Z}, v \in \mathcal{V}, t \in \mathcal{T}
-\end{equation}
 
+\autoref{eq:pb-demand-flow} illustrated the demand flow of a single zone defining the number of e-scooters at time $t+1$ by accounting for demand and relocation operations.
 \begin{equation}
-    s_z(t) = \max\{0, P_z(t) - [n_z(t) + D_z(t)]\}
+    \begin{aligned}
+        n_z(t+1) =\;&\ n_z(t) - P_z(t) + D_z(t) \\
+        &+  \sum_{c' \in C} \frac{1}{|\mathcal{Z}_{\kappa(z)}|} X_{c'\rightarrow \kappa(z)}(t) - \sum_{c' \in C} \frac{1}{|\mathcal{Z}_{\kappa(z)}|} X_{\kappa(z)\rightarrow c'}(t) \\
+        &+ \sum_{z' \in Z} Y_{z'\rightarrow z}(t) - \sum_{z' \in Z} Y_{z\rightarrow z'}(t)
+    \end{aligned}
+\end{equation}\label{eq:pb-demand-flow}
+
+\autoref{eq:problem-definition-unmet-demand} defines the Unmet demand, which is the demand that the service could not satisfy.
+Unment demand is part of the problems objective that needs to be minimized.
+\begin{equation}
+    U_z(t) = \max\{0, P_z(t) - [n_z(t) + D_z(t)]\}
 \end{equation}\label{eq:problem-definition-unmet-demand}
 
-
-\[
-\begin{aligned}
-n_z(t+1) =\;&\ n_z(t) - P_z(t) + D_z(t) \\
-&+ \sum_{v \in V} \sum_{z' \in Z} x_{v,z'\rightarrow z}(t) - \sum_{v \in V} \sum_{z' \in Z} x_{v,z\rightarrow z'}(t) \\
-&+ \sum_{z' \in Z} u_{z'\rightarrow z}(t) - \sum_{z' \in Z} u_{z\rightarrow z'}(t)
-\end{aligned}
-\]\label{eq:problem-definition-demand-flow}
+\autoref{eq:pb-objective} defines the objective of the rebalancing problem.
+It combines both the costs from rebalancing operations happened by user-based rebalancing and operator-based rebalancing and includes minimizing the amount of unmet demand.
 
 \begin{align}
-\min\;\sum_{t\in T}\sum_{z\in Z} s_z(t)
-\end{align}\label{eq:problem-definition-objective}
+\min\;\sum_{t\in T}[\sum_{z\in Z} U_z(t) + c]
+\end{align}\label{eq:pb-objective}
 
 \section{Framework}
-A hierarchical reinforcement learning (HRL) framework is used to tackle the rebalancing problem.
-The HRL framework consists of two tiers.
-The first tier is the allocator agent, which tackles the imbalances between communities.
-Then, for each community, a rebalancer agent is assigned who addresses the imbalances within their community.
-The allocator assigns each community a target number of vehicles.
-This imbalance is then addressed by employing service workers who pick-up the desired number of vehicles at communities with oversupply and drop them off at communities with undersupply.
-The second tier of this rebalancing framework comprises rebalancer agents that address the imbalances occurring within the communities.
-Therefore, for each community, there is one rebalancer agent employed, which balances the vehicle distribution through user incentives.
-These incentives are given to the users for dropping off vehicles at the end of their trip at different locations where they are initially intended to drop-off.
+A hierarchical reinforcement learning (HRL) framework is proposed to address the e-scooter rebalancing challenge.
+The HRL framework comprises two tiers.
+The first tier, the Regional Distribution Coordinator, manages inter-community imbalances by determining the target number of vehicles for each defined community.
+These imbalances are addressed through operator-based rebalancing, where service workers collect vehicles from communities with an oversupply and redistribute them to communities experiencing an undersupply.
+The second tier consists of multiple User-Incentive Coordinators, each assigned to a specific community, to manage intra-community imbalances (i.e., imbalances within a single community).
+These coordinators aim to promote an equal distribution of vehicles by offering incentives to users for returning vehicles to designated undersupplied zones at the end of their trips.
+
+A dedicated demand forecasting module supports both the Regional Distribution Coordinator and the User-Incentive Coordinators.
+This module provides demand predictions as part of the state for both tiers, enhancing the effectiveness of rebalancing operations by allowing the system to anticipate future demand.
+This modular design ensures that both tiers optimize rebalancing decisions based on consistent future outlooks and separates the demand forecasting task from the RL agents.
+Additionally, the current vehicle distribution across all zones is provided as input to both agents. \autoref{fig:hrl-architecture} illustrates the architecture of this two-tier HRL framework.
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=.8\linewidth]{content/figures/hrl_architecture.pdf}
+    \caption{Conceptual illustration of the two-tier Hierarchical Reinforcement Learning framework for e-scooter rebalancing.}
+    \label{fig:hrl-architecture}
+\end{figure}
+
+A multi-head Deep Q-Network (DQN)\cite{mnih_human-level_2015} is employed for the Regional Distribution Coordinator. Each head corresponds to a community, determining the net target number of e-scooters to be collected from or delivered to that community. The multi-head DQN utilizes Experience Replay to optimize data usage and facilitate the learning of an effective rebalancing strategy. A Proximal Policy Optimization (PPO)\cite{schulman_proximal_2017} algorithm is implemented for the User-Incentive Coordinators. This algorithm allocates incentives to specific zones within a community to encourage users to drop-off vehicles in these targeted zones rather than their originally intended destinations. The primary objective for both RL agents is to maximize the number of satisfied user trips while minimizing the cost associated with rebalancing operations.
 
 
-\subsubsection{Allocator Agent}
+\subsubsection{Regional Distribution Coordinator}
 Implemented as a Multi-Head DQN (1 head for each community with the actions [-15, -10, -5, 0, 5, 10, 15] per community). Start with 8 communities. Inter-community imbalances.
 \begin{itemize}
     \item \textbf{State}
@@ -129,7 +203,7 @@ Implemented as a Multi-Head DQN (1 head for each community with the actions [-15
     \end{itemize}
 \end{itemize}
 
-\subsubsection{Rebalancer Agent}
+\subsubsection{User-Incentive Coordinator}
 Implemented with the PPO algorithm due to the large action space. Intra-community imbalances.
 \begin{itemize}
     \item \textbf{State}

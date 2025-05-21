@@ -3,6 +3,50 @@
 
 \section{Rebalancing Framework}
 
+\subsection{Regional Distribution Coordinator}
+
+
+\begin{table}[!htb]
+    \centering
+    \begin{tabularx}{\textwidth}{lXl}
+        \toprule
+        Parameter & Description & Value \\
+        \midrule
+        Learning Rate & & $1e-5$ \\
+        Gamma & & $0.99$\\
+        \midrule
+        Batch size & & $256$ \\
+        Hidden size & & $128$ \\
+        Replay buffer capacity & & $720$\\
+        \midrule
+        epsilon (start) & & $1.0$\\
+        epsilon (end) & & $0.01$\\
+        epsilon (decay) & & $0.999$\\
+        \bottomrule
+    \end{tabularx}
+    \caption{Training parameters for the Regional Distribution Coordinator}
+    \label{tab:rdc_training_parameters}
+\end{table}
+
+\subsection{User-Incentive Coordinator}
+
+
+\begin{table}[!htb]
+    \centering
+    \begin{tabularx}{\textwidth}{lXl}
+        \toprule
+        Parameter & Description & Value \\
+        \midrule
+        Learning Rate & & $1e-5$ \\
+        Gamma & & $0.99$ \\
+        \midrule
+        Batch size & & $128$ \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Training parameters for the User-Incentive Coordinator}
+    \label{tab:uic_training_parameters}
+\end{table}
+
 \section{Baseline}
 
 \section{Evaluation Metrics}
