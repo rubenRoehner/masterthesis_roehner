@@ -69,14 +69,12 @@ Analysis of the collected GBFS data revealed distinct spatio-temporal patterns i
   \label{fig:demand_net_imbalance_map}
 \end{figure}
 
-
+\newpage
 \section{Problem Definition}
-The operator- and user-based combined rebalancing of a shared e-scooter service can be mathematically defined as follows:
-The service area is divided into zones defined by a grid system to address the issues associated with the nature of free-floating e-scooters, which can be picked up and dropped off at any position within the service area.
-The use of such a grid system creates an abstraction layer for the continuous spatial space and thus reduces complexity.
-For large-scale shared e-scooter services, a community structure is often employed to aggregate the service area further.
-Each community 
-At each time $t$
+This section formalizes the fleet rebalancing problem of a free-floating e-scooter sharing system.
+The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, relocations performed by users guided by incentives.
+The goal is to minimize the amount of unmet demand while accounting for the costs of rebalancing actions.
+\autoref{tab:problem_notation} summarizes all notation used for the problem formulation, including all sets, parameters, and decision variables.
 
 \begin{table}[!htb]
     \centering
@@ -93,15 +91,17 @@ At each time $t$
         \midrule
         $n_z(t)$        & The number of e-scooters available in zone $z$ at time $t$. \\
         $P_z(t)$        & The actual pick-up demand at zone $z$ at time $t$. \\
-        $D_z(t)$        & The actual number of drop-offs at zone $z$ at time $t$. \\
+        $P_z(t)$        & The actual number of drop-offs at zone $z$ at time $t$. \\
+        $\hat P_z(t)$   & Forecasted pick-up demand at zone $z$ at time $t$. \\
+        $\hat D_z(t)$   & Forecasted drop-off demand at zone $z$ at time $t$. \\
         $X_{c\rightarrow c'}(t)$ 
             & Number of e-scooters moved by a service worker from community $c$ to zone $c'$ at time step t $t$. \\
         $Y_{z\rightarrow z'}(t)$ 
             & Number of e-scooters repositioned by users from zone $z$ to zone $z'$ at time step t $t$ through incetives. \\
         $U_z(t)$        & Unmet demand in zone $z$ at time $t$.\\
         \midrule
-        $K^{op}$           & Operator rebalancing capacity (maximum number of scooters the operator can relocate per period)\\
-        $K^{user}$       & Maximum total user-based relocations per period.\\
+        $K^{op}$           & Operator rebalancing capacity (maximum number of scooters the operator can relocate per time step)\\
+        $K^{user}$       & Maximum total user-based relocations per time step.\\
         $c^{op}_{c \to c'}$  & Cost per e-scooter moved by the operator from community $c$ to $c'$.\\
         $c^{user}_{z \to z'}$   & Cost per scooter moved via user incentives from zone $z$ to $z'$.\\
         $A_{ij}$        & Binary adjacency: 1 if zone $j$ is a designated neighbor of zone $i$, 0 otherwise\\
@@ -111,58 +111,86 @@ At each time $t$
     \label{tab:problem_notation}
 \end{table}
 
+The formulated rebalancing problem distinguishes between forecasted demand ($\hat P_z(t)$, $\hat D_z(t)$), which forms part of the RL agent's state at each decision, and actual demand ($P_z(t)$, $P_z(t)$), which drives the simulation used for training.
+All performance metrics, such as unmet demand, are computed against the actual demand values.
+
 \subsubsection{Operator-based rebalancing}
-Operator-based rebalancing is performed to relocate e-scooter between communities.
-Service workers move e-scooter between zones which is represented by $X_{c\rightarrow c'}(t)$, describing the number of vehicles relocated from community $c$ to zone $c'$ at time step $t$.
-Theses relocations incur a cost defined by $c^{op}_{c \to c'}$ per relocated e-scooter.
+Operator-based rebalancing is performed to relocate e-scooters between communities.
+Service workers move e-scooters between communities, which is represented by $X_{c\rightarrow c'}(t)$, describing the number of vehicles relocated from community $c$ to zone $c'$ at time step $t$.
+These relocations incur a cost defined by $c^{op}_{c\to c'}$ per relocated e-scooter.
 The maximum number of operator-based relocations performed in a single period is capped by the following equation:
 
-\begin{equation}
+\begin{equation}\label{eq:rb-operator-constraint}
     \sum_{c \in \mathcal{C}}\sum_{c' \in \mathcal{C}} X_{c\rightarrow c'}(t) \leq K^{op}, \forall t \in \mathcal{T}
-\end{equation}\label{eq:rb-operator-constraint}
+\end{equation}
 
-\subsubsection{Operator-based rebalancing}
-User-based rebalancing is performed between zones.
-Users are offered an incentive to drop-off vehicles at a different zone then they originally intended to.
+\subsubsection{User-based rebalancing}
+User-based rebalancing is performed between zones inside a community.
+Users are incentivized to drop-off vehicles at a different zone than they originally intended to.
 The decision variable $Y_{z\rightarrow z'}(t)$ describes such a relocation done by a user from zone $z$ to $z'$.
+User-based relocations also incur a cost, which is defined by $c^{user}_{z \to z'}$.
+To balance the amount of incentives given to users, a cap per single period is defined in the following equation:
 
-\begin{equation}
+\begin{equation}\label{eq:rb-user-constraint}
     \sum_{z \in \mathcal{Z}}\sum_{z' \in \mathcal{Z}} Y_{z\rightarrow z'}(t) \leq K^{user}, \forall t \in \mathcal{T}
-\end{equation}\label{eq:rb-user-constraint}
-
+\end{equation}
+\begin{equation}
+Y_{z\to z'}(t) \;=\; 0
+\quad
+\forall\,t\in\mathcal{T},\;\forall\,z,z'\in\mathcal{Z}
+\text{ such that }
+\bigl(A_{z,z'}=0\bigr)\;\lor\;\bigl(\kappa(z)\neq\kappa(z')\bigr).
+\end{equation}
 \subsection{Constraints}
-Now the core constraints and objectives are presented.
+In this section, the main constraints for formulating the combined rebalancing problem are defined. 
 
 \autoref{eq:rp-fleet-conservation} formulates the global fleet conservation.
-The sum of e-scooters across all zones is fixed and must be equal at every time period $t$.
+This constraint ensures that the sum of e-scooters across all zones is fixed and stays equal at every time period $t$.
 
-\begin{equation}
+\begin{equation}\label{eq:rp-fleet-conservation}
     \sum_{z \in \mathcal{Z}}n_z(t) = \mathcal{N}, \forall t\in \mathcal{T}
-\end{equation}\label{eq:rp-fleet-conservation}
+\end{equation}
 
 
-\autoref{eq:pb-demand-flow} illustrated the demand flow of a single zone defining the number of e-scooters at time $t+1$ by accounting for demand and relocation operations.
-\begin{equation}
+\autoref{eq:pb-demand-flow} illustrates the demand flow of a single zone, defining the number of e-scooters at time $t+1$ by accounting for demand and relocation operations.
+This demand flow enables a step-wise calculation of available scooters at every timestep $t$.
+The demand flow considers both pick-up demand $P_z(t)$ and drop-off demand $D_z(t)$.
+Additionally, rebalancing operations are considered by the decision variables $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$.
+\begin{equation}\label{eq:pb-demand-flow}
     \begin{aligned}
         n_z(t+1) =\;&\ n_z(t) - P_z(t) + D_z(t) \\
-        &+  \sum_{c' \in C} \frac{1}{|\mathcal{Z}_{\kappa(z)}|} X_{c'\rightarrow \kappa(z)}(t) - \sum_{c' \in C} \frac{1}{|\mathcal{Z}_{\kappa(z)}|} X_{\kappa(z)\rightarrow c'}(t) \\
-        &+ \sum_{z' \in Z} Y_{z'\rightarrow z}(t) - \sum_{z' \in Z} Y_{z\rightarrow z'}(t)
+        &+  \sum_{c' \in \mathcal{C}} \frac{1}{|\mathcal{Z}_{\kappa(z)}|} X_{c'\rightarrow \kappa(z)}(t) - \sum_{c' \in \mathcal{C}} \frac{1}{|\mathcal{Z}_{\kappa(z)}|} X_{\kappa(z)\rightarrow c'}(t) \\
+        &+ \sum_{z' \in \mathcal{Z}} Y_{z'\rightarrow z}(t) - \sum_{z' \in \mathcal{Z}} Y_{z\rightarrow z'}(t)
     \end{aligned}
-\end{equation}\label{eq:pb-demand-flow}
+\end{equation}
 
-\autoref{eq:problem-definition-unmet-demand} defines the Unmet demand, which is the demand that the service could not satisfy.
-Unment demand is part of the problems objective that needs to be minimized.
-\begin{equation}
+State space for the Regional Distribution Coordinator.
+\[
+    \mathcal{S}^{RDC} = \Bigl\{\,n(t),\,\hat P(t),\,\hat D(t),\,t\Bigr\}
+\]
+
+State space for the User-Incentive Coordinator in community $c$.
+\[
+    \mathcal{S}^{UIC}_c = \Bigl\{\,\{n_z(t),\hat P_z(t),\hat D_z(t)\}_{z\in\mathcal{Z}_c},\,t\Bigr\}
+\]
+
+\autoref{eq:problem-definition-unmet-demand} defines the amount of unmet demand, which is the demand that the service could not satisfy.
+\begin{equation}\label{eq:problem-definition-unmet-demand}
     U_z(t) = \max\{0, P_z(t) - [n_z(t) + D_z(t)]\}
-\end{equation}\label{eq:problem-definition-unmet-demand}
+\end{equation}
 
 \autoref{eq:pb-objective} defines the objective of the rebalancing problem.
-It combines both the costs from rebalancing operations happened by user-based rebalancing and operator-based rebalancing and includes minimizing the amount of unmet demand.
+It combines the costs from rebalancing operations performed by user- and operator-based rebalancing, and includes minimizing the amount of unmet demand.
 
-\begin{align}
-\min\;\sum_{t\in T}[\sum_{z\in Z} U_z(t) + c]
-\end{align}\label{eq:pb-objective}
+\begin{equation}\label{eq:pb-objective}
+\min\;\sum_{t\in \mathcal{T}}\Biggl[
+  \sum_{z\in \mathcal{Z}} U_z(t)
+  \;+\;\sum_{c,c' \in \mathcal{C}} c^{op}_{c\to c'}\,X_{c\to c'}(t)
+  \;+\;\sum_{z,z' \in \mathcal{Z}} c^{user}_{z\to z'}\,Y_{z\to z'}(t)
+\Biggr].
+\end{equation}
 
+\newpage
 \section{Framework}
 A hierarchical reinforcement learning (HRL) framework is proposed to address the e-scooter rebalancing challenge.
 The HRL framework comprises two tiers.
