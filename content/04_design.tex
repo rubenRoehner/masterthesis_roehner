@@ -68,12 +68,17 @@ Analysis of the collected GBFS data revealed distinct spatio-temporal patterns i
   \caption{E-scooter imbalance hotspots. Red = deficit, blue = surplus.}
   \label{fig:demand_net_imbalance_map}
 \end{figure}
+\newpage\null\thispagestyle{empty}\newpage
 
 \newpage
 \section{Problem Definition}
 This section formalizes the fleet rebalancing problem of a free-floating e-scooter sharing system.
 The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, relocations performed by users guided by incentives.
-The goal is to minimize the amount of unmet demand while accounting for the costs of rebalancing actions.
+It considers 
+
+\subsection{Scope and Notation}
+The service area is partitioned into a set of zones ($\mathcal{Z}$).
+The time is discretized into hourly interverals ($\mathcal{T}$) in which all pick-up, drop-off and rebalancing event occur.
 \autoref{tab:problem_notation} summarizes all notation used for the problem formulation, including all sets, parameters, and decision variables.
 
 \begin{table}[!htb]
@@ -82,7 +87,7 @@ The goal is to minimize the amount of unmet demand while accounting for the cost
         \toprule
         Symbol &  Description \\
         \midrule
-        $\mathcal{C}$   & The set of communites \\
+        $\mathcal{C}$   & The set of communities \\
         $\mathcal{Z}$   & The set of zones or grid cells. \\
         $\mathcal{N}$   & Fleet size, i.e., total number of e-scooters available to the service. \\
         $\mathcal{T}$   & The set of time steps. \\
@@ -91,58 +96,55 @@ The goal is to minimize the amount of unmet demand while accounting for the cost
         \midrule
         $n_z(t)$        & The number of e-scooters available in zone $z$ at time $t$. \\
         $P_z(t)$        & The actual pick-up demand at zone $z$ at time $t$. \\
-        $P_z(t)$        & The actual number of drop-offs at zone $z$ at time $t$. \\
+        $D_z(t)$        & The actual number of drop-offs at zone $z$ at time $t$. \\
         $\hat P_z(t)$   & Forecasted pick-up demand at zone $z$ at time $t$. \\
         $\hat D_z(t)$   & Forecasted drop-off demand at zone $z$ at time $t$. \\
+        $U_z(t)$        & Unmet demand in zone $z$ at time $t$.\\
+        \midrule
         $X_{c\rightarrow c'}(t)$ 
             & Number of e-scooters moved by a service worker from community $c$ to zone $c'$ at time step t $t$. \\
         $Y_{z\rightarrow z'}(t)$ 
-            & Number of e-scooters repositioned by users from zone $z$ to zone $z'$ at time step t $t$ through incetives. \\
-        $U_z(t)$        & Unmet demand in zone $z$ at time $t$.\\
+            & Number of e-scooters repositioned by users from zone $z$ to zone $z'$ at time step t $t$ through incentives. \\
         \midrule
-        $K^{op}$           & Operator rebalancing capacity (maximum number of scooters the operator can relocate per time step)\\
-        $K^{user}$       & Maximum total user-based relocations per time step.\\
-        $c^{op}_{c \to c'}$  & Cost per e-scooter moved by the operator from community $c$ to $c'$.\\
-        $c^{user}_{z \to z'}$   & Cost per scooter moved via user incentives from zone $z$ to $z'$.\\
-        $A_{ij}$        & Binary adjacency: 1 if zone $j$ is a designated neighbor of zone $i$, 0 otherwise\\
+        $c^{op}_{c \to c'}$  
+            & Cost per e-scooter moved by the operator from community $c$ to $c'$.\\
+        $c^{user}_{z \to z'}$   
+            & Cost per scooter moved via user incentives from zone $z$ to $z'$.\\
+        $A_{ij}$
+            & Binary adjacency: 1 if zone $j$ is a designated neighbor of zone $i$, 0 otherwise\\
         \bottomrule
     \end{tabularx}
     \caption{Notation for the rebalancing problem}
     \label{tab:problem_notation}
 \end{table}
 
-The formulated rebalancing problem distinguishes between forecasted demand ($\hat P_z(t)$, $\hat D_z(t)$), which forms part of the RL agent's state at each decision, and actual demand ($P_z(t)$, $P_z(t)$), which drives the simulation used for training.
+\subsection{State Variables}
+The formulated rebalancing problem distinguishes between forecasted demand ($\hat P_z(t)$, $\hat D_z(t)$), which forms part of the RL agent's state at each decision, and actual demand ($P_z(t)$, $P_z(t)$), which drives the simulation used for training and evaluation.
 All performance metrics, such as unmet demand, are computed against the actual demand values.
 
+\subsection{Rebalancing actions}
 \subsubsection{Operator-based rebalancing}
 Operator-based rebalancing is performed to relocate e-scooters between communities.
-Service workers move e-scooters between communities, which is represented by $X_{c\rightarrow c'}(t)$, describing the number of vehicles relocated from community $c$ to zone $c'$ at time step $t$.
+Service workers move e-scooters between communities, which is represented by $X_{c\rightarrow c'}(t)$, describing the number of vehicles relocated from community $c$ to community $c'$ at time step $t$.
 These relocations incur a cost defined by $c^{op}_{c\to c'}$ per relocated e-scooter.
-The maximum number of operator-based relocations performed in a single period is capped by the following equation:
-
-\begin{equation}\label{eq:rb-operator-constraint}
-    \sum_{c \in \mathcal{C}}\sum_{c' \in \mathcal{C}} X_{c\rightarrow c'}(t) \leq K^{op}, \forall t \in \mathcal{T}
-\end{equation}
 
 \subsubsection{User-based rebalancing}
 User-based rebalancing is performed between zones inside a community.
 Users are incentivized to drop-off vehicles at a different zone than they originally intended to.
 The decision variable $Y_{z\rightarrow z'}(t)$ describes such a relocation done by a user from zone $z$ to $z'$.
 User-based relocations also incur a cost, which is defined by $c^{user}_{z \to z'}$.
-To balance the amount of incentives given to users, a cap per single period is defined in the following equation:
-
-\begin{equation}\label{eq:rb-user-constraint}
-    \sum_{z \in \mathcal{Z}}\sum_{z' \in \mathcal{Z}} Y_{z\rightarrow z'}(t) \leq K^{user}, \forall t \in \mathcal{T}
-\end{equation}
-\begin{equation}
+\autoref{eq:rb-user-constraint-spatial} constraintst user-based rebalancing to take part only inside a community.
+Additionally, user-based rebalancing operations are restricted to the neighboring zones.
+\begin{equation}\label{eq:rb-user-constraint-spatial}
 Y_{z\to z'}(t) \;=\; 0
 \quad
 \forall\,t\in\mathcal{T},\;\forall\,z,z'\in\mathcal{Z}
 \text{ such that }
 \bigl(A_{z,z'}=0\bigr)\;\lor\;\bigl(\kappa(z)\neq\kappa(z')\bigr).
 \end{equation}
-\subsection{Constraints}
-In this section, the main constraints for formulating the combined rebalancing problem are defined. 
+
+\subsection{System Dynamics}
+ 
 
 \autoref{eq:rp-fleet-conservation} formulates the global fleet conservation.
 This constraint ensures that the sum of e-scooters across all zones is fixed and stays equal at every time period $t$.
@@ -164,15 +166,7 @@ Additionally, rebalancing operations are considered by the decision variables $X
     \end{aligned}
 \end{equation}
 
-State space for the Regional Distribution Coordinator.
-\[
-    \mathcal{S}^{RDC} = \Bigl\{\,n(t),\,\hat P(t),\,\hat D(t),\,t\Bigr\}
-\]
-
-State space for the User-Incentive Coordinator in community $c$.
-\[
-    \mathcal{S}^{UIC}_c = \Bigl\{\,\{n_z(t),\hat P_z(t),\hat D_z(t)\}_{z\in\mathcal{Z}_c},\,t\Bigr\}
-\]
+\subsection{Objective}
 
 \autoref{eq:problem-definition-unmet-demand} defines the amount of unmet demand, which is the demand that the service could not satisfy.
 \begin{equation}\label{eq:problem-definition-unmet-demand}
@@ -214,7 +208,7 @@ Additionally, the current vehicle distribution across all zones is provided as i
 A multi-head Deep Q-Network (DQN)\cite{mnih_human-level_2015} is employed for the Regional Distribution Coordinator. Each head corresponds to a community, determining the net target number of e-scooters to be collected from or delivered to that community. The multi-head DQN utilizes Experience Replay to optimize data usage and facilitate the learning of an effective rebalancing strategy. A Proximal Policy Optimization (PPO)\cite{schulman_proximal_2017} algorithm is implemented for the User-Incentive Coordinators. This algorithm allocates incentives to specific zones within a community to encourage users to drop-off vehicles in these targeted zones rather than their originally intended destinations. The primary objective for both RL agents is to maximize the number of satisfied user trips while minimizing the cost associated with rebalancing operations.
 
 
-\subsubsection{Regional Distribution Coordinator}
+\subsection{Regional Distribution Coordinator}
 Implemented as a Multi-Head DQN (1 head for each community with the actions [-15, -10, -5, 0, 5, 10, 15] per community). Start with 8 communities. Inter-community imbalances.
 \begin{itemize}
     \item \textbf{State}
@@ -231,7 +225,9 @@ Implemented as a Multi-Head DQN (1 head for each community with the actions [-15
     \end{itemize}
 \end{itemize}
 
-\subsubsection{User-Incentive Coordinator}
+\subsubsection{MDP formulation}
+
+\subsection{User-Incentive Coordinator}
 Implemented with the PPO algorithm due to the large action space. Intra-community imbalances.
 \begin{itemize}
     \item \textbf{State}
@@ -248,4 +244,7 @@ Implemented with the PPO algorithm due to the large action space. Intra-communit
     \end{itemize}
 \end{itemize}
 
-\subsubsection{Demand Forecasting Module}
+
+\subsubsection{MDP formulation}
+
+\subsection{Demand Forecasting Module}
