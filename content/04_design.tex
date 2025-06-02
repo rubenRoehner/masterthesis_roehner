@@ -5,8 +5,8 @@ The following chapter is structured as follows: the first section describes the 
 The data underlying this thesis was collected from a General Bike Sharing Specification (GBFS) feed that publishes the live locations of e-scooters from sharing services operating in the greater Stuttgart area \cite{noauthor_gebundelte_nodate}. These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations. The raw GBFS data undergoes a pre-processing stage to extract pick-up and drop-off events. These events were subsequently spatially and temporally aggregated using the H3 grid system \cite{noauthor_h3_2018} and hourly time bins for analysis, as well as for training and evaluating the proposed rebalancing framework.
 
 \subsection{Data Collection}
-The GBFS feed is crawled every 15 minutes to extract the locations of e-scooters from the services providers bolt and voi.
-The data has been crawled in the time between 11.02.2025 and 28.04.2025 e.g. 76 days. The GBFS data format includes the parameters 
+The GBFS feed is crawled every 15 minutes to extract the locations of e-scooters from the service providers Bolt and Voi.
+The data has been crawled in the time between 11.02.2025 and 28.04.2025, e.g., 76 days. The GBFS data format includes the parameters 
 
 \begin{table}[!htb]
     \centering
@@ -33,12 +33,19 @@ The data has been crawled in the time between 11.02.2025 and 28.04.2025 e.g. 76 
 \subsection{Preprocessing}
 The raw GBFS data is preprocessed to extract pick-up and drop-off events.
 Both GBFS feeds randomize vehicle identification for anonymization, making it impossible to extract information on the actual trips driven by the users.
-Therefore, we only extracted pick-up and drop-off events, which reduced the usability of this data.
+Therefore, only pick-up and drop-off events were extracted, which reduced the usability of this data.
 To extract those events, neighbouring snapshots are compared.
 Vehicle Identifiers that disappear or reappear in a snapshot compared to the previous snapshot reveal the occurrence of pick-ups and drop-offs.
-After those events were derived from the datasets, 200.000 pick-up and drop-off events for the service bolt and 590.000 pick-up and drop-off event for the service provider voi has been counted.
+After those events were derived from the datasets, 200,000 pick-up and drop-off events for the service bolt and 590.000 pick-up and drop-off events for the service provider Voi were counted.
 After that, outliers have been removed from the dataset. Therefore, a boundary for the city of Stuttgart has been defined to filter the pick-up and drop-off events that occurred only inside this boundary. This has been done to focus on a smaller region instead of outer city regions like Leinfelden.
 
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.66\linewidth]{content/figures/Grid_Community_Stucture.png}
+    \caption{Grid Community Structure}
+    \label{fig:data_grid_community_structure}
+\end{figure}
 
 
 \subsection{Descriptive Statistics}
@@ -47,7 +54,7 @@ After that, outliers have been removed from the dataset. Therefore, a boundary f
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.8\linewidth]{content/figures/Net_imbalance_aggregated.png}
-    \caption{Net imbalance aggreageted hourly}
+    \caption{Net imbalance aggregated hourly}
     \label{fig:demand_net_imbalance}
 \end{figure}
 
@@ -74,11 +81,14 @@ Analysis of the collected GBFS data revealed distinct spatio-temporal patterns i
 \section{Problem Definition}
 This section formalizes the fleet rebalancing problem of a free-floating e-scooter sharing system.
 The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, relocations performed by users guided by incentives.
-It considers 
+It considers only the rebalancing in the form of recommended incentives per zone and net vehicle counts per community.
+The routing problem of service vehicles performing operator-based rebalancing is not addressed in this work. 
+Several works have been published on the routing problem for operator-based rebalancing, so there is no need to account for that.   
 
 \subsection{Scope and Notation}
-The service area is partitioned into a set of zones ($\mathcal{Z}$).
-The time is discretized into hourly interverals ($\mathcal{T}$) in which all pick-up, drop-off and rebalancing event occur.
+The service area is partitioned into a set of zones($\mathcal{Z}$).
+The time is discretized into hourly intervals ($\mathcal{T}$) in which all pick-up, drop-off, and rebalancing events occur.
+The fleet size ($\mathcal{N}$) remains constant over all timesteps $t$.
 \autoref{tab:problem_notation} summarizes all notation used for the problem formulation, including all sets, parameters, and decision variables.
 
 \begin{table}[!htb]
@@ -107,7 +117,7 @@ The time is discretized into hourly interverals ($\mathcal{T}$) in which all pic
             & Number of e-scooters repositioned by users from zone $z$ to zone $z'$ at time step t $t$ through incentives. \\
         \midrule
         $c^{op}_{c \to c'}$  
-            & Cost per e-scooter moved by the operator from community $c$ to $c'$.\\
+            & Cost per e-scooter moved by the operator from the community $c$ to $c'$.\\
         $c^{user}_{z \to z'}$   
             & Cost per scooter moved via user incentives from zone $z$ to $z'$.\\
         $A_{ij}$
@@ -120,9 +130,12 @@ The time is discretized into hourly interverals ($\mathcal{T}$) in which all pic
 
 \subsection{State Variables}
 The formulated rebalancing problem distinguishes between forecasted demand ($\hat P_z(t)$, $\hat D_z(t)$), which forms part of the RL agent's state at each decision, and actual demand ($P_z(t)$, $P_z(t)$), which drives the simulation used for training and evaluation.
-All performance metrics, such as unmet demand, are computed against the actual demand values.
+All performance metrics, such as the satisfied demand, are computed against the actual demand values.
 
 \subsection{Rebalancing actions}
+The framework considers both operator-based and user-based rebalancing, which is why the problem definition includes decision variables for both approaches.
+Those decision variables are described in the following paragraphs.
+
 \subsubsection{Operator-based rebalancing}
 Operator-based rebalancing is performed to relocate e-scooters between communities.
 Service workers move e-scooters between communities, which is represented by $X_{c\rightarrow c'}(t)$, describing the number of vehicles relocated from community $c$ to community $c'$ at time step $t$.
@@ -133,7 +146,7 @@ User-based rebalancing is performed between zones inside a community.
 Users are incentivized to drop-off vehicles at a different zone than they originally intended to.
 The decision variable $Y_{z\rightarrow z'}(t)$ describes such a relocation done by a user from zone $z$ to $z'$.
 User-based relocations also incur a cost, which is defined by $c^{user}_{z \to z'}$.
-\autoref{eq:rb-user-constraint-spatial} constraintst user-based rebalancing to take part only inside a community.
+\autoref{eq:rb-user-constraint-spatial} constraints user-based rebalancing to take part only inside a community.
 Additionally, user-based rebalancing operations are restricted to the neighboring zones.
 \begin{equation}\label{eq:rb-user-constraint-spatial}
 Y_{z\to z'}(t) \;=\; 0
@@ -147,7 +160,7 @@ Y_{z\to z'}(t) \;=\; 0
  
 
 \autoref{eq:rp-fleet-conservation} formulates the global fleet conservation.
-This constraint ensures that the sum of e-scooters across all zones is fixed and stays equal at every time period $t$.
+This constraint ensures that the total number of e-scooters across all zones remains constant at every time period $t$.
 
 \begin{equation}\label{eq:rp-fleet-conservation}
     \sum_{z \in \mathcal{Z}}n_z(t) = \mathcal{N}, \forall t\in \mathcal{T}
@@ -168,22 +181,40 @@ Additionally, rebalancing operations are considered by the decision variables $X
 
 \subsection{Objective}
 
-\autoref{eq:problem-definition-unmet-demand} defines the amount of unmet demand, which is the demand that the service could not satisfy.
-\begin{equation}\label{eq:problem-definition-unmet-demand}
-    U_z(t) = \max\{0, P_z(t) - [n_z(t) + D_z(t)]\}
-\end{equation}
+\autoref{eq:problem-definition-satisfied-demand} defines the satisfied demand, which is the demand that the service could satisfy with enough vehicles to serve the wanted pick-up demand.
+This satisfied demand is used to calculate the ratio of satisfied demand, which defines the percentage of the asked demand to the amount of demand that could be satisfied by the system (see \autoref{eq:problem-definition-satisfied-demand-ratio}).
+
+\begin{subequations}
+    \begin{equation}\label{eq:problem-definition-satisfied-demand}
+        S_z(t) = \min\{P_z(t), n_z(t) + D_z(t)\}
+    \end{equation}
+    \begin{equation}\label{eq:problem-definition-satisfied-demand-ratio}
+        r^S_z(t) = 
+        \begin{cases}
+            \frac{S_z(t)}{P_z(t)}, & P_z(t) > 0,\\[8pt]
+            0, & P_z(t) = 0.
+        \end{cases}
+    \end{equation}
+\end{subequations}
 
 \autoref{eq:pb-objective} defines the objective of the rebalancing problem.
 It combines the costs from rebalancing operations performed by user- and operator-based rebalancing, and includes minimizing the amount of unmet demand.
+The objective is calculated over the whole simulation horizon, e.g., over all time steps $t$.
 
 \begin{equation}\label{eq:pb-objective}
-\min\;\sum_{t\in \mathcal{T}}\Biggl[
-  \sum_{z\in \mathcal{Z}} U_z(t)
-  \;+\;\sum_{c,c' \in \mathcal{C}} c^{op}_{c\to c'}\,X_{c\to c'}(t)
-  \;+\;\sum_{z,z' \in \mathcal{Z}} c^{user}_{z\to z'}\,Y_{z\to z'}(t)
+\max\;\sum_{t\in \mathcal{T}}\Biggl[
+  \sum_{z\in \mathcal{Z}} r^S_z(t)
+  \;-\;\sum_{c,c' \in \mathcal{C}} c^{op}_{c\to c'}\,X_{c\to c'}(t)
+  \;-\;\sum_{z,z' \in \mathcal{Z}} c^{user}_{z\to z'}\,Y_{z\to z'}(t)
 \Biggr].
 \end{equation}
 
+
+This problem formulation can be transformed into two MDPs by viewing $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$ as the action spaces for a two-tier hierarchical reinforcement learning framework.
+The objective of this problem formulation can be seen as the reward function for both agents.
+The following section defines an HRL framework that manages operator-based rebalancing on a macroscopic level and user-based rebalancing on a microscopic level.
+
+ 
 \newpage
 \section{Framework}
 A hierarchical reinforcement learning (HRL) framework is proposed to address the e-scooter rebalancing challenge.
@@ -200,35 +231,182 @@ Additionally, the current vehicle distribution across all zones is provided as i
 
 \begin{figure}[!htb]
     \centering
-    \includegraphics[width=.8\linewidth]{content/figures/hrl_architecture.pdf}
+    \includegraphics[width=.9\linewidth]{content/figures/hrl_architecture.pdf}
     \caption{Conceptual illustration of the two-tier Hierarchical Reinforcement Learning framework for e-scooter rebalancing.}
     \label{fig:hrl-architecture}
 \end{figure}
 
-A multi-head Deep Q-Network (DQN)\cite{mnih_human-level_2015} is employed for the Regional Distribution Coordinator. Each head corresponds to a community, determining the net target number of e-scooters to be collected from or delivered to that community. The multi-head DQN utilizes Experience Replay to optimize data usage and facilitate the learning of an effective rebalancing strategy. A Proximal Policy Optimization (PPO)\cite{schulman_proximal_2017} algorithm is implemented for the User-Incentive Coordinators. This algorithm allocates incentives to specific zones within a community to encourage users to drop-off vehicles in these targeted zones rather than their originally intended destinations. The primary objective for both RL agents is to maximize the number of satisfied user trips while minimizing the cost associated with rebalancing operations.
 
 
 \subsection{Regional Distribution Coordinator}
-Implemented as a Multi-Head DQN (1 head for each community with the actions [-15, -10, -5, 0, 5, 10, 15] per community). Start with 8 communities. Inter-community imbalances.
+The Regional Distribution Coordinator (RDC) defines the first tier of the proposed two-tier HRL framework.
+The RDC's primary purpose is to address the inter-community imbalances, i.e., imbalances between communities.
+
+
+
+
+\subsubsection{Markov Decision Process (MDP) formulation}
+The RDC is modeled as an MDP defined by a tuple $(\mathcal{S, A, P, R})$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $\mathcal{P}$ is the probability function that is learned implicitly by the RL agent, and $\mathcal{R}$ is the reward function.
+This MDP is illustrated in \autoref{fig:rdc_mdp}.
+
+\paragraph{State ($\mathcal{S}^{RDC}_t$)}
+The state representation of the RDC at timestep $t$ is a triple that defines:
+
 \begin{itemize}
-    \item \textbf{State}
-    \begin{itemize}
-        \item Demand forecast ($\hat{P_z}(t)$, $\hat{D_z}(t)$ $\forall z \in \mathcal{Z}$), current vehicle counts per community ($n_z(t), \forall z \in \mathcal{Z}$), 
-    \end{itemize}
-    \item \textbf{Action}
-    \begin{itemize}
-        \item assigns quotas to each of the communities (e-scooters to add or remove)
-    \end{itemize}
-    \item \textbf{Reward}
-    \begin{itemize}
-        \item Satisfied demand, negative rebalancing costs, (negative gini coefficient)
-    \end{itemize}
+    \item \textbf{Pick-up Demand Forecast ($\hat{P}_c(t)$):}
+    The forecasted number of e-scooters that are expected to originate at community $c$ during the next time interval ($t \to t+1$).
+    \item \textbf{Drop-off demand forecast ($\hat{D}_c(t)$):}
+    The forecasted number of e-scooters that are expected to be dropped off by users, e.g., the number of trips that are ending at community $c$ in the next time interval ($t \to t+1$).
+    \item \textbf{Zone-level vehicle counts ($n_c(t)$):}
+    The current number of available e-scooters in the community $c$ at the current time step $t$.
 \end{itemize}
 
-\subsubsection{MDP formulation}
+\paragraph{Action ($\mathcal{A}^{RDC}_t$)}
+The RDC's action $\mathcal{A}^{RDC}_t$ is defined by a vector $[a_1(t), a_1(t), ..., a_{N_{\mathcal{C}}}(t)]$ of size $N_{\mathcal{C}}$, which is the number of communities.
+Each component $a_c(t)$ defines the rebalancing quota for community c.
+This quota specifies the number of e-scooters to be added to or removed from that community.
+The action space of each component is equal and discrete.
+The action space for this study is defined as follows: $\{-15, -10, -5, 0, 5, 10, 15\}$, which results in 7 options per component.
+The RDC aims to select actions that balance supply across all communities while preserving the fleet size.
+Nevertheless, the RDC can choose a set of actions that do not preserve the fleet size, which is then done by the operator-rebalancing algorithms that perform the rebalancing operations as part of the simulation.
 
+
+\paragraph{Reward ($\mathcal{R}^{RDC}_t$)}
+The reward function of the RDC is defined by three components, each weighted by a non-negative weighting factor and scaled to ensure a normalized reward between 0 and 1.
+The reward is calculated after execution of the rebalancing action $\mathcal{A}^{RDC}_t$ and the simulation of the current demand flow.
+
+
+\begin{equation}\label{eq:rdc-reward}
+    \mathcal{R}^{RDC}_t = w_{demand} \cdot R_{demand}(t) + w_{cost} \cdot R_{cost}(t) + w_{gini} \cdot R_{gini}(t)
+\end{equation}
+
+\begin{enumerate}
+    \item \textbf{Satisfied Demand Ratio ($R_{demand}(t)$):}
+    This component is the groundstone of the reward function.
+    It quantifies the effectiveness of the rebalancing actions by summing the number of trip requests that the sharing system can satisfy.
+    The number of satisfied trips is then divided by the total number of trip requests that the system has received in the corresponding time interval.
+    That is done to ensure a stable reward function by normalizing the values to ensure a number between 0 and 1.
+    \item \textbf{Rebalancing Cost ($R_{cost}(t)$):}
+    To ensure that the rebalancing system is only performing the rebalancing operations that are really needed, the rebalancing costs are added to the reward function to serve as a penalty function.
+    These rebalancing costs are calculated by summing the number of vehicles that has been rebalanced in the current timestep.
+    This number is then divided by the total fleet size to build a normalized rebalancing ratio.
+    This rebalancing ratio is squared and inverted to ensure that a high number of rebalancing operations results in a lower reward, and a low number of rebalancing operations results in a higher reward. 
+    \item \textbf{Imbalance Penalty ($R_{gini}(t)$):}
+    The Imbalance Penalty serves the task of ensuring an equally distributed fleet.
+    Therefore, the Gini coefficient over all communities is calculated and this value is inverted.
+    This results in a normalized reward component that is high when the e-scooter fleet is equally distributed over all communities and is low for an imbalanced distribution of e-scooters.
+\end{enumerate}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/rdc_mdp.pdf}
+    \caption{RDC MDP Formulation Diagram}
+    \label{fig:rdc_mdp}
+\end{figure}
+
+\subsubsection{Algorithm and Architecture}
+A multi-head Deep Q-Network (DQN)\cite{mnih_human-level_2015} is employed for the Regional Distribution Coordinator.
+The choice for a multi-head DQN is made because the RDC needs to make multiple simultaneous actions that are correlated.
+Therefore, a multi-head DQN that uses shared layers for each head to balance the actions for each community could lead to good results.
+
+The core architecture of the multi-head DQN consists of three layers:
+\begin{enumerate}
+    \item Input Layers:
+    The input layers take the input parameters, flatten them, and normalize the values.
+    \item Shared Layers:
+    The shared layers take the output of the previous input layers and extract system-wide metrics relevant to all heads/communities. 
+    \item Head-specific Layers:
+    For each head that is part of the multi-head DQN, a layer consisting of small neural networks is employed.
+    These head-specific layers should extract community-specific targets based on the output of the shared layers.
+\end{enumerate}
+
+Each head corresponds to a community, determining the net target number of e-scooters to be collected from or delivered to that community.
+
+\paragraph{Prioritized Experience Replay (PER)}
+The multi-head DQN utilizes Prioritized Experience Replay (PER) \cite{schaul_prioritized_2016} to optimize data usage and facilitate the learning of an effective rebalancing strategy.
+Therefore, each transition is stored in a replay buffer.
+During training, mini-batches are sampled from this replay buffer for training.
+Transitions with high impact are prioritized to accelerate the training process because they are expected to result in higher learning progress.
+The impact of a transition is defined by the magnitude of the Temporal Difference Error.
+This PER increases sample efficiency, which increases overall performance of the trained agent, but it also introduces a bias by prioritizing samples and therefore change the distribution of training data points \cite{schaul_prioritized_2016}.
+This bias is addressed by Importance Sampling (IS), which introduces a weight that corrects the bias introduced by the PER.
+The IS-weights are incorporated using an exponent $\beta_{PER}$ to increase the effect of these weights throughout the training process.
+This beta annealing for the IS accelerates training while also addressing the bias that is introduced through PER.
+
+\paragraph{Eploration Strategy}
+The RDC is designed to use an $\epsilon$-greedy strategy.
+$\epsilon$ represents the probability of choosing a random action for exploration.
+To encourage broad exploration and ensure that the complex rebalancing system is explored gracefully, this $\epsilon$ is annealed gradually over the training process.
+Starting with a high $\epsilon$ for increased exploration at training start, ending at a specific low non-zero value for $\epsilon$ to preserve a small amount of exploration even during the end of the training process \cite{zhang_why_2020}.
+
+\paragraph{Training stabilization techniques}
+To further increase performance and stabilize training, a learning rate scheduling is employed. 
+By starting with a higher learning rate, the training process can be accelerated.
+Later in the training process, the learning rate is decreased to find more optimal solutions.
+Additionally, gradient clipping is used to prevent exploding gradients during backpropagation, which further stabilizes the training process.
+
+
+\newpage
 \subsection{User-Incentive Coordinator}
 Implemented with the PPO algorithm due to the large action space. Intra-community imbalances.
+
+
+\subsubsection{Markov Decision Process (MDP) formulation}
+\paragraph{State ($\mathcal{S}^{UIC}_t$)}
+The state representation of the UIC is similarly defined as the state space of the RDC, but scoped to the specific community to which the UIC is designated.
+The state representation consists of three components:
+
+\begin{itemize}
+    \item \textbf{Pick-up Demand Forecast ($\hat{P}_z(t)$):}
+    The forecasted number of e-scooters that are expected to originate at zone $z$ during the next time interval ($t \to t+1$). Where the community $\kappa(z)$ is the designated community of the UIC.
+    \item \textbf{Drop-off demand forecast ($\hat{D}_z(t)$):}
+    The forecasted number of e-scooters that are expected to be dropped off by users, e.g., the number of trips that are ending at zone $z$ in the next time interval ($t \to t+1$). Where the community $\kappa(z)$ is the designated community of the UIC.
+    \item \textbf{Zone-level vehicle counts ($n_z(t)$):}
+    The current number of available e-scooters in the zone $z$ at the current time step $t$. Where the community $\kappa(z)$ is the designated community of the UIC.
+\end{itemize}
+
+\paragraph{Action ($\mathcal{A}^{UIC}_t$)}
+The UIC's action space is continuous.
+The UIC's actions represent continuous incentive levels between $[0,1]$ for each zone $z$ that is part of the designated community $c$.
+This results in the following definition of the Actions:
+
+\begin{equation}
+    \mathcal{A}^{UIC}_t = [a_1^{UIC}(t), ..., a_{N_z^c}^{UIC}(t)]
+\end{equation}
+
+$N_z^c$ defines the number of zones in community $c$.
+
+
+
+\paragraph{Reward ($\mathcal{R}^{UIC}_t$)}
+The reward function $\mathcal{R}^{UIC}_t$ of the UIC considers three components, each weighted by a non-negative weighting factor.
+
+\begin{equation}\label{eq:rdc-reward}
+    \mathcal{R}^{UIC}_t = w_{demand}^{UIC} \cdot R_{demand}^{UIC}(t) + w_{cost}^{UIC} \cdot R_{cost}(t) + w_{gini}^{UIC} \cdot R_{gini}^{UIC}(t)
+\end{equation}
+
+\begin{enumerate}
+    \item \textbf{Satisfied Demand Ratio ($R_{demand}^{UIC}(t)$):}
+    
+    \item \textbf{Rebalancing Cost ($R_{cost}^{UIC}(t)$):}
+    
+    \item \textbf{Imbalance Penalty ($R_{gini}^{UIC}(t)$):}
+    
+\end{enumerate}
+
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/uic_mdp.pdf}
+    \caption{UIC MDP Formulation Diagram}
+    \label{fig:uic_mdp}
+\end{figure}
+
+\subsubsection{Algorithm and Architecture}
+A Proximal Policy Optimization (PPO)\cite{schulman_proximal_2017} algorithm is implemented for the User-Incentive Coordinators.
+This algorithm allocates incentives to specific zones within a community to encourage users to drop-off vehicles in these targeted zones rather than their originally intended destinations.
+The primary objective for both RL agents is to maximize the number of satisfied user trips while minimizing the cost associated with rebalancing operations.
+
 \begin{itemize}
     \item \textbf{State}
     \begin{itemize}
@@ -244,7 +422,23 @@ Implemented with the PPO algorithm due to the large action space. Intra-communit
     \end{itemize}
 \end{itemize}
 
-
-\subsubsection{MDP formulation}
-
 \subsection{Demand Forecasting Module}
+The successful operation of the rebalancing algorithm is fundamentally dependent on its ability to anticipate future demand.
+Therefore, a dedicated Demand Forecasting Module that accurately predicts future demand is critical.
+This implementation of an independent Demand Forecasting Module takes out the forecasting problem from the rebalancing algorithms themselves, which ideally should increase the overall efficiency of the framework since the problems are separated and can be targeted directly.
+
+To effectively support the RL rebalancing agents mentioned earlier, the Demand Forecasting Module must predict the number of pick-ups and drop-offs for each zone on an hourly basis.
+The underlying model of this Demand Forecasting Module is trained using historical demand data extracted from the raw GBFS data.
+To predict both pick-up and drop-off demand two separate models are trained for each of them.
+The output of both demand models should be the expected number of pick-up / drop-off events hourly per zone.
+
+The model selected for the Demand Forecasting Module is the Irregular Convolutional Long Short-Term Memory (IrConvLSTM) network by Li et al. \cite{li_improving_2023}.
+The selection of the IrConvLSTM model as part of this rebalancing framework is based on its empirically validated performance and its publicly available open-source implementation.
+Due to the short time scope of this master's thesis, the focus of this work is on the rebalancing framework itself, which is why an open-source implementation for the demand forecasting module is preferred.
+Li et al. \cite{li_improving_2023} demonstrated the high performance of the IrConvLSTM model in an empirical study comparing the model extensively against several other forecasting modules.
+These included traditional time-series models like ARIMA, standalone deep learning models like LSTM and GRU, and hybrid models like the standard CNN+LSTM model.
+The evaluation has been done over five different cities with bike-sharing data.
+The IrCOnvLSTM using Dynamic Time Warping yielded the best performances, which is why this variant is used for this work.
+IRConvLSTM consistently outperformed the other models across all benchmarks. including Root Mean Squared Error (RMSE), Mean Absolute Error (MAE), and Mean Absolute Percentage Error (MAPE).
+
+The implementation details of this Demand Forecasting Module and the IrConvLSTM are described in \autoref{sec:implementation_demand-forecasting-module}.

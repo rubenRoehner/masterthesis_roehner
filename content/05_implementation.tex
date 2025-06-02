@@ -1,9 +1,9 @@
 \chapter{Implementation}\label{sec:implementation} % approx. 8 pages
 
 
-\section{Rebalancing Framework}
+\section{Rebalancing Framework}\label{sec:implementation_rebalancing-framework}
 
-\subsection{Regional Distribution Coordinator}
+\subsection{Regional Distribution Coordinator}\label{sec:implementation_rdc}
 
 
 \begin{table}[!htb]
@@ -27,8 +27,9 @@
     \caption{Final training parameters for the Regional Distribution Coordinator}
     \label{tab:rdc_training_parameters}
 \end{table}
+\todo{Mention hyperparameter optimization using optuna}
 
-\subsection{User-Incentive Coordinator}
+\subsection{User-Incentive Coordinator}\label{sec:implementation_uic}
 
 
 \begin{table}[!htb]
@@ -47,6 +48,12 @@
     \label{tab:uic_training_parameters}
 \end{table}
 
-\section{Baseline}
+\subsection{Demand Forecasting Module}\label{sec:implementation_demand-forecasting-module}
+The Demand Forecasting Module to feed accurate demand forecasts into the RL agents depends on the implementation by Li et al. \cite{li_improving_2023}.
+This demand forecasting is build upon an Irregular Convolutional Long Short Term Memory (IrConvLSTM) network.
+The core of this model are the Irregular Convolution layers, which replace the standard kernels of a Convolutional layer with fixed spatial kernels that link semantic neighbors.
+The IrConvLSTM consists of three parallel modules: 
 
-\section{Evaluation Metrics}
+\section{Baseline}\label{sec:implementation_baseline}
+
+\section{Evaluation Metrics}\label{sec:implementation_evaluation-metrics}
