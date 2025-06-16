@@ -73,7 +73,7 @@ The agent tries different actions depending on the current state and learns, whi
 The strategy by which the agent chooses its following action based on the current state is called policy \cite{zhang_dive_2023}.
 \autoref{fig:mdp-diagram} illustrates this iterative approach of RL.
 
-\subsection{Markov Decision Process (MDP) and Dynamic Programming (DP)}
+\subsection{Markov Decision Process (MDP) and Dynamic Programming (DP)}\label{sec:background-reinforcement_learning-mdp}
 A fundamental framework in the field of RL is the Markov Decision Process (MDP).
 An MDP is defined by a tuple consisting of four components (see equation \ref{eq:mdp}).
 Decision-making in environments where outcomes are not entirely in control of the agent can be modeled using such an MDP.
@@ -208,7 +208,7 @@ With this update rule, the algorithm iteratively updates the action-value functi
     q(s,a) \leftarrow q(s,a) + \alpha \left[ r + \gamma \max_{a'} q(s',a') - q(s,a) \right]
 \end{equation}
 
-\subsection{Deep-Q-Networks (DQN)}
+\subsection{Deep-Q-Networks (DQN)}\label{sec:background-reinforcement_learning-dqn}
 Deep-Q-Networks (DQN) solve the problem of high-dimensional or large state spaces.
 Traditional RL algorithms struggle with large state spaces and require lengthy and complex training.
 In DQN, a multi-layer CNN (convolutional neural network) approximates the Q-value function $q(s, a;\theta)$, with network weights $\theta$.
@@ -222,7 +222,7 @@ From this memory, mini-batches are sampled uniformly to break temporal correlati
 A second network, the target network, can compute Q-learning target values.
 These targets get computed after several iterations, reducing the fluctuation in these targets and stabilizing training \cite{arulkumaran_deep_2017}.
 
-\subsection{Policy Gradient Methods}
+\subsection{Policy Gradient Methods}\label{sec:background-reinforcement_learning-pgm}
 One limitation of the previously discussed RL methods is the constraint that the action space must be deterministic.
 Value-based methods like Q-Learning estimate the optimal value function and derive it from their policy.
 In contrast, policy gradient methods directly optimize the policy. Therefore, these methods use a parameterized policy whose parameters $\theta$ are iteratively updated in order to maximize rewards.

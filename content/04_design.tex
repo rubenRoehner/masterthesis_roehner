@@ -81,15 +81,19 @@ Analysis of the collected GBFS data revealed distinct spatio-temporal patterns i
 \section{Problem Definition}
 This section formalizes the fleet rebalancing problem of a free-floating e-scooter sharing system.
 The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, relocations performed by users guided by incentives.
-It considers only the rebalancing in the form of recommended incentives per zone and net vehicle counts per community.
+The rebalancing mechanisms addressed are operator-based relocations between communities and user-based relocations within communities, which are achieved through incentives.
 The routing problem of service vehicles performing operator-based rebalancing is not addressed in this work. 
-Several works have been published on the routing problem for operator-based rebalancing, so there is no need to account for that.   
+Several works have been published on the routing problem for operator-based rebalancing, so there is no need to account for that \cite{lee_battery_2024, emami_integrated_2024, jimenez-merono_optimization_2024, paparella_optimization-based_2023, sanchez_simulation_2022}.   
 
 \subsection{Scope and Notation}
 The service area is partitioned into a set of zones($\mathcal{Z}$).
 The time is discretized into hourly intervals ($\mathcal{T}$) in which all pick-up, drop-off, and rebalancing events occur.
 The fleet size ($\mathcal{N}$) remains constant over all timesteps $t$.
 \autoref{tab:problem_notation} summarizes all notation used for the problem formulation, including all sets, parameters, and decision variables.
+The subset of zones for a given community $c$ is defined as:
+\begin{equation}
+    \mathcal{Z}_c = \{z \in \mathcal{Z} \mid \kappa(z) = c\}
+\end{equation}
 
 \begin{table}[!htb]
     \centering
@@ -112,14 +116,10 @@ The fleet size ($\mathcal{N}$) remains constant over all timesteps $t$.
         $U_z(t)$        & Unmet demand in zone $z$ at time $t$.\\
         \midrule
         $X_{c\rightarrow c'}(t)$ 
-            & Number of e-scooters moved by a service worker from community $c$ to zone $c'$ at time step t $t$. \\
+            & Number of e-scooters moved by a service worker from community $c$ to community $c'$ at time step $t$. \\
         $Y_{z\rightarrow z'}(t)$ 
-            & Number of e-scooters repositioned by users from zone $z$ to zone $z'$ at time step t $t$ through incentives. \\
+            & Number of e-scooters repositioned by users from zone $z$ to zone $z'$ at time step $t$ through incentives. \\
         \midrule
-        $c^{op}_{c \to c'}$  
-            & Cost per e-scooter moved by the operator from the community $c$ to $c'$.\\
-        $c^{user}_{z \to z'}$   
-            & Cost per scooter moved via user incentives from zone $z$ to $z'$.\\
         $A_{ij}$
             & Binary adjacency: 1 if zone $j$ is a designated neighbor of zone $i$, 0 otherwise\\
         \bottomrule
@@ -129,24 +129,24 @@ The fleet size ($\mathcal{N}$) remains constant over all timesteps $t$.
 \end{table}
 
 \subsection{State Variables}
-The formulated rebalancing problem distinguishes between forecasted demand ($\hat P_z(t)$, $\hat D_z(t)$), which forms part of the RL agent's state at each decision, and actual demand ($P_z(t)$, $P_z(t)$), which drives the simulation used for training and evaluation.
+The formulated rebalancing problem distinguishes between forecasted demand ($\hat P_z(t)$, $\hat D_z(t)$), which forms part of the state representation used for decision-making, and actual demand ($P_z(t)$, $P_z(t)$), which drives the simulation used for training and evaluation.
 All performance metrics, such as the satisfied demand, are computed against the actual demand values.
 
 \subsection{Rebalancing actions}
 The framework considers both operator-based and user-based rebalancing, which is why the problem definition includes decision variables for both approaches.
 Those decision variables are described in the following paragraphs.
+These decision variables represent the outcomes of rebalancing efforts.
+They do not directly correspond to the action spaces of the reinforcement learning agents, which are detailed in \autoref{sec:design-rl_framework}.
 
 \subsubsection{Operator-based rebalancing}
 Operator-based rebalancing is performed to relocate e-scooters between communities.
 Service workers move e-scooters between communities, which is represented by $X_{c\rightarrow c'}(t)$, describing the number of vehicles relocated from community $c$ to community $c'$ at time step $t$.
-These relocations incur a cost defined by $c^{op}_{c\to c'}$ per relocated e-scooter.
 
 \subsubsection{User-based rebalancing}
 User-based rebalancing is performed between zones inside a community.
 Users are incentivized to drop-off vehicles at a different zone than they originally intended to.
 The decision variable $Y_{z\rightarrow z'}(t)$ describes such a relocation done by a user from zone $z$ to $z'$.
-User-based relocations also incur a cost, which is defined by $c^{user}_{z \to z'}$.
-\autoref{eq:rb-user-constraint-spatial} constraints user-based rebalancing to take part only inside a community.
+\autoref{eq:rb-user-constraint-spatial} constrains user-based rebalancing to occur only within a community.
 Additionally, user-based rebalancing operations are restricted to the neighboring zones.
 \begin{equation}\label{eq:rb-user-constraint-spatial}
 Y_{z\to z'}(t) \;=\; 0
@@ -171,6 +171,8 @@ This constraint ensures that the total number of e-scooters across all zones rem
 This demand flow enables a step-wise calculation of available scooters at every timestep $t$.
 The demand flow considers both pick-up demand $P_z(t)$ and drop-off demand $D_z(t)$.
 Additionally, rebalancing operations are considered by the decision variables $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$.
+The formulation assumes that vehicles moved by operators to a community $c'$ are distributed uniformly among all zones $\mathcal{Z}_{\kappa(z)}$ within that community.
+
 \begin{equation}\label{eq:pb-demand-flow}
     \begin{aligned}
         n_z(t+1) =\;&\ n_z(t) - P_z(t) + D_z(t) \\
@@ -210,35 +212,40 @@ G(t) \;=\;
 \bar{n}(t) \;=\; \frac{1}{\mathcal{N}_z} \sum_{z=1}^{\mathcal{N}_z} n_z(t).
 \end{equation}
 
-\todo{Include Gini into objective}
-\todo{Consider removing costs}
+Similarly, the Gini coefficient for a single community $c$, used to measure intra-community imbalance, is defined as:
+\begin{equation}\label{eq:pb-objective-gini-community}
+G_c(t) \;=\; 
+\frac{1}{2 \, |\mathcal{Z}_c|^2 \, \bar{n}_c(t)} 
+\sum_{i \in \mathcal{Z}_c} \sum_{j \in \mathcal{Z}_c} 
+\bigl\lvert n_i(t) - n_j(t)\bigr\rvert,
+\qquad
+\bar{n}_c(t) \;=\; \frac{1}{|\mathcal{Z}_c|} \sum_{z \in \mathcal{Z}_c} n_z(t).
+\end{equation}
+
 \begin{equation}\label{eq:pb-objective}
 \max\;\sum_{t\in \mathcal{T}}\Biggl[
   \sum_{z\in \mathcal{Z}} r^S_z(t)
-  \;-\;\sum_{c,c' \in \mathcal{C}} c^{op}_{c\to c'}\,X_{c\to c'}(t)
-  \;-\;\sum_{z,z' \in \mathcal{Z}} c^{user}_{z\to z'}\,Y_{z\to z'}(t)
+  \;+\;(1 - \frac{\sum_{c,c' \in \mathcal{C}} X_{c\to c'}(t)}{\mathcal{N}})
+  \;+\;(1 - \frac{\sum_{z,z' \in \mathcal{Z}} Y_{z\to z'}(t)}{\mathcal{N}})
+  \;+\;(1 - G(t))
 \Biggr].
 \end{equation}
 
 
-This problem formulation can be transformed into two MDPs by viewing $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$ as the action spaces for a two-tier hierarchical reinforcement learning framework.
+This problem can be modeled using two coupled Markov Decision Processes (MDPs), where the rebalancing outcomes $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$ result from the actions taken within a two-tier hierarchical reinforcement learning framework.
 The objective of this problem formulation can be seen as the reward function for both agents.
 The following section defines an HRL framework that manages operator-based rebalancing on a macroscopic level and user-based rebalancing on a microscopic level.
 
  
 \newpage
-\section{Framework}
+\section{Framework}\label{sec:design-rl_framework}
 A hierarchical reinforcement learning (HRL) framework is proposed to address the e-scooter rebalancing challenge.
 The HRL framework comprises two tiers.
 The first tier, the Regional Distribution Coordinator, manages inter-community imbalances by determining the target number of vehicles for each defined community.
 These imbalances are addressed through operator-based rebalancing, where service workers collect vehicles from communities with an oversupply and redistribute them to communities experiencing an undersupply.
 The second tier consists of multiple User-Incentive Coordinators, each assigned to a specific community, to manage intra-community imbalances (i.e., imbalances within a single community).
 These coordinators aim to promote an equal distribution of vehicles by offering incentives to users for returning vehicles to designated undersupplied zones at the end of their trips.
-
-A dedicated demand forecasting module supports both the Regional Distribution Coordinator and the User-Incentive Coordinators.
-This module provides demand predictions as part of the state for both tiers, enhancing the effectiveness of rebalancing operations by allowing the system to anticipate future demand.
-This modular design ensures that both tiers optimize rebalancing decisions based on consistent future outlooks and separates the demand forecasting task from the RL agents.
-Additionally, the current vehicle distribution across all zones is provided as input to both agents. \autoref{fig:hrl-architecture} illustrates the architecture of this two-tier HRL framework.
+\autoref{fig:hrl-architecture} illustrates the architecture of this two-tier HRL framework.
 
 \begin{figure}[!htb]
     \centering
@@ -246,6 +253,15 @@ Additionally, the current vehicle distribution across all zones is provided as i
     \caption{Conceptual illustration of the two-tier Hierarchical Reinforcement Learning framework for e-scooter rebalancing.}
     \label{fig:hrl-architecture}
 \end{figure}
+
+The hierarchical approach has been chosen due to its ability to decompose a large problem, such as the rebalancing problem of an e-scooter sharing service, into more manageable sub-problems.
+In this HRL framework, the rebalancing problem is decomposed into sub-problems representing different spatial and operational levels.
+The Regional Distribution Coordinator addresses the rebalancing problem on a macroscopic community level, while the Use-Incentive Coordinator handles it on a microscopic zone level.
+
+A dedicated demand forecasting module supports both the Regional Distribution Coordinator and the User-Incentive Coordinators.
+This module provides demand predictions as part of the state for both tiers, enhancing the effectiveness of rebalancing operations by allowing the system to anticipate future demand.
+This modular design ensures that both tiers optimize rebalancing decisions based on consistent future outlooks and separates the demand forecasting task from the RL agents.
+Additionally, the current vehicle distribution across all zones is provided as input to both agents. 
 
 
 
@@ -261,7 +277,7 @@ This MDP formulation is illustrated in \autoref{fig:rdc_mdp}.
 
 \paragraph{State ($\mathcal{S}^{RDC}_t$)}
 The state representation for the RDC at timestep $t$, denoted $\mathcal{S}^{RDC}_t$, is a triple containing community-level vehicle counts ($n_c(t)$), pick-up demand forecast ($\hat{P}_c(t)$), and drop-off demand forecast ($\hat{D}_c(t)$).
-These demand forecasts are generated by a separate demand forecasting module, as detailed in \autoref{sec:design-rl_framework-forecasting_module}.
+These demand forecasts are generated by a separate demand forecasting module, detailed in \autoref{sec:design-rl_framework-forecasting_module}.
 
 
 \begin{itemize}
@@ -391,21 +407,27 @@ Additionally, gradient clipping is applied during backpropagation to prevent exp
 
 \newpage
 \subsection{User-Incentive Coordinator}\label{sec:design-rl_framework-uic}
-Implemented with the PPO algorithm due to the large action space. Intra-community imbalances.
+The second tier of the proposed HRL framework comprises multiple User-Incentive Coordinators (UIC), each assigned to a specific community to manage intra-community imbalances.
+Intra-community imbalances are addressed through user-based rebalancing.
+The UIC agents propose incentives for each zone that is part of the designated community to encourage users to drop-off vehicles at the end of their journey at zones that experience an undersupply of vehicles.
 
 
 \subsubsection{Markov Decision Process (MDP) formulation}
+The UIC's sequential decision-making problem is formalized as an MDP.
+A diagram of this formulation is provided in \autoref{fig:uic_mdp}.
+
 \paragraph{State ($\mathcal{S}^{UIC}_t$)}
+The state representation for the UIC at timestep $t$, denoted as $\mathcal{S}^{UIC}_t$, is a triple containing zone level vehicle counts ($n_z(t)$), pick-up demand forecast ($\hat{P}_z(t)$), and drop-off demand forecast ($\hat{D}_z(t)$).
 The state representation of the UIC is similarly defined as the state space of the RDC, but scoped to the specific community to which the UIC is designated.
 The state representation consists of three components:
 
 \begin{itemize}
+    \item \textbf{Zone-level Vehicle Counts ($n_z(t)$):}
+    The current number of available e-scooters in the zone $z$ at the current time step $t$. Where the community $\kappa(z)$ is the designated community of the UIC.
     \item \textbf{Pick-up Demand Forecast ($\hat{P}_z(t)$):}
     The forecasted number of e-scooters that are expected to originate at zone $z$ during the next time interval ($t \to t+1$). Where the community $\kappa(z)$ is the designated community of the UIC.
     \item \textbf{Drop-off demand forecast ($\hat{D}_z(t)$):}
     The forecasted number of e-scooters that are expected to be dropped off by users, e.g., the number of trips that are ending at zone $z$ in the next time interval ($t \to t+1$). Where the community $\kappa(z)$ is the designated community of the UIC.
-    \item \textbf{Zone-level vehicle counts ($n_z(t)$):}
-    The current number of available e-scooters in the zone $z$ at the current time step $t$. Where the community $\kappa(z)$ is the designated community of the UIC.
 \end{itemize}
 
 \paragraph{Action ($\mathcal{A}^{UIC}_t$)}
@@ -414,10 +436,10 @@ The UIC's actions represent continuous incentive levels between $[0,1]$ for each
 This results in the following definition of the Actions:
 
 \begin{equation}
-    \mathcal{A}^{UIC}_t = [a_1^{UIC}(t), ..., a_{N_z^c}^{UIC}(t)]
+    \mathcal{A}^{UIC}_{t, c} = [a_1^{UIC}(t), ..., a_{N_{\mathcal{Z}_c}}^{UIC}(t)]
 \end{equation}
 
-$N_z^c$ defines the number of zones in community $c$.
+$N_{\mathcal{Z}_c}$ defines the number of zones in community $c$.
 
 
 
@@ -426,15 +448,39 @@ $N_z^c$ defines the number of zones in community $c$.
 The reward function $\mathcal{R}^{UIC}_t$ of the UIC considers three components, each weighted by a non-negative weighting factor.
 
 \begin{equation}\label{eq:uic-reward}
-    \mathcal{R}^{UIC}_t = w_{demand}^{UIC} \cdot R_{demand}^{UIC}(t) + w_{cost}^{UIC} \cdot R_{cost}(t) + w_{gini}^{UIC} \cdot R_{gini}^{UIC}(t)
+    \mathcal{R}^{UIC}_t(c) = \frac{w_{demand}^{UIC} \cdot R_{demand}^{UIC}(t, c) + w_{cost}^{UIC} \cdot R_{cost}^{UIC}(t, c) + w_{gini}^{UIC} \cdot R_{gini}^{UIC}(t, c)}{w_{demand}^{UIC}+ w_{cost}^{UIC}+ w_{gini}^{UIC}}
 \end{equation}
+where $w_{demand}^{UIC}$, $w_{cost}^{UIC}$, and $w_{gini}^{UIC}$ are non-negative weighting factors. Each component reward ($R_{demand}^{UIC}(t)$, $R_{cost}^{UIC}(t)$, $R_{gini}^{UIC}(t)$) is individually normalized to a range of [0, 1].
+The specific values for the weighting factors and the methodology for their selection are detailed in \autoref{sec:implementation_uic}.
+
+\begin{subequations}
+    \begin{equation}\label{eq:uic-reward-demand}
+        R_{demand}^{UIC}(t, c) = \frac{\sum_{z \in \mathcal{Z}_c}S_z(t)}{\sum_{z \in \mathcal{Z}_c}D_z(t)}
+    \end{equation}
+    \begin{equation}\label{eq:uic-reward-cost}
+        R_{cost}^{UIC}(t, c) = 1 -  \left(\frac{\sum_{z, z' \in \mathcal{Z}_c}Y_{z \to z'}(t)}{\sum_{z \in \mathcal{Z}_c}n_z(t)}\right)^2
+    \end{equation}
+    \begin{equation}\label{eq:uic-reward-gini}
+        R_{gini}^{UIC}(t, c) = 1 - G_c(t)
+    \end{equation}
+\end{subequations}
 
 \begin{enumerate}
-    \item \textbf{Satisfied Demand Ratio ($R_{demand}^{UIC}(t)$):}
+    \item \textbf{Satisfied Demand Ratio ($R_{demand}^{UIC}(t, c)$):}
+    The core component of the reward function is the satisfied demand ratio, which measures the proportion of satisfied trip requests.
+    It is calculated by summing the number of trip requests happening inside the designated community the system successfully served, and dividing this sum by the total number of trip requests received for each zone that is part of the community (see \autoref{eq:uic-reward-demand}).
+    This Satisfied Demand Ratio is calculated for the time interval $[t, t+1]$. 
     
-    \item \textbf{Rebalancing Cost ($R_{cost}^{UIC}(t)$):}
+    \item \textbf{Rebalancing Cost ($R_{cost}^{UIC}(t, c)$):}
+    Rebalancing operations negatively change the reward signal to encourage the UIC to limit rebalancing operations to only necessary operations.
+    This Rebalancing Cost component is calculated by summing the number of vehicles rebalanced through user incentives inside the corresponding community, which is divided by the current number of vehicles present in this community.
+    This results in a normalized ratio of possible rebalancing operations.
+    This ratio is squared and inverted to penalize high numbers of rebalancing operations (see \autoref{eq:uic-reward-cost}).
+    A low number of rebalancing operations results in higher values for this reward component.
     
-    \item \textbf{Imbalance Penalty ($R_{gini}^{UIC}(t)$):}
+    \item \textbf{Imbalance Penalty ($R_{gini}^{UIC}(t, c)$):}
+    The last component of the reward signal of the UIC encourages an equitable distribution of the e-scooter fleet inside the community \cite{cederle_fairness-oriented_2025}.
+    It is calculated based on the Gini coefficient calculated over the vehicle count in all zones part of the designated community.
     
 \end{enumerate}
 
@@ -446,34 +492,77 @@ The reward function $\mathcal{R}^{UIC}_t$ of the UIC considers three components,
     \label{fig:uic_mdp}
 \end{figure}
 
+\subsubsection{Data Flow}
+The UIC agent interacts with a simulated environment of the e-scooter sharing system.
+This models the complex system dynamics of such sharing systems in a scoped and simplified manner for training performance reasons.
+
+Inputs to the UICs environment contain the forecasted pick-up and drop-off demands for all zones inside the community.
+These forecasted demands come from the Demand Forecasting Module which is detailed in \autoref{sec:design-rl_framework-forecasting_module}.
+The real-time vehicle counts per zone are part of the environment system state.
+
+Output from the UIC agent is a vector of continuous values for each zone in the range [0.0, 1.0] representing the incentive intensity for each zone part of the designated community.
+These normalized incentive intensities are handled by a user response model part of the environment.
+This model is defined by a user willingness function (\texttt{user\_willingness\_fn}).
+This function maps incentive intensity values to a user's willingness factor.
+This factor represents the fraction of users who accept the offered incentive.
+In the simulation, the neighboring zones of the anticipated drop-off zone are identified, and the corresponding incentive intensities are derived from the selected action from the UIC.
+From these neighboring zones, the zone with the highest incentive value is picked, and the user's willingness is calculated to update the drop-off demand for the current timestep.
+This model represents a rational user choice based purely on the highest local incentive offered.
+This \texttt{user\_willingness\_fn} is a simplifying assumption that models complex human behaviour.
+This simplification is necessary for the simulation environment.
+
 \subsubsection{Algorithm and Architecture}
 A Proximal Policy Optimization (PPO)\cite{schulman_proximal_2017} algorithm is implemented for the User-Incentive Coordinators.
+The selection of PPO is made, as it can effectively handle continuous action spaces required for fine-grained setting of incentive intensities.
+
 This algorithm allocates incentives to specific zones within a community to encourage users to drop-off vehicles in these targeted zones rather than their originally intended destinations.
-The implementation leverages the Stable Baselines3 library, which provides an robust and stable implementation of the PPO algorithm \cite{raffin_stable-baselines3_2021}.
+The implementation leverages the Stable Baselines3 library, which provides a robust and stable implementation of the PPO algorithm \cite{raffin_stable-baselines3_2021}.
+The PPO algorithm is an on-policy actor-critic method recognized for its stability and robust performance.
+PPO is a policy gradient method which has been further discussed in \autoref{sec:background-reinforcement_learning-pgm}.
 
-\begin{itemize}
-    \item \textbf{State}
-    \begin{itemize}
-        \item Local demand forecast ($\hat{P_z}(t)$, $\hat{D_z}(t)$ $\forall z \in \mathcal{Z}_c$), local vehicle counts per grid cell($n_z(t)$ $\forall z \in \mathcal{Z}_c$)
-    \end{itemize}
-    \item \textbf{Action}
-    \begin{itemize}
-        \item Assigns price incentives for each grid cell for dropping off at these grid cells
-    \end{itemize}
-    \item \textbf{Reward}
-    \begin{itemize}
-        \item Satisfied demand ($s_z(t)$ $\forall z \in \mathcal{Z}_c$), negative incentive costs
-    \end{itemize}
-\end{itemize}
+The implementation uses a Multi-Layer Perceptron (MLP) architecture with separate networks for the policy (actor) and value (critic) functions.
+Utilizing separate networks can improve stability by preventing the learning objectives of the policy and value functions from interfering with each other's gradients.
+By isolating the actor and the critic into two distinct models, each network is updated with its own loss, thereby eliminating inferences between the two loss signals.
+Both networks consist of three hidden layers, using the same network parameters, which are described with other implementation details in \autoref{sec:implementation_uic}.
+For each zone in its surrounding community, the actor network outputs the mean and standard deviation parameters of a Gaussian distribution.
+The continuous incentive for each zone is then sampled from the resulting distribution.
+This sampling from a Gaussian distribution naturally results in exploration.
+The critic network, on the other hand, is used for calculating the advantage of each action.
+Therefore, the critic network outputs a single scalar value representing the estimate of the state-value function.
+This estimate serves as a baseline to compute the advantage for each action.
+The architecture is illustrated in \autoref{fig:ppo-architecture}.
 
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/ppo-architecture.pdf}
+    \caption{PPO architecture for the UIC, with two networks for the actor and the critic.}
+    \label{fig:ppo-architecture}
+\end{figure}
+
+\paragraph{Exploration Strategy}
+In contrast to the $\epsilon$-greedy strategy used for the RDCs MH-DQN agent, the PPO algorithm with a continuous action space has a stochastic nature, which results in some kind of exploration.
+The degree of exploration is controlled by an entropy bonus, weighted by a coefficient.
+This entropy bonus is added to the loss function to encourage the policy to maintain a higher randomness, preventing the model from converging to a suboptimal solution.
+
+\paragraph{Training stabilization techniques}
+PPO employs a clipped surrogate objective function that ensures stable policy updates.
+This mechanism constrains large policy updates, which potentially destabilize those.
+The constraint is controlled by a clip range parameter, which is annealed over the training process.
+Therefore, larger exploratory updates at the beginning of the training process are allowed; gradually decreasing the value of this parameter results in smaller and finer granular updates at the end of the training process.
+
+Additionally, to further stabilize training, Generalized Advantage Estimation (GAE) is used.
+GAE computes a weighted average of the advantage estimates over multiple timesteps, rather than relying on a single-step advantage value.
+This technique, therefore, produces more stable estimates of the advantage function, resulting in faster learning and more reliable policy gradients. 
+
+\newpage
 \subsection{Demand Forecasting Module}\label{sec:design-rl_framework-forecasting_module}
 The successful operation of the rebalancing algorithm is fundamentally dependent on its ability to anticipate future demand.
 Therefore, a dedicated Demand Forecasting Module that accurately predicts future demand is critical.
-This implementation of an independent Demand Forecasting Module takes out the forecasting problem from the rebalancing algorithms themselves, which ideally should increase the overall efficiency of the framework since the problems are separated and can be targeted directly.
+This implementation of an independent Demand Forecasting Module removes the forecasting problem from the rebalancing algorithms themselves, which ideally should increase the overall efficiency of the framework, as the problems are separated and can be targeted directly.
 
 To effectively support the RL rebalancing agents mentioned earlier, the Demand Forecasting Module must predict the number of pick-ups and drop-offs for each zone on an hourly basis.
 The underlying model of this Demand Forecasting Module is trained using historical demand data extracted from the raw GBFS data.
-To predict both pick-up and drop-off demand two separate models are trained for each of them.
+To predict both pick-up and drop-off demand, two separate models are trained for each of them.
 The output of both demand models should be the expected number of pick-up / drop-off events hourly per zone.
 
 The model selected for the Demand Forecasting Module is the Irregular Convolutional Long Short-Term Memory (IrConvLSTM) network by Li et al. \cite{li_improving_2023}.
@@ -487,4 +576,11 @@ IRConvLSTM consistently outperformed the other models across all benchmarks. inc
 
 The implementation details of this Demand Forecasting Module and the IrConvLSTM are described in \autoref{sec:implementation_demand-forecasting-module}.
 
-\todo{adress bias in forecasts}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{content/figures/IrConv-LSTM-Neighbors.pdf}
+    \caption{Comparison of spatial neighbors used in regular convolution and semantic neighbors used in irregular convolution \cite{li_improving_2023}}
+    \label{fig:irconv-neighbors}
+\end{figure}
+
+\todo{address bias in forecasts}
