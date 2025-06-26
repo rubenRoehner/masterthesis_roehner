@@ -4,3 +4,78 @@ What will not depend on your thesis that you have results that you will visualiz
 In general, use one figure after each other and explain how to read it and directly discuss the content and \textbf{meaning}.
 Sometimes, you want to visualize a change through your design and implementation, or want to compare two systems.
 Then, you should place the figures either above each other or next to each other.
+
+\section{Experimental Setup}\label{sec:evaluation-setup}
+
+
+\section{Hyperparameter Optimization}\label{sec:evaluation-ho}
+
+\subsection{Regional Distribution Coordinator (RDC)}
+\begin{table}[!htb]
+    \centering
+    \begin{tabularx}{\textwidth}{lXl}
+        \toprule
+        \textbf{Parameter} & \textbf{Summary Description} & \textbf{Final Value} \\
+        \midrule
+        \texttt{gamma} & Discount factor & $0.926$\\
+        \texttt{tau} & Target network soft update rate & $0.001$ \\
+        \midrule
+        \texttt{hidden\_size} & Hidden layer neuron count & $256$ \\
+        \midrule
+        \texttt{lr} & Initial learning rate & $1 \times 10^{-5}$ \\
+        \texttt{lr\_step\_size} & LR decay step size & $1500$ \\
+        \texttt{lr\_gamma} & LR decay factor & $0.9$ \\
+        \midrule
+        \texttt{rb\_capacity} & Replay buffer capacity & $10,000$\\
+        \texttt{batch\_size} & Minibatch size & $256$ \\
+        \texttt{per\_alpha} & PER prioritization exponent ($\alpha$) & $0.8$\\
+        \texttt{per\_beta\_start} & PER importance sampling start ($\beta_0$) & $0.3$\\
+        \texttt{per\_beta\_frames} & PER $\beta$ annealing frames & $150,000$\\
+        \midrule
+        \texttt{epsilon\_start} & Initial exploration rate ($\epsilon_{start}$) & $1.0$\\
+        \texttt{epsilon\_end} & Final exploration rate ($\epsilon_{end}$) & $0.06$\\
+        \texttt{epsilon\_decay} & Exploration rate decay factor & $0.999$\\
+        \midrule
+        \texttt{weight\_demand} & Satisfied demand weight & $1.1$ \\
+        \texttt{weight\_cost} & Rebalancing cost weight & $1.1$ \\
+        \texttt{weight\_gini} & Gini index penalty weight & $0.1$ \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Final optimized hyperparameter configuration for the RDC.}
+    \label{tab:rdc_final_parameters}
+\end{table}
+
+\subsection{User-Incentive Coordinator (UIC)}
+
+\begin{table}[!htb]
+    \centering
+    \begin{tabularx}{\textwidth}{lXl}
+        \toprule
+        Parameter & Description & Final Value \\
+        \midrule
+        \texttt{lr} & Optimizer learning rate. & $1 \times 10^{-6}$ \\
+        \texttt{gamma} & Reward discount factor. & $0.918$ \\
+        \texttt{gae\_lambda} & GAE bias-variance trade-off. & $0.95$\\
+        \texttt{clip\_range} & PPO policy update clipping range. & $0.13$\\
+        \texttt{ent\_coeff} & Entropy bonus weight for exploration. & $0.00078$\\
+        \texttt{vf\_coeff} & Value function loss weight. & $0.6$\\
+        \texttt{target\_kl} & Target KL divergence for policy updates. & $0.02$\\
+        \midrule
+        \texttt{n\_steps} & Rollout buffer size per update. & $2048$ \\
+        \texttt{n\_epochs} & Optimization epochs per update. & $10$ \\
+        \texttt{batch\_size} & Minibatch size for gradient updates. & $32$ \\
+        \midrule
+        \texttt{num\_hidden\_layers} & Number of network hidden layers. & $3$\\
+        \texttt{hidden\_size} & Neurons per hidden layer. & $256$ \\
+        \texttt{activation\_fn} & Hidden layer activation function. & Tanh \\
+        \midrule
+        \texttt{weight\_demand} & Satisfied demand weight & $1.1$ \\
+        \texttt{weight\_cost} & Rebalancing cost weight & $1.1$ \\
+        \texttt{weight\_gini} & Gini index penalty weight & $0.1$ \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Final hyperparameter values for the User-Incentive Coordinator after optimization.}
+    \label{tab:uic_final_hyperparameters}
+\end{table}
+
+\section{Results and Analysis}

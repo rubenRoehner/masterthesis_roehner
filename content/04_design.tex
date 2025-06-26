@@ -1,7 +1,7 @@
 \chapter{Design}\label{sec:design} % approx. 8 pages
 The following chapter is structured as follows: the first section describes the data used for training and testing the rebalancing algorithms, the second section formulates the rebalancing problem, and the third section focuses on the proposed framework to tackle the rebalancing problem.
 
-\section{Data}
+\section{Data}\label{sec:design-data}
 The data underlying this thesis was collected from a General Bike Sharing Specification (GBFS) feed that publishes the live locations of e-scooters from sharing services operating in the greater Stuttgart area \cite{noauthor_gebundelte_nodate}. These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations. The raw GBFS data undergoes a pre-processing stage to extract pick-up and drop-off events. These events were subsequently spatially and temporally aggregated using the H3 grid system \cite{noauthor_h3_2018} and hourly time bins for analysis, as well as for training and evaluating the proposed rebalancing framework.
 
 \subsection{Data Collection}
@@ -30,14 +30,14 @@ The data has been crawled in the time between 11.02.2025 and 28.04.2025, e.g., 7
     \caption{Raw GBFS data fields}
     \label{tab:gbfs_fields}
 \end{table}
-\subsection{Preprocessing}
+\subsection{Data Preprocessing}
 The raw GBFS data is preprocessed to extract pick-up and drop-off events.
 Both GBFS feeds randomize vehicle identification for anonymization, making it impossible to extract information on the actual trips driven by the users.
 Therefore, only pick-up and drop-off events were extracted, which reduced the usability of this data.
 To extract those events, neighbouring snapshots are compared.
 Vehicle Identifiers that disappear or reappear in a snapshot compared to the previous snapshot reveal the occurrence of pick-ups and drop-offs.
 After those events were derived from the datasets, 200,000 pick-up and drop-off events for the service bolt and 590.000 pick-up and drop-off events for the service provider Voi were counted.
-After that, outliers have been removed from the dataset. Therefore, a boundary for the city of Stuttgart has been defined to filter the pick-up and drop-off events that occurred only inside this boundary. This has been done to focus on a smaller region instead of outer city regions like Leinfelden.
+After that, outliers have been removed from the dataset. Therefore, a boundary for the city of Stuttgart has been defined to filter the pick-up and drop-off events that occurred only inside this boundary. This has been done to focus on a smaller region, rather than outer city regions like Böblingen.
 
 
 \begin{figure}[!htb]
@@ -49,7 +49,31 @@ After that, outliers have been removed from the dataset. Therefore, a boundary f
 
 
 \subsection{Descriptive Statistics}
+Analysis of the collected GBFS data revealed distinct spatio-temporal patterns in vehicle movement.
+This confirms the need for an intelligent rebalancing strategy to address the resulting imbalances.
 
+\begin{table}[!htb]
+    \centering
+    \begin{tabularx}{.8\textwidth}{Xc}
+        \toprule
+        \textbf{Metric} & \textbf{Value} \\ 
+        \midrule
+        Total Number of Pick-Ups            & XXX \\
+        Total Number of Drop-Offs           & XXX \\
+        Analysis Period                     & XXX \\
+        Average Daily Events                & XXX \\
+        Busiest Hour                        & XXX \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Dataset summary statistics}
+    \label{tab:general_statistics}
+\end{table}
+
+
+Significant temporal imbalances can be observed throughout the day.
+As shown in \autoref{fig:demand_net_imbalance}, there is a clear net surplus of scooters during the early morning hours (3-6 a.m.).
+Following a more even distribution of pick-up and drop-off events at midday.
+In the afternoon, a clear deficit of scooters was observed, with more pick-up events than drop-off events.  
 
 \begin{figure}[!htb]
     \centering
@@ -58,7 +82,11 @@ After that, outliers have been removed from the dataset. Therefore, a boundary f
     \label{fig:demand_net_imbalance}
 \end{figure}
 
-Analysis of the collected GBFS data revealed distinct spatio-temporal patterns in vehicle movement. For instance, a significant net imbalance was observed during morning hours (3-8 a.m.), characterized by a flow of e-scooters from suburban areas towards Stuttgart's city center. \autoref{fig:demand_net_imbalance_map} illustrates this pattern, with H3 grid zones color-coded to indicate undersupply (red) or oversupply (blue) of vehicles. This observed imbalance underscores the importance of rebalancing. Conversely, the evening hours demonstrate an opposite trend, with most trips originating in the city center and ending in suburban areas.
+These imbalances can also be observed spatially.
+For instance, a significant net imbalance was observed during morning hours (3-8 a.m.), characterized by a flow of e-scooters from suburban areas towards Stuttgart's city center (see \autoref{fig:demand_net_imbalance_map_morning}).
+\autoref{fig:demand_net_imbalance_map} illustrates this pattern, with H3 grid zones color-coded to indicate undersupply (red) or oversupply (blue) of vehicles.
+This observed imbalance underscores the importance of rebalancing.
+Conversely, the evening hours demonstrate an opposite trend, with most trips originating in the city center and ending in suburban areas (see \autoref{fig:demand_net_imbalance_map_evening}).
 
 \begin{figure}[!htb]
   \centering
@@ -78,7 +106,7 @@ Analysis of the collected GBFS data revealed distinct spatio-temporal patterns i
 \newpage\null\thispagestyle{empty}\newpage
 
 \newpage
-\section{Problem Definition}
+\section{Problem Definition}\label{sec:design-problem_definition}
 This section formalizes the fleet rebalancing problem of a free-floating e-scooter sharing system.
 The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, relocations performed by users guided by incentives.
 The rebalancing mechanisms addressed are operator-based relocations between communities and user-based relocations within communities, which are achieved through incentives.
@@ -239,13 +267,13 @@ The following section defines an HRL framework that manages operator-based rebal
  
 \newpage
 \section{Framework}\label{sec:design-rl_framework}
-A hierarchical reinforcement learning (HRL) framework is proposed to address the e-scooter rebalancing challenge.
+A \gls{HRL} framework is proposed to address the e-scooter rebalancing challenge.
 The HRL framework comprises two tiers.
-The first tier, the Regional Distribution Coordinator, manages inter-community imbalances by determining the target number of vehicles for each defined community.
+The first tier, the \gls{RDC}, manages inter-community imbalances by determining the target number of vehicles for each defined community.
 These imbalances are addressed through operator-based rebalancing, where service workers collect vehicles from communities with an oversupply and redistribute them to communities experiencing an undersupply.
-The second tier consists of multiple User-Incentive Coordinators, each assigned to a specific community, to manage intra-community imbalances (i.e., imbalances within a single community).
+The second tier consists of multiple \gls{UICs}, each assigned to a specific community, to manage intra-community imbalances (i.e., imbalances within a single community).
 These coordinators aim to promote an equal distribution of vehicles by offering incentives to users for returning vehicles to designated undersupplied zones at the end of their trips.
-\autoref{fig:hrl-architecture} illustrates the architecture of this two-tier HRL framework.
+\autoref{fig:hrl-architecture} illustrates the architecture of this two-tier \gls{HRL} framework.
 
 \begin{figure}[!htb]
     \centering
@@ -255,7 +283,7 @@ These coordinators aim to promote an equal distribution of vehicles by offering 
 \end{figure}
 
 The hierarchical approach has been chosen due to its ability to decompose a large problem, such as the rebalancing problem of an e-scooter sharing service, into more manageable sub-problems.
-In this HRL framework, the rebalancing problem is decomposed into sub-problems representing different spatial and operational levels.
+In this \gls{HRL} framework, the rebalancing problem is decomposed into sub-problems representing different spatial and operational levels.
 The Regional Distribution Coordinator addresses the rebalancing problem on a macroscopic community level, while the Use-Incentive Coordinator handles it on a microscopic zone level.
 
 A dedicated demand forecasting module supports both the Regional Distribution Coordinator and the User-Incentive Coordinators.
