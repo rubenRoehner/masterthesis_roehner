@@ -2,11 +2,19 @@
 The following chapter is structured as follows: the first section describes the data used for training and testing the rebalancing algorithms, the second section formulates the rebalancing problem, and the third section focuses on the proposed framework to tackle the rebalancing problem.
 
 \section{Data}\label{sec:design-data}
-The data underlying this thesis was collected from a General Bike Sharing Specification (GBFS) feed that publishes the live locations of e-scooters from sharing services operating in the greater Stuttgart area \cite{noauthor_gebundelte_nodate}. These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations. The raw GBFS data undergoes a pre-processing stage to extract pick-up and drop-off events. These events were subsequently spatially and temporally aggregated using the H3 grid system \cite{noauthor_h3_2018} and hourly time bins for analysis, as well as for training and evaluating the proposed rebalancing framework.
+The data underlying this thesis was collected from a General Bike Sharing Specification (GBFS) feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{noauthor_gebundelte_nodate}.
+These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations.
+This section details the collection, preprocessing, and exploratory analysis of this time-series data used to develop such a strategy.
+
 
 \subsection{Data Collection}
-The GBFS feed is crawled every 15 minutes to extract the locations of e-scooters from the service providers Bolt and Voi.
-The data has been crawled in the time between 11.02.2025 and 28.04.2025, e.g., 76 days. The GBFS data format includes the parameters 
+To capture a comprehensive view of e-scooter usage, data was acquired from the GBFS feeds of the two most prominent service providers in Stuttgart: Bolt and Voi.
+The data was collected by crawling the public feed at 15-minute intervals, creating detailed time-series snapshots of all available vehicles.
+This process was conducted continuously over a 128-day period, from 11 February 2025 to 18 June 2025.
+
+The GBFS format, a standard for publishing shared micromobility vehicle data, provides several key attributes for each vehicle.
+These include its unique identifier, GPS coordinates (latitude and longitude), operational status (reserved or disabled), and battery level.
+A complete list of the data fields extracted from the feed is presented in \autoref{tab:gbfs_fields}.
 
 \begin{table}[!htb]
     \centering
@@ -30,15 +38,49 @@ The data has been crawled in the time between 11.02.2025 and 28.04.2025, e.g., 7
     \caption{Raw GBFS data fields}
     \label{tab:gbfs_fields}
 \end{table}
-\subsection{Data Preprocessing}
-The raw GBFS data is preprocessed to extract pick-up and drop-off events.
-Both GBFS feeds randomize vehicle identification for anonymization, making it impossible to extract information on the actual trips driven by the users.
-Therefore, only pick-up and drop-off events were extracted, which reduced the usability of this data.
-To extract those events, neighbouring snapshots are compared.
-Vehicle Identifiers that disappear or reappear in a snapshot compared to the previous snapshot reveal the occurrence of pick-ups and drop-offs.
-After those events were derived from the datasets, 200,000 pick-up and drop-off events for the service bolt and 590.000 pick-up and drop-off events for the service provider Voi were counted.
-After that, outliers have been removed from the dataset. Therefore, a boundary for the city of Stuttgart has been defined to filter the pick-up and drop-off events that occurred only inside this boundary. This has been done to focus on a smaller region, rather than outer city regions like Böblingen.
 
+
+\subsection{Data Preprocessing}
+The primary goal of preprocessing was to transform the raw location snapshots into a dataset of discrete pick-up and drop-off events.
+A methodological limitation of the GBFS feed is the randomization of vehicle identifiers for user anonymization, which prevents the direct tracking of individual trips.
+To overcome this, an inferential approach was adopted: by comparing consecutive snapshots, the disappearance of a vehicle ID from one frame to the next was classified as a pick-up, while the appearance of a new ID was classified as a drop-off.
+
+This event inference process yielded a total of 2,168,331 combined pick-up and drop-off events for Voi and 680,459 for Bolt.
+Subsequently, the dataset was filtered to remove geographical outliers by defining a boundary corresponding to the city of Stuttgart and excluding events in outlying regions (e.g., Böblingen).
+This filtering had a notable effect on the Voi dataset, reducing it by 59.6\% to 876,511 events.
+In contrast, the Bolt dataset was largely unaffected, retaining 96.4\% of its data with 656,082 events remaining.
+This disparity suggests a differing operational focus between the two providers, with Voi maintaining a much larger service presence in the suburbs surrounding Stuttgart.
+\autoref{fig:demand_map_reduction} presents this filtering process by comparing the data displayed on a map before and after filtering.
+
+\begin{figure}[!htb]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{content/figures/voi_filtering_subplots.png}
+        \caption{Voi}
+        \label{fig:demand_map_voi}
+    \end{subfigure}\quad
+    \begin{subfigure}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{content/figures/bolt_filtering_subplots.png}
+        \caption{Bolt}
+        \label{fig:demand_map_bolt}
+        \end{subfigure}
+    \caption{Data Filtering}
+    \label{fig:demand_map_reduction}
+\end{figure}
+
+
+Finally, the cleaned event data was aggregated to create a structured dataset for model training.
+For spatial aggregation, a two-layer hierarchical approach was implemented using the H3 hexagonal grid system \cite{noauthor_h3_2018}.
+The finest spatial unit, a \textit{zone}, was defined using H3 resolution 8, resulting in 291 distinct zones across the study area.
+These zones were then grouped into larger \textit{communities} at H3 resolution 6, producing a total of 9 communities.
+This hierarchical structure allows for analysis at both a granular and a regional level.
+Temporally, events within each zone were aggregated into one-hour time bins.
+
+This H3 system was chosen for three key reasons.
+First, its hierarchical structure facilitates seamless aggregation at different spatial resolutions, which is ideal for the community-zone model used in this thesis.
+Second, hexagons provide uniform distances to all six neighbors, ensuring greater consistency in spatial analysis compared to square grids.
+Third, as a global standard, H3 ensures that the grid is predefined worldwide, simplifying the potential application of this methodology to other cities.
+\autoref{fig:data_grid_community_structure} illustrates the resulting grid structure imposed on the study area.
 
 \begin{figure}[!htb]
     \centering
@@ -49,8 +91,8 @@ After that, outliers have been removed from the dataset. Therefore, a boundary f
 
 
 \subsection{Descriptive Statistics}
-Analysis of the collected GBFS data revealed distinct spatio-temporal patterns in vehicle movement.
-This confirms the need for an intelligent rebalancing strategy to address the resulting imbalances.
+Exploratory analysis of the processed data revealed distinct spatio-temporal patterns in vehicle demand, confirming the necessity for a dynamic rebalancing strategy to mitigate service imbalances.
+A summary of the dataset's key statistics is provided in \autoref{tab:general_statistics}.
 
 \begin{table}[!htb]
     \centering
@@ -60,7 +102,7 @@ This confirms the need for an intelligent rebalancing strategy to address the re
         \midrule
         Total Number of Pick-Ups            & XXX \\
         Total Number of Drop-Offs           & XXX \\
-        Analysis Period                     & XXX \\
+        Analysis Period                     & 128 \\
         Average Daily Events                & XXX \\
         Busiest Hour                        & XXX \\
         \bottomrule
@@ -70,37 +112,38 @@ This confirms the need for an intelligent rebalancing strategy to address the re
 \end{table}
 
 
-Significant temporal imbalances can be observed throughout the day.
-As shown in \autoref{fig:demand_net_imbalance}, there is a clear net surplus of scooters during the early morning hours (3-6 a.m.).
-Following a more even distribution of pick-up and drop-off events at midday.
-In the afternoon, a clear deficit of scooters was observed, with more pick-up events than drop-off events.  
+Significant temporal imbalances are noticeable on an aggregate daily basis.
+As shown in \autoref{fig:demand_net_imbalance}, a net surplus of scooters occurs in the early morning (approx. 3:00–6:00), when drop-offs outpace pick-ups.
+This is followed by a period of relatively balanced usage around midday.
+In the afternoon and evening, a clear vehicle deficit occurs as pick-ups consistently exceed drop-offs.
 
 \begin{figure}[!htb]
     \centering
-    \includegraphics[width=0.8\linewidth]{content/figures/Net_imbalance_aggregated.png}
+    \includegraphics[width=\linewidth]{content/figures/Net_imbalance_aggregated.png}
     \caption{Net imbalance aggregated hourly}
     \label{fig:demand_net_imbalance}
 \end{figure}
 
-These imbalances can also be observed spatially.
-For instance, a significant net imbalance was observed during morning hours (3-8 a.m.), characterized by a flow of e-scooters from suburban areas towards Stuttgart's city center (see \autoref{fig:demand_net_imbalance_map_morning}).
-\autoref{fig:demand_net_imbalance_map} illustrates this pattern, with H3 grid zones color-coded to indicate undersupply (red) or oversupply (blue) of vehicles.
-This observed imbalance underscores the importance of rebalancing.
-Conversely, the evening hours demonstrate an opposite trend, with most trips originating in the city center and ending in suburban areas (see \autoref{fig:demand_net_imbalance_map_evening}).
+These imbalances also manifest spatially, creating distinct demand hotspots that fluctuate over time.
+For example, during the morning commute hours (3:00–8:00), a strong flow of e-scooters from residential areas towards Stuttgart's city center creates a vehicle surplus in the center and deficits in the periphery.
+This pattern is illustrated in \autoref{fig:demand_net_imbalance_map_morning}.
+Conversely, evening hours exhibit an opposite flow, with trips predominantly originating in the city center and terminating in outlying residential zones (\autoref{fig:demand_net_imbalance_map_evening}).
+These observed imbalances, detailed in \autoref{fig:demand_net_imbalance_map}, underscore the critical need for a predictive rebalancing model to maintain service quality.
+
 
 \begin{figure}[!htb]
   \centering
   \begin{subfigure}{0.48\textwidth}
     \includegraphics[width=\linewidth]{content/figures/Demand_Imbalance_Morning.png}
-    \caption{3-8 AM net imbalance}
-  \label{fig:demand_net_imbalance_morning}
+    \caption{3:00–8:00 net imbalance}
+  \label{fig:demand_net_imbalance_map_morning}
   \end{subfigure}\quad
   \begin{subfigure}{0.48\textwidth}
     \includegraphics[width=\linewidth]{content/figures/Demand_Imbalance_Evening.png}
-    \caption{3-8 PM net imbalance}
+    \caption{15:00–20:00 net imbalance}
   \label{fig:demand_net_imbalance_map_evening}
   \end{subfigure}
-  \caption{E-scooter imbalance hotspots. Red = deficit, blue = surplus.}
+  \caption{Spatial distribution of e-scooter net imbalance during morning and evening peak periods. Red zones indicate a net deficit (more pick-ups than drop-offs), while blue zones indicate a net surplus.}
   \label{fig:demand_net_imbalance_map}
 \end{figure}
 \newpage\null\thispagestyle{empty}\newpage
