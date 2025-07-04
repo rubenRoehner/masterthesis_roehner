@@ -47,7 +47,7 @@ The configurable hyperparameters that influence the agent's ability to learn an 
         \bottomrule
     \end{tabularx}
     \caption{Configurable parameters for the Regional Distribution Coordinator agent.}
-    \label{tab:rdc_training_parameters}
+    \label{tab:rdc_hyperparameters_description}
 \end{table}
 
 \subsubsection{Multi-Head Deep Q-Network Architecture (\texttt{MultiHeadDQN} Class)}
@@ -131,23 +131,22 @@ The User-Incentive Coordinator (UIC) is implemented using the Proximal Policy Op
 This class serves as the heart of the second tier of the proposed HRL framework.
 The agent 
 
-\begin{table}[!htb]
+\begin{table}[H]
     \centering
     \begin{tabularx}{\textwidth}{lX}
         \toprule
         Parameter & Description \\
         \midrule
         \texttt{lr} & The learning rate for the Adam optimizer, which controls the step size of the gradient-based updates to the policy and value function networks. \\
-        \texttt{gamma} & The discount factor applied to future rewards. It determines the present value of future rewards, influencing how far-sighted the agent's planning horizon is. \\
-        \texttt{gae\_lambda} & The lambda parameter for Generalized Advantage Estimation (GAE). It provides a trade-off between bias (low lambda) and variance (high lambda) in the advantage function estimates. \\
+        \texttt{n\_steps} & The number of simulation steps collected from the environment during each rollout phase before a policy update is performed. \\
+        \texttt{batch\_size} & The number of training samples used in one minibatch for a single gradient descent step. \\
         \texttt{clip\_range} & The clipping parameter for PPO's surrogate objective function. It defines a small, acceptable range for the policy ratio, preventing excessively large policy updates and ensuring training stability. \\
         \texttt{ent\_coeff} & The coefficient for the entropy bonus term in the loss function. A positive coefficient encourages exploration by penalizing policies that become too deterministic. \\
         \texttt{vf\_coeff} & The coefficient for the value function loss term in the total loss calculation. It balances the updates between the policy (actor) and the value function (critic). \\
-        \texttt{target\_kl} & If the Kullback-Leibler (KL) divergence between the new and old policies exceeds this target, updates for the current iteration are stopped. \\
         \midrule
-        \texttt{n\_steps} & The number of simulation steps collected from the environment during each rollout phase before a policy update is performed. \\
-        \texttt{n\_epochs} & The number of times the agent iterates over the entire rollout buffer when performing a single policy update. \\
-        \texttt{batch\_size} & The number of training samples used in one minibatch for a single gradient descent step. \\
+        \texttt{gamma} & The discount factor applied to future rewards. It determines the present value of future rewards, influencing how far-sighted the agent's planning horizon is. \\
+        \texttt{gae\_lambda} & The lambda parameter for Generalized Advantage Estimation (GAE). It provides a trade-off between bias (low lambda) and variance (high lambda) in the advantage function estimates. \\
+        \texttt{target\_kl} & If the Kullback-Leibler (KL) divergence between the new and old policies exceeds this target, updates for the current iteration are stopped. \\
         \midrule
         \texttt{num\_layers} & The number of hidden layers used in the neural network architecture for both the policy (actor) and value (critic) networks. \\
         \texttt{hidden\_size} & The number of neurons within each hidden layer of the policy and value networks. \\
@@ -176,9 +175,25 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
 
 \begin{enumerate}
     \item \textbf{Action execution: }
+        The \texttt{step()} function gets invoked with the taken action from the UIC as its single parameter.
+        This action is a vector containing the incentive levels for each zone corresponding to the community.
     \item \textbf{Rebalancing Simulation: }
+        The rebalancing actions are simulated first.
+        Therefore, the intended drop-offs from the users are taken and for each drop-off event, the simulation determines whether an incentive is offered.
+        This incentive offering is based on analyzing the incentive levels for each neighboring zone.
+        If a neighboring zone has a higher incentive level than the intended initially drop-off zone, an incentive is offered.
+        If all neighboring zones have a lower incentive level, then no incentive is offered.
+        Incentives are only offered for the neighboring cell with the highest incentive level.
+        The willingness of the user to take the incentive is modeled by a linear function (\texttt{user\_willingnes\_fn}).
+        This linear function multiplies the offered incentive value [0, 1] by the willingness factor of 0.4, resulting in linear willingness between 0 and 0.4.
+        This resulting willingness serves as the percentage of taking the incentive.
+        As a result, the function returns an updated list of drop-off events, including shifted drop-off events due to incentives, and the number of rebalanced vehicles.
     \item \textbf{Demand Simulation: }
+        After all incentives are processed, the demand is simulated.
+        Resulting in updated vehicle counts per zone.
     \item \textbf{Observation and Reward Calculation : }
+        Lastly, the reward is calculated based on the number of rebalanced vehicles, the satisfied demand, and the distribution of vehicles (see \autoref{sec:design-rl_framework-uic}).
+        Then, a new state observation is created an the method returns the complete experience tuple (\texttt{next\_state}, ).
 \end{enumerate}
 \subsubsection{Training procedure}
 The training procedure of the UIC agent is structured as follows:
@@ -187,22 +202,44 @@ The training procedure of the UIC agent is structured as follows:
     \item \textbf{Experience Collection (Rollout):}
     \item \textbf{Advantage Calculation:}
     \item \textbf{Policy Optimization Loop:}
+        The core learning logic is executed within the PPO-specific \texttt{train()} method.
+        This method initiates a loop that iterates over the entire RolloutBuffer for a total of \texttt{n\_epochs}.
+        In each epoch, the data is shuffled and broken down into minibatches of size \texttt{batch\_size}.
     \item \textbf{Loss Calculation:}
-    \item \textbf{Optimization:} Adam optimizer
+    \item \textbf{Optimization:}
+        The total loss is backpropagated to compute the gradients.
+        The \texttt{torch.optim.Adam} optimizer, configured with the learning rate \texttt{lr}, then performs a single optimization step to update both the policy and value network parameters ($\theta$).
     \item \textbf{Learning Rate Scheduling:}
+        
 \end{enumerate}
 
 \subsection{Demand Forecasting Module}\label{sec:implementation_demand-forecasting-module}
 The Demand Forecasting Module to feed accurate demand forecasts into the RL agents depends on the implementation by Li et al. \cite{li_improving_2023}.
-This demand forecasting is build upon an Irregular Convolutional Long Short Term Memory (IrConvLSTM) network.
-The core of this model are the Irregular Convolution layers, which replace the standard kernels of a Convolutional layer with fixed spatial kernels that link semantic neighbors.
-The IrConvLSTM consists of three parallel modules: 
+For training this model, the standard parameters provided by Li et al. have been used.
+The demand data had to be prepared for utilization in this model, which is done in the Jupyter Notebook \texttt{prepare\_demand\_forecasting\_data.ipynb}.
+A similarity matrix is needed, which defines the kernels for each grid zone.
+This similarity matrix is generated by calculating a similarity metric based on the Dynamic Time Warping (DTW) distance (\autoref{eq:irconvlstm-dtw})\cite{li_improving_2023} between the demand of all zones, resulting in a matrix of size $(N_{\mathcal{C}} \times N_{\mathcal{C}})$.
+Based on this distance parameter (\texttt{dtw\_dist}), the similarity is calculated (see \autoref{eq:irconvlstm-similarity}).
 
+\begin{equation}\label{eq:irconvlstm-dtw}
+\begin{split}
+\texttt{dtw\_dist}&(W) = \min \left( \sum_{k=1}^{K} \text{distance}(w_{ki}, w_{kj}) \right)\\
+&\text{subject to } 
+    \begin{cases}
+        W = w_1, w_2, \ldots, w_K \\
+        \max(|X|, |Y|) \le K < |X| + |Y| \\
+        w_k=(i,j), w_{k+1}=(i',j') \implies i \le i' \le i+1 \text{ and } j \le j' \le j+1
+    \end{cases}
+\end{split}
+\end{equation}
 
+\begin{equation}\label{eq:irconvlstm-similarity}
+    \texttt{similarity} = \frac{1}{1 + \texttt{dtw\_dist}}
+\end{equation}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.7\linewidth]{content/figures/IrConv-LSTM-Architecture.pdf}
-    \caption{Architecture of the IrConvLSTM network proposed by Li et al. \cite{li_improving_2023}}
-    \label{fig:irconv-architecture}
-\end{figure}
+A kernel size of 7 has been chosen due to the six neighbors of a hexagon, and adding one for the zone itself.
+The cells for the kernel are derived from the similarity matrix calculation.
+The 6 most similar zones in terms of the similarity the demand are selected to form the kernel.
+
+For training of the agents and hyperparameter optimization, the forecasts have been pre-computed for the whole training set, which drastically improved computing performances and therefore faster training / HO.
+

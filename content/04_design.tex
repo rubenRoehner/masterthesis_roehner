@@ -1,10 +1,11 @@
 \chapter{Design}\label{sec:design} % approx. 8 pages
 The following chapter is structured as follows: the first section describes the data used for training and testing the rebalancing algorithms, the second section formulates the rebalancing problem, and the third section focuses on the proposed framework to tackle the rebalancing problem.
 
+\newpage
 \section{Data}\label{sec:design-data}
-The data underlying this thesis was collected from a General Bike Sharing Specification (GBFS) feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{noauthor_gebundelte_nodate}.
+The data underlying this thesis was collected from a General Bike Sharing Specification (GBFS) feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{mobidata_bw_gebundelte_2022}.
 These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations.
-This section details the collection, preprocessing, and exploratory analysis of this time-series data used to develop such a strategy.
+This section details the collection, preprocessing, and exploratory analysis of this GBFS data used to develop such a strategy.
 
 
 \subsection{Data Collection}
@@ -16,15 +17,15 @@ The GBFS format, a standard for publishing shared micromobility vehicle data, pr
 These include its unique identifier, GPS coordinates (latitude and longitude), operational status (reserved or disabled), and battery level.
 A complete list of the data fields extracted from the feed is presented in \autoref{tab:gbfs_fields}.
 
-\begin{table}[!htb]
+\begin{table}[H]
     \centering
     \begin{tabularx}{\textwidth}{lX}
         \toprule
         \textbf{Field} & \textbf{Description} \\ 
         \midrule
         \texttt{bike\_id}              & Unique identifier for the vehicle. \\
-        \texttt{lat}                   & Latitude coordinate of the vehicle’s location (in decimal degrees). \\
-        \texttt{lon}                   & Longitude coordinate of the vehicle’s location (in decimal degrees). \\
+        \texttt{lat}                   & Latitude coordinate of the vehicle's location (in decimal degrees). \\
+        \texttt{lon}                   & Longitude coordinate of the vehicle's location (in decimal degrees). \\
         \texttt{is\_reserved}          & Boolean flag: \texttt{true} if the vehicle is currently reserved. \\
         \texttt{is\_disabled}          & Boolean flag: \texttt{true} if the vehicle is out of service or unavailable. \\
         \texttt{rental\_uris.android}  & Platform-specific URI to initiate rental on Android. \\
@@ -44,6 +45,7 @@ A complete list of the data fields extracted from the feed is presented in \auto
 The primary goal of preprocessing was to transform the raw location snapshots into a dataset of discrete pick-up and drop-off events.
 A methodological limitation of the GBFS feed is the randomization of vehicle identifiers for user anonymization, which prevents the direct tracking of individual trips.
 To overcome this, an inferential approach was adopted: by comparing consecutive snapshots, the disappearance of a vehicle ID from one frame to the next was classified as a pick-up, while the appearance of a new ID was classified as a drop-off.
+This inference can result in wrong 
 
 This event inference process yielded a total of 2,168,331 combined pick-up and drop-off events for Voi and 680,459 for Bolt.
 Subsequently, the dataset was filtered to remove geographical outliers by defining a boundary corresponding to the city of Stuttgart and excluding events in outlying regions (e.g., Böblingen).
@@ -52,7 +54,7 @@ In contrast, the Bolt dataset was largely unaffected, retaining 96.4\% of its da
 This disparity suggests a differing operational focus between the two providers, with Voi maintaining a much larger service presence in the suburbs surrounding Stuttgart.
 \autoref{fig:demand_map_reduction} presents this filtering process by comparing the data displayed on a map before and after filtering.
 
-\begin{figure}[!htb]
+\begin{figure}[H]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \includegraphics[width=\linewidth]{content/figures/voi_filtering_subplots.png}
@@ -70,7 +72,7 @@ This disparity suggests a differing operational focus between the two providers,
 
 
 Finally, the cleaned event data was aggregated to create a structured dataset for model training.
-For spatial aggregation, a two-layer hierarchical approach was implemented using the H3 hexagonal grid system \cite{noauthor_h3_2018}.
+For spatial aggregation, a two-layer hierarchical approach was implemented using the H3 hexagonal grid system \cite{uber_h3_2018}.
 The finest spatial unit, a \textit{zone}, was defined using H3 resolution 8, resulting in 291 distinct zones across the study area.
 These zones were then grouped into larger \textit{communities} at H3 resolution 6, producing a total of 9 communities.
 This hierarchical structure allows for analysis at both a granular and a regional level.
@@ -100,11 +102,11 @@ A summary of the dataset's key statistics is provided in \autoref{tab:general_st
         \toprule
         \textbf{Metric} & \textbf{Value} \\ 
         \midrule
-        Total Number of Pick-Ups            & XXX \\
-        Total Number of Drop-Offs           & XXX \\
-        Analysis Period                     & 128 \\
-        Average Daily Events                & XXX \\
-        Busiest Hour                        & XXX \\
+        Total Number of Pick-Ups            & 765,878 events \\
+        Total Number of Drop-Offs           & 766,221 events \\
+        Analysis Period                     & 128 days\\
+        Average Daily Events                & ~11,970 events/day \\
+        Busiest Hour                        & 15:00 \\
         \bottomrule
     \end{tabularx}
     \caption{Dataset summary statistics}
@@ -369,7 +371,7 @@ The RDC aims to select actions that balance supply across all communities. While
 Such scenarios are managed by the operator-rebalancing algorithms within the simulation environment, which execute the rebalancing operations. If necessary, the simulator scales the raw action values (quotas) proportionally to ensure that the total fleet size remains constant, thereby preserving the RDC's intended rebalancing direction while sticking to operational constraints.
 
 \paragraph{Reward ($\mathcal{R}^{RDC}_t$)}
-With state and action now defined, we next specify how the RDC quantifies its performance via the reward function.
+With state and action now defined, next specify how the RDC quantifies its performance via the reward function.
 The reward function of the RDC is designed to guide the agent towards effective rebalancing strategies.
 It is calculated after the execution of the rebalancing action $\mathcal{A}^{RDC}_t$ and the simulation of user demand flow for the current timestep. The total reward $\mathcal{R}^{RDC}_t$ is a weighted sum of three components.
 These components reflect the primary operational goals: maximizing service utility, minimizing operational costs, and ensuring equitable vehicle availability.
@@ -417,7 +419,7 @@ The specific values for the weighting factors and the methodology for their sele
 \end{figure}
 
 \subsubsection{Algorithm and Architecture}
-Given this MDP formulation, we implement a Deep Q‐Network to approximate the optimal policy.
+Given this MDP formulation, a Deep Q‐Network is implemented to approximate the optimal policy.
 A multi-head Deep Q-Network (DQN) is employed for the Regional Distribution Coordinator. DQN is a value-based reinforcement learning algorithm that utilizes deep neural networks to approximate the optimal action-value function, $Q*(s, a)$ \cite{mnih_human-level_2015}.
 The multi-head variant \cite{li_personalized_2024} is particularly suitable for the RDC as it needs to output multiple, correlated rebalancing actions (one for each community) simultaneously.
 Alternative architectures, such as a single network predicting a composite action vector or Q-values for all joint actions, were considered but deemed impractical due to the combinatorial explosion of the action space.
@@ -616,7 +618,7 @@ The degree of exploration is controlled by an entropy bonus, weighted by a coeff
 This entropy bonus is added to the loss function to encourage the policy to maintain a higher randomness, preventing the model from converging to a suboptimal solution.
 
 \paragraph{Training stabilization techniques}
-PPO employs a clipped surrogate objective function that ensures stable policy updates.
+PPO employs a Clipped Surrogate Objective function that ensures stable policy updates.
 This mechanism constrains large policy updates, which potentially destabilize those.
 The constraint is controlled by a clip range parameter, which is annealed over the training process.
 Therefore, larger exploratory updates at the beginning of the training process are allowed; gradually decreasing the value of this parameter results in smaller and finer granular updates at the end of the training process.
@@ -645,6 +647,17 @@ The evaluation has been done over five different cities with bike-sharing data.
 The IrCOnvLSTM using Dynamic Time Warping yielded the best performances, which is why this variant is used for this work.
 IRConvLSTM consistently outperformed the other models across all benchmarks. including Root Mean Squared Error (RMSE), Mean Absolute Error (MAE), and Mean Absolute Percentage Error (MAPE).
 
+The core of this model are the Irregular Convolution layers, which replace the standard kernels of a Convolutional layer with fixed spatial kernels that link semantic neighbors.
+The IrConvLSTM consists of three parallel modules: 
+
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.7\linewidth]{content/figures/IrConv-LSTM-Architecture.pdf}
+    \caption{Architecture of the IrConvLSTM network proposed by Li et al. \cite{li_improving_2023}}
+    \label{fig:irconv-architecture}
+\end{figure}
+
 The implementation details of this Demand Forecasting Module and the IrConvLSTM are described in \autoref{sec:implementation_demand-forecasting-module}.
 
 \begin{figure}
@@ -654,4 +667,6 @@ The implementation details of this Demand Forecasting Module and the IrConvLSTM 
     \label{fig:irconv-neighbors}
 \end{figure}
 
+The forecasts generated by this Demand Forecasting Module are biased and will not perfectly reflect the actual demand data.
+Th
 \todo{address bias in forecasts}

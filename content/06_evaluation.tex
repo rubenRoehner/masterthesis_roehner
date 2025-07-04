@@ -1,33 +1,73 @@
 \chapter{Evaluation}\label{sec:evaluation} % approx. 8 pages
-The content, e.g., measurements, survey, or simulations, of the evaluation depends on your thesis.
-What will not depend on your thesis that you have results that you will visualize in figures.
-In general, use one figure after each other and explain how to read it and directly discuss the content and \textbf{meaning}.
-Sometimes, you want to visualize a change through your design and implementation, or want to compare two systems.
-Then, you should place the figures either above each other or next to each other.
+The following chapter details the experimental setup used for evaluation, the hyperparameter optimization for the RDC and UIC agents, and the 
 
 \section{Experimental Setup}\label{sec:evaluation-setup}
+Fleet sizes have been determined by the mean number of vehicles available in the bounds based on all GBFS snapshots.
+For training and hyperparameter optimization, this fleet size has been reduced to 90\% to allow the agent to learn from more experiences with undersupply.
+For the evaluation, three different fleet sizes were used: the mean from the GBFS data, 80\% of the mean, and 120\% of the mean.
 
 
 \section{Hyperparameter Optimization}\label{sec:evaluation-ho}
+The performance of reinforcement learning agents is highly dependent on the selection of their hyperparameters.
+Therefore, a systematic hyperparameter optimization is essential for effective working agents, especially for a complex system like the proposed HRL framework.
+This systematic hyperparameter optimization has been conducted for both the Regional Distribution Coordinator (RDC) agent and the User-Incentive Coordinator (UIC) agent to ensure high performance for each agent.
+This section outlines the methodology employed for this optimization and presents the final parameter configurations used for evaluating the HRL framework.
+
+The objective for the optimization of both agents is to maximize a composite reward function, which is a weighted sum of three metrics: maximizing user demand ($R_{demand}^{RDC}$; $R_{demand}^{UIC}$), minimizing rebalancing costs ($R_{cost}^{RDC}$; $R_{cost}^{UIC}$), and promoting equitable vehicle distribution ($R_{gini}^{RDC}$; $R_{gini}^{UIC}$).
+
+For the HO process, the Optuna framework \cite{akiba_optuna_2019}, a state-of-the-art optimization tool, has been utilized.
+The Tree-structured Parzen Estimator (TPE) sampler was selected as the search algorithm.
+TPE is an optimization algorithm that models the search space probabilistically to efficiently find promising hyperparameter configurations.
+The TPE sampler fits a Gaussian Mixture Model (GMM) to a set of parameters with the highest value for the objective function.
+Then, a ratio between this GMM and another GMM fitted to the remaining parameters is calculated.
+The sampler then chooses the parameter value that maximizes this ratio between the GMMs \cite{akiba_optuna_2019}.
+This probabilistic approach makes TPE well-suited for complex and high-dimensional search spaces  \cite{akiba_optuna_2019}.
+
+To ensure reproducibility of the HO process, all runs are seeded.
+Since HO is computationally heavy, the HO process was parallelized across multiple jobs to accelerate the computation time.
+Additionally, the demand forecasts were precalculated, which also decreased computation time.
+The remaining section details the HO processes for the RDC and UIC agents.
+
+
 
 \subsection{Regional Distribution Coordinator (RDC)}
-\begin{table}[!htb]
+The RDC agent, based on an MH-DQN architecture with PER, has 17 distinct hyperparameters.
+To manage this complexity, a coarse-to-fine optimization strategy was adopted over three rounds.
+For all rounds, each trial consists of 100 episodes, each with a maximum of 100 steps, and 20 evaluation episodes.\\
+
+Initially, the parameters were grouped into five logical groups (Learning Rate, Architecture, Replay Buffer, Exploration Strategy, and Reward Weights).
+The first round was conducted on a broad search space for each group independently across 50 trials.
+This first round aimed to identify promising regions in the extensive search space.
+
+In the second round, the search ranges for each parameter were refined based on the results of the previous round.
+For parameters whose optimal parameters were found at the boundaries of the previous search space, the range was extended in this direction.
+Conversely, for parameters whose optimal values were located centrally in the search space, the search space was narrowed down for more fine granular optimization.
+This second, more focused round, was conducted over 50 trials per group as well.
+
+In the final round, a unified fine-tuning sweep was performed across all 17 parameters simultaneously.
+To combat the increase in complexity, the number of trials was increased to 100.
+Additionally, the search spaces for each parameter were narrowed down based on the results from the previous round.
+This final round ensures that dependencies between parameters of different groups are also addressed in the optimization process.\\
+
+The resulting optimal hyperparameter configurations are presented in \autoref{tab:rdc_final_hyperparameters}.
+More detailed descriptions for the parameters are provided in \autoref{tab:rdc_hyperparameters_description}, and the search spaces are defined in the \cref{tab:rdc_ho_first_round,tab:rdc_ho_second_round,tab:rdc_ho_final_round}.
+
+\begin{table}[H]
     \centering
     \begin{tabularx}{\textwidth}{lXl}
         \toprule
         \textbf{Parameter} & \textbf{Summary Description} & \textbf{Final Value} \\
         \midrule
-        \texttt{gamma} & Discount factor & $0.926$\\
-        \texttt{tau} & Target network soft update rate & $0.001$ \\
-        \midrule
-        \texttt{hidden\_size} & Hidden layer neuron count & $256$ \\
-        \midrule
         \texttt{lr} & Initial learning rate & $1 \times 10^{-5}$ \\
         \texttt{lr\_step\_size} & LR decay step size & $1500$ \\
         \texttt{lr\_gamma} & LR decay factor & $0.9$ \\
+        \texttt{gamma} & Discount factor & $0.926$\\
+        \midrule
+        \texttt{hidden\_size} & Hidden layer neuron count & $256$ \\
+        \texttt{batch\_size} & Minibatch size & $256$ \\
+        \texttt{tau} & Target network soft update rate & $0.001$ \\
         \midrule
         \texttt{rb\_capacity} & Replay buffer capacity & $10,000$\\
-        \texttt{batch\_size} & Minibatch size & $256$ \\
         \texttt{per\_alpha} & PER prioritization exponent ($\alpha$) & $0.8$\\
         \texttt{per\_beta\_start} & PER importance sampling start ($\beta_0$) & $0.3$\\
         \texttt{per\_beta\_frames} & PER $\beta$ annealing frames & $150,000$\\
@@ -42,10 +82,25 @@ Then, you should place the figures either above each other or next to each other
         \bottomrule
     \end{tabularx}
     \caption{Final optimized hyperparameter configuration for the RDC.}
-    \label{tab:rdc_final_parameters}
+    \label{tab:rdc_final_hyperparameters}
 \end{table}
 
 \subsection{User-Incentive Coordinator (UIC)}
+The User-Incentive Coordinator, which employs a PPO algorithm agent, has 15 different parameters for HO.
+A multi-stage optimization strategy, similar to that used for the RDC agent, was implemented over three rounds.
+Each trial of a round runs for 50,000 timesteps.\\
+
+The initial round was conducted on a broad search space to identify search areas with high potential.
+For the initial and second rounds, the hyperparameters were divided into four groups: PPO core, architecture, stability, and reward weights.
+
+The second round used optimized search spaces for each parameter based on the results of the initial round.
+The search spaces have been optimized similarly to the second round of the RDC's optimization strategy.
+
+The third and last round optimized all parameters simultaneously to identify the most optimal hyperparameter configuration.
+This final round ensures that the hyperparameters are optimized, even when accounting for dependencies between parameters from different groups.\\ 
+
+The resulting optimal hyperparameter configurations for the UIC agent are presented in \autoref{tab:uic_final_hyperparameters}.
+More detailed descriptions for the parameters are provided in \autoref{tab:uic_hyperparameters_description}, and the search spaces are defined in the \cref{tab:uic_ho_first_round,tab:uic_ho_second_round,tab:uic_ho_final_round}.
 
 \begin{table}[!htb]
     \centering
@@ -54,16 +109,15 @@ Then, you should place the figures either above each other or next to each other
         Parameter & Description & Final Value \\
         \midrule
         \texttt{lr} & Optimizer learning rate. & $1 \times 10^{-6}$ \\
-        \texttt{gamma} & Reward discount factor. & $0.918$ \\
-        \texttt{gae\_lambda} & GAE bias-variance trade-off. & $0.95$\\
+        \texttt{n\_steps} & Rollout buffer size per update. & $2048$ \\
+        \texttt{batch\_size} & Minibatch size for gradient updates. & $32$ \\
         \texttt{clip\_range} & PPO policy update clipping range. & $0.13$\\
         \texttt{ent\_coeff} & Entropy bonus weight for exploration. & $0.00078$\\
         \texttt{vf\_coeff} & Value function loss weight. & $0.6$\\
-        \texttt{target\_kl} & Target KL divergence for policy updates. & $0.02$\\
         \midrule
-        \texttt{n\_steps} & Rollout buffer size per update. & $2048$ \\
-        \texttt{n\_epochs} & Optimization epochs per update. & $10$ \\
-        \texttt{batch\_size} & Minibatch size for gradient updates. & $32$ \\
+        \texttt{gamma} & Reward discount factor. & $0.918$ \\
+        \texttt{gae\_lambda} & Lambda parameter for GAE& $0.99$ \\
+        \texttt{target\_kl} & Target KL divergence for policy updates. & $0.02$\\
         \midrule
         \texttt{num\_hidden\_layers} & Number of network hidden layers. & $3$\\
         \texttt{hidden\_size} & Neurons per hidden layer. & $256$ \\
