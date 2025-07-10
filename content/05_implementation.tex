@@ -1,66 +1,74 @@
 \chapter{Implementation}\label{sec:implementation} % approx. 8 pages
-The following chapter details the implementation of the proposed HRL framework, the evaluation process, and the baselines used for evaluation.
-
-\section{Rebalancing Framework}\label{sec:implementation_rebalancing-framework}
-The following sections detail the implementation of the Regional Distribution Coordinator, User-Incentive Coordinator, and the Demand Forecasting Module.
+The following chapter outlines the implementation of the proposed HRL framework, comprising the high-level RDC agent, the low-level UIC agents, and the Demand Forecasting Module.
 All these components are implemented using Python in the version \texttt{v3.10.6}.
 
-\subsection{Regional Distribution Coordinator}\label{sec:implementation_rdc}
+All computational tasks, including data preparation, training of the agents/models, hyperparameter optimization, and evaluation, were performed on a machine provided by the KEIM application centre, part of the University of Esslingen and the Fraunhofer IAO.
+This machine is powered by an Intel Core i7-6850K CPU (six cores, each at 3.60 GHz), four NVIDIA GeForce GTX 1080 Ti graphics cards (each with 12 GB of VRAM), and 64 GB of RAM.
+
+\section{Regional Distribution Coordinator}\label{sec:implementation_rdc}
 The Regional Distribution Coordinator (RDC) defines the RL agent of the first level of the proposed HRL framework (see \autoref{sec:design-rl_framework}).
 The central component of the agent is the \texttt{RegionalDistributionCoordinator} class, which defines the agent itself.
-The agent utilizes a \texttt{MultiHeadDQN} to choose rebalancing quotas, tackling inter-community imbalances in the system through manual rebalancing by service workers.
+The agent utilizes a Multi-Head Deep Q Network, defined by the class \texttt{MultiHeadDQN}, to choose rebalancing quotas, thereby tackling inter-community imbalances in the system through manual rebalancing by service workers.
 To ensure efficient learning and effective use of training data, the agent employs a Prioritized Experience Replay (PER) buffer, which is implemented in the \texttt{ReplayBuffer} class.
 The experiences stored in this buffer are gained by interacting with the \texttt{EScooterRDCEnv}, which defines a custom environment based on the OpenAI Gym interface.
 
-The configurable hyperparameters that influence the agent's ability to learn an efficient rebalancing strategy are defined in \autoref{tab:rdc_training_parameters}.
+The configurable hyperparameters that influence the agent's ability to learn an efficient rebalancing strategy are defined in \autoref{tab:rdc_hyperparameters_description}.
+
+\subsection{Multi-Head Deep Q-Network Architecture (\texttt{MultiHeadDQN} Class)}
+The \texttt{MultiHeadDQN} class defines the architecture of the underlying network of the RDC agent.
+This class inherits from \texttt{torch.nn.Module}.
+The architecture of this MH-DQN is defined as follows:
+
+\begin{itemize}
+    \item \textbf{Input Layer}:
+        The input state tensor is passed an \texttt{torch.nn.LayerNorm} layer to standardize the feature values, which stabilizes the learning process.
+    \item \textbf{Shared Layers}:
+        The normalized state tensor then gets processed by two fully connected layers with a size of \texttt{RDC\_hidden\_size}.
+        Each of these fully connected shared layers (\texttt{torch.nn.Linear}) is followed by a non-linear \texttt{torch.nn.ReLU} activation function.
+        This network of shared layers should extract a condensed, high-level feature representation of the whole system.
+    \item \textbf{Head-Specific layer}:
+        The feature tensor outputted from the shared layers is then processed in $N_C$ heads, one head for each community.
+        Each of these heads consists of two fully connected linear layers (\texttt{torch.nn.Linear}) and a \texttt{torch.nn.ReLU} activation function in between.
+        The second of those layers outputs the Q-values for each discrete action per community.
+\end{itemize}
 
 
-\begin{table}[!htb]
+\begin{table}[H]
     \centering
         \begin{tabularx}{\textwidth}{lX}
         \toprule
-        \textbf{Parameter} & \textbf{Description} \\
+        \textbf{Parameter}                  & \textbf{Description} \\
         \midrule
-        \texttt{gamma} & The discount factor ($\gamma$) that determines the present value of future rewards, balancing immediate and long-term gains in the Bellman equation. \\
-        \texttt{tau} & The interpolation factor ($\tau$) for the soft update of the target network, controlling how quickly the target network tracks the policy network. \\
+        \texttt{RDC\_gamma}                 & The discount factor ($\gamma$) that determines the present value of future rewards, balancing immediate and long-term gains in the Bellman equation. \\
+        \texttt{RDC\_tau}                   & The interpolation factor ($\tau$) for the soft update of the target network, controlling how quickly the target network tracks the policy network. \\
         \midrule
-        \texttt{state\_dim} & The dimensionality of the input state vector, determined by the number of geographic zones and the features used to describe each zone. \\
-        \texttt{hidden\_size} & The number of neurons in each hidden layer of the Multi-Head Deep Q-Network, defining the model's learning capacity. \\
+        \texttt{RDC\_state\_dim}            & The dimensionality of the input state vector, determined by the number of geographic zones and the features used to describe each zone. \\
+        \texttt{RDC\_hidden\_size}          & The number of neurons in each hidden layer of the Multi-Head Deep Q-Network, defining the model's learning capacity. \\
         \midrule
-        \texttt{lr} & The initial learning rate ($\alpha_{lr}$) for the Adam optimizer, controlling the step size of gradient descent updates. \\
-        \texttt{lr\_step\_size} & The number of training steps after which the learning rate is multiplicatively decayed. \\
-        \texttt{lr\_gamma} & The multiplicative factor ($\gamma_{lr}$) by which the learning rate is decayed. \\
+        \texttt{RDC\_lr}                    & The initial learning rate ($\alpha_{lr}$) for the Adam optimizer, controlling the step size of gradient descent updates. \\
+        \texttt{RDC\_lr\_step\_size}        & The number of training steps after which the learning rate is multiplicatively decayed. \\
+        \texttt{RDC\_lr\_gamma}             & The multiplicative factor ($\gamma_{lr}$) by which the learning rate is decayed. \\
         \midrule
-        \texttt{rb\_capacity} & The maximum number of transition experiences stored in the replay buffer. \\
-        \texttt{batch\_size} & The number of experiences sampled from the replay buffer for each training step. \\
-        \texttt{per\_alpha} & The prioritization exponent ($\alpha_{PER}$), controlling how aggressively priorities are used for sampling (0 = uniform sampling, 1 = full prioritization). \\
-        \texttt{per\_beta\_start} & The initial value of the importance-sampling exponent ($\beta_{PER}$), which is annealed to 1.0 to correct for the bias introduced by prioritized sampling. \\
-        \texttt{per\_beta\_frames} & The number of training frames over which the PER exponent $\beta$ is annealed to 1.0. \\
+        \texttt{RDC\_rb\_capacity}          & The maximum number of transition experiences stored in the replay buffer. \\
+        \texttt{RDC\_batch\_size}           & The number of experiences sampled from the replay buffer for each training step. \\
+        \texttt{RDC\_per\_alpha}            & The prioritization exponent ($\alpha_{PER}$), controlling how aggressively priorities are used for sampling (0 = uniform sampling, 1 = full prioritization). \\
+        \texttt{RDC\_per\_beta\_start}      & The initial value of the importance-sampling exponent ($\beta_{PER}$), which is annealed to 1.0 to correct for the bias introduced by prioritized sampling. \\
+        \texttt{RDC\_per\_beta\_frames}     & The number of training frames over which the PER exponent $\beta$ is annealed to 1.0. \\
         \midrule
-        \texttt{epsilon\_start} & The initial probability ($\epsilon_{start}$) of selecting a random action to encourage exploration. \\
-        \texttt{epsilon\_end} & The minimum final probability ($\epsilon_{min}$) of selecting a random action, ensuring some exploration persists. \\
-        \texttt{epsilon\_decay} & The multiplicative factor ($\delta_{\epsilon}$) used to gradually decrease the exploration rate from its initial value to its final value. \\
+        \texttt{RDC\_epsilon\_start}        & The initial probability ($\epsilon_{start}$) of selecting a random action to encourage exploration. \\
+        \texttt{RDC\_epsilon\_end}          & The minimum final probability ($\epsilon_{min}$) of selecting a random action, ensuring some exploration persists. \\
+        \texttt{RDC\_epsilon\_decay}        & The multiplicative factor ($\delta_{\epsilon}$) used to gradually decrease the exploration rate from its initial value to its final value. \\
         \midrule
-        \texttt{weight\_demand} & The weighting coefficient for the satisfied demand component ($w_{demand}^{RDC}$) in the composite reward function. \\
-        \texttt{weight\_cost} & The weighting coefficient for the rebalancing cost penalty component ($w_{cost}^{RDC}$) in the composite reward function. \\
-        \texttt{weight\_gini} & The weighting coefficient for the Gini index component ($w_{gini}^{RDC}$) in the composite reward function. \\
+        \texttt{RDC\_weight\_demand}        & The weighting coefficient for the satisfied demand component ($w_{demand}^{RDC}$) in the composite reward function. \\
+        \texttt{RDC\_weight\_cost}          & The weighting coefficient for the rebalancing cost penalty component ($w_{cost}^{RDC}$) in the composite reward function. \\
+        \texttt{RDC\_weight\_gini}          & The weighting coefficient for the Gini index component ($w_{gini}^{RDC}$) in the composite reward function. \\
         \bottomrule
     \end{tabularx}
     \caption{Configurable parameters for the Regional Distribution Coordinator agent.}
     \label{tab:rdc_hyperparameters_description}
 \end{table}
 
-\subsubsection{Multi-Head Deep Q-Network Architecture (\texttt{MultiHeadDQN} Class)}
-
-\subsubsection{State representation}
-The state components, e.g., vehicle counts and forecasts, are stacked, resulting in a \texttt{torch.Tensor} of size $3, N_C$.
-
-
-\subsubsection{Action space representation}
-
-\subsubsection{Reward function representation}
-
-\subsubsection{Environment (\texttt{EScooterRDCEnv} Class)}
+\subsection{Environment (\texttt{EScooterRDCEnv} Class)}
 The \texttt{EScooterRDCEnv} class implements the simulation environment used for training the RDC agent.
 It follows the standard OpenAI Gym interface.
 The \texttt{step()} function defines the core logic of the simulation, which is detailed in the following:
@@ -90,7 +98,7 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
 
 The main training loop defined in \texttt{training\_loop\_rdc.py} calls the RDC agent's \texttt{train()} method 
 
-\subsubsection{Training procedure}
+\subsection{Training procedure}
 The training procedure of the RDC agent is defined by the \texttt{train} method of the \texttt{RegionalDistributionCoordinator}.
 The following section describes step-by-step the implementation of this training procedure:
 
@@ -126,7 +134,7 @@ Lastly, the priorities of the PER are updated using the newly calculated TD erro
 
 
 
-\subsection{User-Incentive Coordinator}\label{sec:implementation_uic}
+\section{User-Incentive Coordinator}\label{sec:implementation_uic}
 The User-Incentive Coordinator (UIC) is implemented using the Proximal Policy Optimization (PPO) implementation from the \texttt{StableBaselines3} library, which is defined in the \texttt{UserIncentiveCoordinator} class.
 This class serves as the heart of the second tier of the proposed HRL framework.
 The agent 
@@ -137,89 +145,110 @@ The agent
         \toprule
         Parameter & Description \\
         \midrule
-        \texttt{lr} & The learning rate for the Adam optimizer, which controls the step size of the gradient-based updates to the policy and value function networks. \\
-        \texttt{n\_steps} & The number of simulation steps collected from the environment during each rollout phase before a policy update is performed. \\
-        \texttt{batch\_size} & The number of training samples used in one minibatch for a single gradient descent step. \\
-        \texttt{clip\_range} & The clipping parameter for PPO's surrogate objective function. It defines a small, acceptable range for the policy ratio, preventing excessively large policy updates and ensuring training stability. \\
-        \texttt{ent\_coeff} & The coefficient for the entropy bonus term in the loss function. A positive coefficient encourages exploration by penalizing policies that become too deterministic. \\
-        \texttt{vf\_coeff} & The coefficient for the value function loss term in the total loss calculation. It balances the updates between the policy (actor) and the value function (critic). \\
+        \texttt{UIC\_lr}                & The learning rate for the Adam optimizer, which controls the step size of the gradient-based updates to the policy and value function networks. \\
+        \texttt{UIC\_n\_steps}          & The number of simulation steps collected from the environment during each rollout phase before a policy update is performed. \\
+        \texttt{UIC\_batch\_size}       & The number of training samples used in one minibatch for a single gradient descent step. \\
+        \texttt{UIC\_clip\_range}       & The clipping parameter for PPO's surrogate objective function. It defines a small, acceptable range for the policy ratio, preventing excessively large policy updates and ensuring training stability. \\
+        \texttt{UIC\_ent\_coeff}        & The coefficient for the entropy bonus term in the loss function. A positive coefficient encourages exploration by penalizing policies that become too deterministic. \\
+        \texttt{UIC\_vf\_coeff}         & The coefficient for the value function loss term in the total loss calculation. It balances the updates between the policy (actor) and the value function (critic). \\
         \midrule
-        \texttt{gamma} & The discount factor applied to future rewards. It determines the present value of future rewards, influencing how far-sighted the agent's planning horizon is. \\
-        \texttt{gae\_lambda} & The lambda parameter for Generalized Advantage Estimation (GAE). It provides a trade-off between bias (low lambda) and variance (high lambda) in the advantage function estimates. \\
-        \texttt{target\_kl} & If the Kullback-Leibler (KL) divergence between the new and old policies exceeds this target, updates for the current iteration are stopped. \\
+        \texttt{UIC\_gamma}             & The discount factor applied to future rewards. It determines the present value of future rewards, influencing how far-sighted the agent's planning horizon is. \\
+        \texttt{UIC\_gae\_lambda}       & The lambda parameter for Generalized Advantage Estimation (GAE). It provides a trade-off between bias (low lambda) and variance (high lambda) in the advantage function estimates. \\
+        \texttt{UIC\_target\_kl}        & If the Kullback-Leibler (KL) divergence between the new and old policies exceeds this target, updates for the current iteration are stopped. \\
         \midrule
-        \texttt{num\_layers} & The number of hidden layers used in the neural network architecture for both the policy (actor) and value (critic) networks. \\
-        \texttt{hidden\_size} & The number of neurons within each hidden layer of the policy and value networks. \\
-        \texttt{activation\_fn} & The non-linear activation function applied to the output of neurons in the hidden layers. \\
+        \texttt{UIC\_num\_layers}       & The number of hidden layers used in the neural network architecture for both the policy (actor) and value (critic) networks. \\
+        \texttt{UIC\_hidden\_size}      & The number of neurons within each hidden layer of the policy and value networks. \\
+        \texttt{UIC\_activation\_fn}    & The non-linear activation function applied to the output of neurons in the hidden layers. \\
         \midrule
-        \texttt{weight\_demand} & The weighting coefficient for the satisfied demand component ($w_{demand}^{UIC}$) in the composite reward function. \\
-        \texttt{weight\_cost} & The weighting coefficient for the rebalancing cost penalty component ($w_{cost}^{UIC}$) in the composite reward function. \\
-        \texttt{weight\_gini} & The weighting coefficient for the Gini index component ($w_{gini}^{UIC}$) in the composite reward function. \\
+        \texttt{UIC\_weight\_demand}    & The weighting coefficient for the satisfied demand component ($w_{demand}^{UIC}$) in the composite reward function. \\
+        \texttt{UIC\_weight\_cost}      & The weighting coefficient for the rebalancing cost penalty component ($w_{cost}^{UIC}$) in the composite reward function. \\
+        \texttt{UIC\_weight\_gini}      & The weighting coefficient for the Gini index component ($w_{gini}^{UIC}$) in the composite reward function. \\
         \bottomrule
     \end{tabularx}
     \caption{Configurable hyperparameters for the User-Incentive Coordinator agent.}
     \label{tab:uic_hyperparameters_description}
 \end{table}
 
-\subsubsection{State representation}
-
-
-\subsubsection{Action space representation}
-
-\subsubsection{Reward function representation}
-
-\subsubsection{Environment (\texttt{EScooterUICEnv} Class)}
-The \texttt{EScooterUICEnv} class implements the simulation environemnt used for training the UIC agents.
+\subsection{Environment (\texttt{EScooterUICEnv} Class)}
+The \texttt{EScooterUICEnv} class implements the simulation environment used for training the UIC agents.
 It follows the standard OpenAI Gym interface.
 The \texttt{step()} function defines the core logic of the simulation, which is detailed in the following:
 
 \begin{enumerate}
-    \item \textbf{Action execution: }
+    \item \textbf{Action execution:}
         The \texttt{step()} function gets invoked with the taken action from the UIC as its single parameter.
         This action is a vector containing the incentive levels for each zone corresponding to the community.
-    \item \textbf{Rebalancing Simulation: }
+    \item \textbf{Rebalancing Simulation:}
         The rebalancing actions are simulated first.
-        Therefore, the intended drop-offs from the users are taken and for each drop-off event, the simulation determines whether an incentive is offered.
-        This incentive offering is based on analyzing the incentive levels for each neighboring zone.
-        If a neighboring zone has a higher incentive level than the intended initially drop-off zone, an incentive is offered.
+        Therefore, the intended drop-offs from users are taken into account, and for each drop-off event, the simulation determines whether an incentive is offered.
+        This incentive offer is based on analyzing the incentive levels for each neighboring zone.
+        If a neighboring zone has a higher incentive level than the intended initial drop-off zone, an incentive is offered.
         If all neighboring zones have a lower incentive level, then no incentive is offered.
         Incentives are only offered for the neighboring cell with the highest incentive level.
         The willingness of the user to take the incentive is modeled by a linear function (\texttt{user\_willingnes\_fn}).
         This linear function multiplies the offered incentive value [0, 1] by the willingness factor of 0.4, resulting in linear willingness between 0 and 0.4.
-        This resulting willingness serves as the percentage of taking the incentive.
-        As a result, the function returns an updated list of drop-off events, including shifted drop-off events due to incentives, and the number of rebalanced vehicles.
-    \item \textbf{Demand Simulation: }
+        This resulting willingness serves as the percentage of individuals who take the incentive.
+        As a result, the function returns an updated list of drop-off events, including those shifted due to incentives, and the number of rebalanced vehicles.
+    \item \textbf{Demand Simulation:}
         After all incentives are processed, the demand is simulated.
         Resulting in updated vehicle counts per zone.
-    \item \textbf{Observation and Reward Calculation : }
+        The demand simulation works similarly to the RDC's environment.
+        The demand is simulated sequentially, continuously updating the vehicle counts for the entire 60-minute step.
+    \item \textbf{Observation and Reward Calculation:}
         Lastly, the reward is calculated based on the number of rebalanced vehicles, the satisfied demand, and the distribution of vehicles (see \autoref{sec:design-rl_framework-uic}).
-        Then, a new state observation is created an the method returns the complete experience tuple (\texttt{next\_state}, ).
+        Then, a new state observation is created, and the method returns the complete experience tuple ($S_t, A_t, R_t, S_{t+1}, done$).
 \end{enumerate}
-\subsubsection{Training procedure}
-The training procedure of the UIC agent is structured as follows:
+\subsection{Training procedure}
+The training of the User-Incentive Coordinator (UIC) agent is orchestrated by the \texttt{OnPolicyAlgorithm.learn()} function, a core component of the Proximal Policy Optimization (PPO) implementation within the Stable Baselines 3 (SB3) library \cite{raffin_stable-baselines3_2021}.
+This procedure unfolds in two primary phases: experience collection and policy optimization.\\
 
-\begin{enumerate}
-    \item \textbf{Experience Collection (Rollout):}
-    \item \textbf{Advantage Calculation:}
-    \item \textbf{Policy Optimization Loop:}
-        The core learning logic is executed within the PPO-specific \texttt{train()} method.
-        This method initiates a loop that iterates over the entire RolloutBuffer for a total of \texttt{n\_epochs}.
-        In each epoch, the data is shuffled and broken down into minibatches of size \texttt{batch\_size}.
-    \item \textbf{Loss Calculation:}
-    \item \textbf{Optimization:}
-        The total loss is backpropagated to compute the gradients.
-        The \texttt{torch.optim.Adam} optimizer, configured with the learning rate \texttt{lr}, then performs a single optimization step to update both the policy and value network parameters ($\theta$).
-    \item \textbf{Learning Rate Scheduling:}
-        
-\end{enumerate}
+Initially, during the experience collection phase, the agent interacts with the \texttt{EScooterUICEnv} environment to gather a batch of experiences.
+This rollout is conducted over a number of timesteps defined by the \texttt{UIC\_n\_steps} hyperparameter.
+At each timestep $t$, the agent observes the current state $S_t$, samples an action $A_t$ based on its existing policy $\pi_{\theta_{old}}$, and executes this action.
+The resultant experience tuple, denoted as ($S_t, A_t, R_t, S_{t+1}, \text{done}$), is systematically stored in a \texttt{RolloutBuffer} for subsequent processing.
 
-\subsection{Demand Forecasting Module}\label{sec:implementation_demand-forecasting-module}
-The Demand Forecasting Module to feed accurate demand forecasts into the RL agents depends on the implementation by Li et al. \cite{li_improving_2023}.
+Following the collection of experiences, the training process transitions to calculating the advantage estimates and returns necessary for the policy update.
+The advantage $\hat{A}_t$ is computed for each timestep using Generalized Advantage Estimation (GAE), which relies on the Temporal Difference (TD) error, $\delta_t$:
+\begin{equation}
+    \delta_t = R_t + \gamma^{\text{UIC}} \cdot V_{\phi}(S_{t+1}) \cdot (1 - \text{done}) - V_{\phi}(S_t)
+    \label{eq:uic_td_error_revised}
+\end{equation}
+
+Here, $\gamma^{\text{UIC}}$ represents the discount factor, a hyperparameter specified as \texttt{UIC\_gamma}.
+The GAE advantage, $\hat{A}_t$, is then calculated as the discounted sum of these TD errors, where the hyperparameter $\lambda_{\text{GAE}}^{\text{UIC}}$ (\texttt{UIC\_gae\_lambda}) modulates the trade-off between bias and variance:
+
+\begin{equation}
+    \hat{A}_t = \sum_{l=0}^{N-1} (\gamma^{\text{UIC}} \lambda_{\text{GAE}}^{\text{UIC}})^l \delta_{t+l}
+    \label{eq:uic_gae_revised}
+\end{equation}
+The target value for the value function update, $G_t$, is subsequently derived from the advantage estimate and the current value function output, $V_{\phi}(S_t)$, such that $G_t = \hat{A}_t + V_{\phi}(S_t)$.\\
+
+The core learning phase is encapsulated within the PPO-specific \texttt{train()} method, which initiates an optimization loop.
+This loop iterates over the entire \texttt{RolloutBuffer} for a predefined number of epochs (\texttt{UIC\_n\_epochs}), shuffling the collected data and partitioning it into mini-batches of size \texttt{UIC\_batch\_size}.
+For each mini-batch, the composite PPO loss function, $L_{\text{total}}$, is evaluated.
+This requires re-computing action log-probabilities, state-values, and the policy entropy with the current network parameters.
+The total loss integrates three weighted components: the policy loss ($L^{\text{CLIP}}$), the value function loss ($L^{\text{VF}}$), and an entropy bonus ($S$):
+
+\begin{equation}
+    L_{\text{total}}(\theta, \phi) = L^{\text{CLIP}}(\theta) - c_{VF} \cdot L^{\text{VF}}(\phi) + c_{ent} \cdot S[\pi_{\theta}](S_t)
+    \label{eq:uic_total_loss_revised}
+\end{equation}
+
+The policy loss, or clipped surrogate objective, is governed by the \texttt{UIC\_clip\_range} hyperparameter ($\epsilon^{\text{UIC}}$) and serves to stabilize policy updates.
+The value function loss, scaled by the coefficient $c_{VF}$ (\texttt{UIC\_vf\_coeff}), is the mean squared error between the predicted state-values and the target returns $G_t$.
+The entropy bonus, scaled by $c_{ent}$ (\texttt{UIC\_ent\_coeff}), encourages exploration by maximizing the policy's randomness.
+The computed total loss is then backpropagated to determine the gradients.
+An Adam optimizer, configured with the \texttt{UIC\_lr} learning rate, executes a single optimization step, updating the parameters ($\theta$) of both the policy and value networks.
+Finally, a learning rate scheduler adjusts the learning rate according to a predefined schedule, completing the training cycle.
+
+\section{Demand Forecasting Module}\label{sec:implementation_demand-forecasting-module}
+The Demand Forecasting Module, which feeds accurate demand forecasts into the RL agents, depends on the implementation by Li et al. \cite{li_improving_2023}.
 For training this model, the standard parameters provided by Li et al. have been used.
 The demand data had to be prepared for utilization in this model, which is done in the Jupyter Notebook \texttt{prepare\_demand\_forecasting\_data.ipynb}.
 A similarity matrix is needed, which defines the kernels for each grid zone.
 This similarity matrix is generated by calculating a similarity metric based on the Dynamic Time Warping (DTW) distance (\autoref{eq:irconvlstm-dtw})\cite{li_improving_2023} between the demand of all zones, resulting in a matrix of size $(N_{\mathcal{C}} \times N_{\mathcal{C}})$.
 Based on this distance parameter (\texttt{dtw\_dist}), the similarity is calculated (see \autoref{eq:irconvlstm-similarity}).
+DTW was chosen instead of PCC due to its superior performance results \cite{li_improving_2023}.
 
 \begin{equation}\label{eq:irconvlstm-dtw}
 \begin{split}
@@ -237,9 +266,9 @@ Based on this distance parameter (\texttt{dtw\_dist}), the similarity is calcula
     \texttt{similarity} = \frac{1}{1 + \texttt{dtw\_dist}}
 \end{equation}
 
-A kernel size of 7 has been chosen due to the six neighbors of a hexagon, and adding one for the zone itself.
-The cells for the kernel are derived from the similarity matrix calculation.
-The 6 most similar zones in terms of the similarity the demand are selected to form the kernel.
+A kernel size of seven has been chosen, as it encompasses the six neighbors of a hexagon and includes one for the zone itself.
+The cells for the kernel are derived from the calculation of the similarity matrix.
+The six most similar zones across the entire community, in terms of demand similarity, are selected to form the kernel.
 
-For training of the agents and hyperparameter optimization, the forecasts have been pre-computed for the whole training set, which drastically improved computing performances and therefore faster training / HO.
+For training the agents and hyperparameter optimization, the forecasts have been pre-computed for the entire training set, which drastically improved computational performance and, therefore, resulted in faster training.
 

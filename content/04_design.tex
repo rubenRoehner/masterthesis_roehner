@@ -1,7 +1,6 @@
-\chapter{Design}\label{sec:design} % approx. 8 pages
+\chapter{Design}\label{sec:design} % approx. 21 pages
 The following chapter is structured as follows: the first section describes the data used for training and testing the rebalancing algorithms, the second section formulates the rebalancing problem, and the third section focuses on the proposed framework to tackle the rebalancing problem.
 
-\newpage
 \section{Data}\label{sec:design-data}
 The data underlying this thesis was collected from a General Bike Sharing Specification (GBFS) feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{mobidata_bw_gebundelte_2022}.
 These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations.
@@ -150,7 +149,6 @@ These observed imbalances, detailed in \autoref{fig:demand_net_imbalance_map}, u
 \end{figure}
 \newpage\null\thispagestyle{empty}\newpage
 
-\newpage
 \section{Problem Definition}\label{sec:design-problem_definition}
 This section formalizes the fleet rebalancing problem of a free-floating e-scooter sharing system.
 The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, relocations performed by users guided by incentives.
@@ -309,9 +307,7 @@ This problem can be modeled using two coupled Markov Decision Processes (MDPs), 
 The objective of this problem formulation can be seen as the reward function for both agents.
 The following section defines an HRL framework that manages operator-based rebalancing on a macroscopic level and user-based rebalancing on a microscopic level.
 
- 
-\newpage
-\section{Framework}\label{sec:design-rl_framework}
+ \section{Framework}\label{sec:design-rl_framework}
 A \gls{HRL} framework is proposed to address the e-scooter rebalancing challenge.
 The HRL framework comprises two tiers.
 The first tier, the \gls{RDC}, manages inter-community imbalances by determining the target number of vehicles for each defined community.
@@ -397,12 +393,12 @@ The specific values for the weighting factors and the methodology for their sele
 \begin{enumerate}
     \item \textbf{Satisfied Demand Ratio ($R_{demand}^{RDC}(t)$):}
     This core component quantifies the effectiveness of rebalancing actions by measuring the proportion of satisfied trip requests.
-    It is calculated by summing, over all communities, the number of trip requests the system successfully served, and dividing this sum by the total number of trip requests received during the corresponding time interval (see \autoref{eq:rdc-reward-demand}).
-    This normalization yields a stable reward signal between 0 and 1.
+    It is calculated by summing, over all communities, the number of trip requests the system successfully served, and dividing this sum by the total number of trip requests received during the current time interval (see \autoref{eq:rdc-reward-demand}).
+    This normalization results in a stable reward signal between 0 and 1.
     \item \textbf{Rebalancing Cost ($R_{cost}^{RDC}(t)$):}
     To penalize excessive rebalancing, this component incorporates the cost of rebalancing operations.
     It is calculated by summing the total number of vehicles rebalanced (picked up or dropped off by operators) in the current timestep.
-    This sum is then divided by the total fleet size to obtain a normalized rebalancing ratio.
+    This sum is then divided by the total fleet size to receive a normalized rebalancing ratio.
     This ratio is squared and then transformed to ensure that a higher number of rebalancing operations results in a lower value for this reward component, and vice versa (see \autoref{eq:rdc-reward-cost}).
     \item \textbf{Imbalance Penalty ($R_{gini}^{RDC}(t)$):}
     This component encourages an equitable distribution of the e-scooter fleet across communities.
@@ -477,8 +473,6 @@ Furthermore, to enhance performance and maintain training stability, a learning 
 The learning rate starts higher to accelerate initial learning and is gradually decreased to facilitate fine-tuning and convergence to more optimal solutions.
 Additionally, gradient clipping is applied during backpropagation to prevent exploding gradients, a common issue that can destabilize the training of deep neural networks \cite{sutton_reinforcement_2018}.
 
-
-\newpage
 \subsection{User-Incentive Coordinator}\label{sec:design-rl_framework-uic}
 The second tier of the proposed HRL framework comprises multiple User-Incentive Coordinators (UIC), each assigned to a specific community to manage intra-community imbalances.
 Intra-community imbalances are addressed through user-based rebalancing.
@@ -627,46 +621,79 @@ Additionally, to further stabilize training, Generalized Advantage Estimation (G
 GAE computes a weighted average of the advantage estimates over multiple timesteps, rather than relying on a single-step advantage value.
 This technique, therefore, produces more stable estimates of the advantage function, resulting in faster learning and more reliable policy gradients. 
 
-\newpage
 \subsection{Demand Forecasting Module}\label{sec:design-rl_framework-forecasting_module}
-The successful operation of the rebalancing algorithm is fundamentally dependent on its ability to anticipate future demand.
+The successful operation of the rebalancing algorithm is fundamentally dependent on its ability to anticipate future demand to proactively rebalance vehicles based on future demand.
 Therefore, a dedicated Demand Forecasting Module that accurately predicts future demand is critical.
+By predicting future pick-up and drop-off events, this module enables the RL agents to pre-position vehicles to meet anticipated demand.
+This results in a proactive rebalancing strategy that can respond actively to changes in demand.
 This implementation of an independent Demand Forecasting Module removes the forecasting problem from the rebalancing algorithms themselves, which ideally should increase the overall efficiency of the framework, as the problems are separated and can be targeted directly.
 
 To effectively support the RL rebalancing agents mentioned earlier, the Demand Forecasting Module must predict the number of pick-ups and drop-offs for each zone on an hourly basis.
-The underlying model of this Demand Forecasting Module is trained using historical demand data extracted from the raw GBFS data.
-To predict both pick-up and drop-off demand, two separate models are trained for each of them.
-The output of both demand models should be the expected number of pick-up / drop-off events hourly per zone.
-
-The model selected for the Demand Forecasting Module is the Irregular Convolutional Long Short-Term Memory (IrConvLSTM) network by Li et al. \cite{li_improving_2023}.
-The selection of the IrConvLSTM model as part of this rebalancing framework is based on its empirically validated performance and its publicly available open-source implementation.
-Due to the short time scope of this master's thesis, the focus of this work is on the rebalancing framework itself, which is why an open-source implementation for the demand forecasting module is preferred.
-Li et al. \cite{li_improving_2023} demonstrated the high performance of the IrConvLSTM model in an empirical study comparing the model extensively against several other forecasting modules.
-These included traditional time-series models like ARIMA, standalone deep learning models like LSTM and GRU, and hybrid models like the standard CNN+LSTM model.
-The evaluation has been done over five different cities with bike-sharing data.
-The IrCOnvLSTM using Dynamic Time Warping yielded the best performances, which is why this variant is used for this work.
-IRConvLSTM consistently outperformed the other models across all benchmarks. including Root Mean Squared Error (RMSE), Mean Absolute Error (MAE), and Mean Absolute Percentage Error (MAPE).
-
-The core of this model are the Irregular Convolution layers, which replace the standard kernels of a Convolutional layer with fixed spatial kernels that link semantic neighbors.
-The IrConvLSTM consists of three parallel modules: 
+The model must be capable of capturing the complex dynamics of e-scooter demand patterns.
+The underlying model of this Demand Forecasting Module is trained using historical demand data extracted from the raw GBFS data (see \autoref{sec:design-data}).
+The output of both demand models should be the expected number of pick-up / drop-off events hourly per zone, to be integrated in the proposed rebalancing framework.
+To meet these requirements, two separate models are trained: one for predicting pick-ups and another for drop-offs.
+This separation is motivated by the observed imbalances between pick-ups and drop-offs, as discussed in \autoref{sec:design-data}.
 
 
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=0.7\linewidth]{content/figures/IrConv-LSTM-Architecture.pdf}
-    \caption{Architecture of the IrConvLSTM network proposed by Li et al. \cite{li_improving_2023}}
-    \label{fig:irconv-architecture}
-\end{figure}
+\subsubsection{Model Selection}
+The model selected for the Demand Forecasting Module is the Irregular Convolutional Long Short-Term Memory (IrConvLSTM) network proposed by Li et al. \cite{li_improving_2023}.
+The selection of the IrConvLSTM model as part of this rebalancing framework is based on its empirically validated performance, its publicly available open-source implementation, and its suitable architecture for modeling the complex dynamics of micromobility demand data.
+Due to the short time scope of this master's thesis, the focus of this work is on the rebalancing framework itself, which is why an open-source implementation for the Demand Forecasting Module is preferred.
+Li et al. \cite{li_improving_2023} demonstrated the high performance of the IrConvLSTM model in an empirical study comparing the proposed model against several other forecasting models.
+These included traditional time-series models like ARIMA, standalone deep-learning models like LSTM and GRU, and hybrid models like the CNN+LSTM model.
+The evaluation was conducted across five different cities using bike-sharing data.
+The IrConvLSTM using Dynamic Time Warping (DTW) yielded the best performances, which is why this variant is used for this work.
+IrConvLSTM consistently outperformed the other models across all benchmarks, including Root Mean Squared Error (RMSE), Mean Absolute Error (MAE), and Mean Absolute Percentage Error (MAPE).\\
 
-The implementation details of this Demand Forecasting Module and the IrConvLSTM are described in \autoref{sec:implementation_demand-forecasting-module}.
 
-\begin{figure}
+\subsubsection{Architecture}
+The core of this model is the Irregular Convolution layers, which replace the standard kernels of a Convolutional layer with fixed spatial kernels with semantic kernels based on semantic neighbors.
+IrCOnv layers operate on the central cell and its top $N$ semantic neighbours.
+By that, the historical demand development of zones with similar demand patterns are incorporated in the prediction for the center zone.
+To identify these semantic neighbours, two metrics were proposed: Pearson Correlation Coefficient (PCC) and Dynamic Time Warping (DTW).
+The PCC measures the linear correlation between the historical time series of two cells.
+The DTW metric, on the other hand, measures the similarity between two temporal sequences.
+\autoref{fig:irconv-neighbors} illustrates these differences between standard kernels used in CNNs and semantic neighbour kernels used in IrConv layers.
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{content/figures/IrConv-LSTM-Neighbors.pdf}
     \caption{Comparison of spatial neighbors used in regular convolution and semantic neighbors used in irregular convolution \cite{li_improving_2023}}
     \label{fig:irconv-neighbors}
 \end{figure}
 
+
+The IrConvLSTM consists of three parallel modules, each corresponding to a different scope of historical demand development:
+\begin{itemize}
+    \item \textbf{Closeness}:
+        The Closeness captures the most recent demand dynamics, enabling the model to react to short-term trends.
+        This is done by analyzing an hourly sequence of the demand over the past 24 hours.
+    \item \textbf{Period}:
+        The Period, on the other hand, concentrates on learning daily commute patterns.
+        These patterns are extracted by analyzing demand patterns from the same hour on each of the last seven days.
+    \item \textbf{Trend}:
+        The Trend reflects the longest time horizon.
+        It identifies long-term, weekly patterns that occur in the underlying demand data.
+        By analyzing demand data from the same hour over the preceding two weeks, this module integrates long-term patterns in the data.
+\end{itemize}
+This multi-component structure allows the model to learn from immediate past data, daily periodic patterns, and longer-term weekly trends simultaneously.
+Each of these three parallel streams feeds its sequence of historical demand data into a block containing three consecutive Irregular Convolutional (IrConv) layers followed by a flatten layer and an LSTM layer.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{content/figures/IrConv-LSTM-Architecture.pdf}
+    \caption{Architecture of the IrConvLSTM network proposed by Li et al. \cite{li_improving_2023}}
+    \label{fig:irconv-architecture}
+\end{figure}
+
+\subsubsection{Handling Forecast Uncertainty}
 The forecasts generated by this Demand Forecasting Module are biased and will not perfectly reflect the actual demand data.
-Th
-\todo{address bias in forecasts}
+The RL agent's design accounts for this uncertainty in demand predictions.
+The agent does not treat the forecasts as ground truth.
+That is why the simulation is driven by the actual demand and not by the forecasts.
+Additionally, the rewards for both agents are calculated using the actual realized demand based on the simulation.
+This ensures that the agents learn a policy that is effective under real-world conditions, including uncertain conditions such as errors in demand forecasts.
+The implementation details of this Demand Forecasting Module and the IrConvLSTM are described in \autoref{sec:implementation_demand-forecasting-module}.
+

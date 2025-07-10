@@ -7,27 +7,27 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{lr}                 & $[1e^{-6}, 1e^{-3}]$      & log-uniform \\
-        \texttt{lr\_step\_size}     & [500, 3000]               & 500 \\
-        \texttt{lr\_gamma}          & [0.90, 0.99]              & 0.01 \\
-        \texttt{gamma}              & [0.90, 0.99]              & 0.01\\
+        \texttt{RDC\_lr}                 & $[1e^{-6}, 1e^{-3}]$      & log-uniform \\
+        \texttt{RDC\_lr\_step\_size}     & [500, 3000]               & 500 \\
+        \texttt{RDC\_lr\_gamma}          & [0.90, 0.99]              & 0.01 \\
+        \texttt{RDC\_gamma}              & [0.90, 0.99]              & 0.01\\
         \midrule
-        \texttt{hidden\_size}       & \{64, 128, 256, 512\}     & - \\
-        \texttt{batch\_size}        & \{64, 128, 256, 512\}     & - \\
-        \texttt{tau}                & [0.001, 0.010]            & 0.001 \\
+        \texttt{RDC\_hidden\_size}       & \{64, 128, 256, 512\}     & - \\
+        \texttt{RDC\_batch\_size}        & \{64, 128, 256, 512\}     & - \\
+        \texttt{RDC\_tau}                & [0.001, 0.010]            & 0.001 \\
         \midrule
-        \texttt{rb\_capacity}       & [5000, 20000]             & 5,000\\
-        \texttt{per\_alpha}         & [0.3, 0.8]                & 0.1\\
-        \texttt{per\_beta\_start}   & [0.2, 0.6]                & 0.1\\
-        \texttt{per\_beta\_frames}  & [50000, 200000]           & 50000\\
+        \texttt{RDC\_rb\_capacity}       & [5000, 20000]             & 5,000\\
+        \texttt{RDC\_per\_alpha}         & [0.3, 0.8]                & 0.1\\
+        \texttt{RDC\_per\_beta\_start}   & [0.2, 0.6]                & 0.1\\
+        \texttt{RDC\_per\_beta\_frames}  & [50000, 200000]           & 50000\\
         \midrule
-        \texttt{epsilon\_start}     & 1.0                       & - \\
-        \texttt{epsilon\_end}       & [0.02, 0.20]              & 0.01 \\
-        \texttt{epsilon\_decay}     & [0.990, 0.999]            & 0.001\\
+        \texttt{RDC\_epsilon\_start}     & 1.0                       & - \\
+        \texttt{RDC\_epsilon\_end}       & [0.02, 0.20]              & 0.01 \\
+        \texttt{RDC\_epsilon\_decay}     & [0.990, 0.999]            & 0.001\\
         \midrule
-        \texttt{weight\_demand}     & [0.2, 2.0]                & 0.1 \\
-        \texttt{weight\_cost}       & [0.2, 2.0]                & 0.1 \\
-        \texttt{weight\_gini}       & [0.0, 0.5]                & 0.05 \\
+        \texttt{RDC\_weight\_demand}     & [0.2, 2.0]                & 0.1 \\
+        \texttt{RDC\_weight\_cost}       & [0.2, 2.0]                & 0.1 \\
+        \texttt{RDC\_weight\_gini}       & [0.0, 0.5]                & 0.05 \\
         \bottomrule
     \end{tabular}
     \caption{First round of RDC's hyperparameter optimization.}
@@ -40,27 +40,27 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{lr}                 & $[1e^{-6}, 1e^{-3}]$      & log-uniform \\
-        \texttt{lr\_step\_size}     & [500, 3000]               & 500 \\
-        \texttt{lr\_gamma}          & [0.90, 0.99]              & 0.01 \\
-        \texttt{gamma}              & [0.90, 0.99]              & 0.01\\
+        \texttt{RDC\_lr}                 & $[1e^{-6}, 1e^{-3}]$      & log-uniform \\
+        \texttt{RDC\_lr\_step\_size}     & [500, 3000]               & 500 \\
+        \texttt{RDC\_lr\_gamma}          & [0.90, 0.99]              & 0.01 \\
+        \texttt{RDC\_gamma}              & [0.90, 0.99]              & 0.01\\
         \midrule
-        \texttt{hidden\_size}       & \{64, 128, 256, 512\}     & - \\
-        \texttt{batch\_size}        & \{64, 128, 256, 512\}     & - \\
-        \texttt{tau}                & [0.001, 0.010]            & 0.001 \\
+        \texttt{RDC\_hidden\_size}       & \{64, 128, 256, 512\}     & - \\
+        \texttt{RDC\_batch\_size}        & \{64, 128, 256, 512\}     & - \\
+        \texttt{RDC\_tau}                & [0.001, 0.010]            & 0.001 \\
         \midrule
-        \texttt{rb\_capacity}       & [5000, 20000]             & 5,000\\
-        \texttt{per\_alpha}         & [0.3, 0.8]                & 0.1\\
-        \texttt{per\_beta\_start}   & [0.2, 0.6]                & 0.1\\
-        \texttt{per\_beta\_frames}  & [50000, 200000]           & 50000\\
+        \texttt{RDC\_rb\_capacity}       & [5000, 20000]             & 5,000\\
+        \texttt{RDC\_per\_alpha}         & [0.3, 0.8]                & 0.1\\
+        \texttt{RDC\_per\_beta\_start}   & [0.2, 0.6]                & 0.1\\
+        \texttt{RDC\_per\_beta\_frames}  & [50000, 200000]           & 50000\\
         \midrule
-        \texttt{epsilon\_start}     & 1.0                       & - \\
-        \texttt{epsilon\_end}       & [0.02, 0.20]              & 0.01 \\
-        \texttt{epsilon\_decay}     & [0.990, 0.999]            & 0.001\\
+        \texttt{RDC\_epsilon\_start}     & 1.0                       & - \\
+        \texttt{RDC\_epsilon\_end}       & [0.02, 0.20]              & 0.01 \\
+        \texttt{RDC\_epsilon\_decay}     & [0.990, 0.999]            & 0.001\\
         \midrule
-        \texttt{weight\_demand}     & [0.2, 2.0]                & 0.1 \\
-        \texttt{weight\_cost}       & [0.2, 2.0]                & 0.1 \\
-        \texttt{weight\_gini}       & [0.0, 0.5]                & 0.05 \\
+        \texttt{RDC\_weight\_demand}     & [0.2, 2.0]                & 0.1 \\
+        \texttt{RDC\_weight\_cost}       & [0.2, 2.0]                & 0.1 \\
+        \texttt{RDC\_weight\_gini}       & [0.0, 0.5]                & 0.05 \\
         \bottomrule
     \end{tabular}
     \caption{Second round of RDC's hyperparameter optimization.}
@@ -71,27 +71,27 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{lr}                 & $[1e^{-6}, 1e^{-3}]$      & log-uniform \\
-        \texttt{lr\_step\_size}     & [500, 3000]               & 500 \\
-        \texttt{lr\_gamma}          & [0.90, 0.99]              & 0.01 \\
-        \texttt{gamma}              & [0.90, 0.99]              & 0.01\\
+        \texttt{RDC\_lr}                 & $[1e^{-6}, 1e^{-3}]$      & log-uniform \\
+        \texttt{RDC\_lr\_step\_size}     & [500, 3000]               & 500 \\
+        \texttt{RDC\_lr\_gamma}          & [0.90, 0.99]              & 0.01 \\
+        \texttt{RDC\_gamma}              & [0.90, 0.99]              & 0.01\\
         \midrule
-        \texttt{hidden\_size}       & \{64, 128, 256, 512\}     & - \\
-        \texttt{batch\_size}        & \{64, 128, 256, 512\}     & - \\
-        \texttt{tau}                & [0.001, 0.010]            & 0.001 \\
+        \texttt{RDC\_hidden\_size}       & \{64, 128, 256, 512\}     & - \\
+        \texttt{RDC\_batch\_size}        & \{64, 128, 256, 512\}     & - \\
+        \texttt{RDC\_tau}                & [0.001, 0.010]            & 0.001 \\
         \midrule
-        \texttt{rb\_capacity}       & [5000, 20000]             & 5,000\\
-        \texttt{per\_alpha}         & [0.3, 0.8]                & 0.1\\
-        \texttt{per\_beta\_start}   & [0.2, 0.6]                & 0.1\\
-        \texttt{per\_beta\_frames}  & [50000, 200000]           & 50000\\
+        \texttt{RDC\_rb\_capacity}       & [5000, 20000]             & 5,000\\
+        \texttt{RDC\_per\_alpha}         & [0.3, 0.8]                & 0.1\\
+        \texttt{RDC\_per\_beta\_start}   & [0.2, 0.6]                & 0.1\\
+        \texttt{RDC\_per\_beta\_frames}  & [50000, 200000]           & 50000\\
         \midrule
-        \texttt{epsilon\_start}     & 1.0                       & - \\
-        \texttt{epsilon\_end}       & [0.02, 0.20]              & 0.01 \\
-        \texttt{epsilon\_decay}     & [0.990, 0.999]            & 0.001\\
+        \texttt{RDC\_epsilon\_start}     & 1.0                       & - \\
+        \texttt{RDC\_epsilon\_end}       & [0.02, 0.20]              & 0.01 \\
+        \texttt{RDC\_epsilon\_decay}     & [0.990, 0.999]            & 0.001\\
         \midrule
-        \texttt{weight\_demand}     & [0.2, 2.0]                & 0.1 \\
-        \texttt{weight\_cost}       & [0.2, 2.0]                & 0.1 \\
-        \texttt{weight\_gini}       & [0.0, 0.5]                & 0.05 \\
+        \texttt{RDC\_weight\_demand}     & [0.2, 2.0]                & 0.1 \\
+        \texttt{RDC\_weight\_cost}       & [0.2, 2.0]                & 0.1 \\
+        \texttt{RDC\_weight\_gini}       & [0.0, 0.5]                & 0.05 \\
         \bottomrule
     \end{tabular}
     \caption{Final round of RDC's hyperparameter optimization.}
@@ -105,14 +105,14 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{lr}                 & $[1e^{-6}, 2e^{-4}]$      & log-uniform \\
-        \texttt{lr\_step\_size}     & [500, 3000]               & 500 \\
-        \texttt{lr\_gamma}          & [0.90, 0.99]              & 0.01 \\
-        \texttt{gamma}              & [0.90, 0.99]              & 0.01\\
+        \texttt{UIC\_lr}                 & $[1e^{-6}, 2e^{-4}]$      & log-uniform \\
+        \texttt{UIC\_lr\_step\_size}     & [500, 3000]               & 500 \\
+        \texttt{UIC\_lr\_gamma}          & [0.90, 0.99]              & 0.01 \\
+        \texttt{UIC\_gamma}              & [0.90, 0.99]              & 0.01\\
         \midrule
-        \texttt{hidden\_size}       & \{64, 128, 256, 512\}     & - \\
-        \texttt{batch\_size}        & \{64, 128, 256, 512\}     & - \\
-        \texttt{tau}                & [0.001, 0.010]            & 0.001 \\
+        \texttt{UIC\_hidden\_size}       & \{64, 128, 256, 512\}     & - \\
+        \texttt{UIC\_batch\_size}        & \{64, 128, 256, 512\}     & - \\
+        \texttt{UIC\_tau}                & [0.001, 0.010]            & 0.001 \\
         \midrule
         \texttt{rb\_capacity}       & [5000, 20000]             & 5,000\\
         \texttt{per\_alpha}         & [0.3, 0.8]                & 0.1\\

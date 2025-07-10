@@ -1,56 +1,61 @@
 \chapter{Evaluation}\label{sec:evaluation} % approx. 8 pages
 The following chapter details the experimental setup used for evaluation, the hyperparameter optimization for the RDC and UIC agents, and the 
 
-\section{Experimental Setup}\label{sec:evaluation-setup}
-Fleet sizes have been determined by the mean number of vehicles available in the bounds based on all GBFS snapshots.
-For training and hyperparameter optimization, this fleet size has been reduced to 90\% to allow the agent to learn from more experiences with undersupply.
-For the evaluation, three different fleet sizes were used: the mean from the GBFS data, 80\% of the mean, and 120\% of the mean.
-
 
 \section{Hyperparameter Optimization}\label{sec:evaluation-ho}
 The performance of reinforcement learning agents is highly dependent on the selection of their hyperparameters.
-Therefore, a systematic hyperparameter optimization is essential for effective working agents, especially for a complex system like the proposed HRL framework.
-This systematic hyperparameter optimization has been conducted for both the Regional Distribution Coordinator (RDC) agent and the User-Incentive Coordinator (UIC) agent to ensure high performance for each agent.
-This section outlines the methodology employed for this optimization and presents the final parameter configurations used for evaluating the HRL framework.
+A systematic hyperparameter optimization (HO) is therefore essential to ensure agent efficacy, particularly for a complex hierarchical reinforcement learning (HRL) framework such as the one proposed.
+A dedicated HO process was conducted for both the Regional Distribution Coordinator (RDC) and the User-Incentive Coordinator (UIC) agents to maximize their individual performance.
+This section outlines the optimization methodology and presents the final hyperparameter configurations used in the subsequent evaluation of the HRL framework
 
-The objective for the optimization of both agents is to maximize a composite reward function, which is a weighted sum of three metrics: maximizing user demand ($R_{demand}^{RDC}$; $R_{demand}^{UIC}$), minimizing rebalancing costs ($R_{cost}^{RDC}$; $R_{cost}^{UIC}$), and promoting equitable vehicle distribution ($R_{gini}^{RDC}$; $R_{gini}^{UIC}$).
+The optimization objective for both agents was to maximize a composite reward function.
+This function is a weighted sum of three metrics: maximizing satisfied user demand ($R_{demand}$), minimizing rebalancing costs ($R_{cost}$), and promoting equitable vehicle distribution ($R_{gini}$).\\
 
-For the HO process, the Optuna framework \cite{akiba_optuna_2019}, a state-of-the-art optimization tool, has been utilized.
-The Tree-structured Parzen Estimator (TPE) sampler was selected as the search algorithm.
-TPE is an optimization algorithm that models the search space probabilistically to efficiently find promising hyperparameter configurations.
-The TPE sampler fits a Gaussian Mixture Model (GMM) to a set of parameters with the highest value for the objective function.
-Then, a ratio between this GMM and another GMM fitted to the remaining parameters is calculated.
-The sampler then chooses the parameter value that maximizes this ratio between the GMMs \cite{akiba_optuna_2019}.
-This probabilistic approach makes TPE well-suited for complex and high-dimensional search spaces  \cite{akiba_optuna_2019}.
+For the HO process, the Optuna framework was utilized, a state-of-the-art optimization tool \cite{akiba_optuna_2019}.
+The Tree-structured Parzen Estimator (TPE) was selected as the search algorithm due to its effectiveness in complex, high-dimensional search spaces \cite{akiba_optuna_2019}.
+TPE probabilistically models the search space to efficiently identify promising hyperparameter configurations.
+The algorithm fits a Gaussian Mixture Model (GMM) to a set of well-performing parameter configurations and calculates a ratio against a GMM fitted to the remaining configurations.
+The sampler then selects the parameter value that maximizes this ratio, guiding the search toward more promising regions \cite{akiba_optuna_2019}.
 
-To ensure reproducibility of the HO process, all runs are seeded.
-Since HO is computationally heavy, the HO process was parallelized across multiple jobs to accelerate the computation time.
-Additionally, the demand forecasts were precalculated, which also decreased computation time.
-The remaining section details the HO processes for the RDC and UIC agents.
-
-
+To ensure reproducibility, all optimization runs were seeded.
+As HO is computationally intensive, the process was parallelized across multiple jobs.
+Furthermore, demand forecasts were pre-calculated to reduce computation time. The remainder of this section details the specific HO processes for the RDC and UIC agents.
 
 \subsection{Regional Distribution Coordinator (RDC)}
-The RDC agent, based on an MH-DQN architecture with PER, has 17 distinct hyperparameters.
-To manage this complexity, a coarse-to-fine optimization strategy was adopted over three rounds.
-For all rounds, each trial consists of 100 episodes, each with a maximum of 100 steps, and 20 evaluation episodes.\\
+The RDC agent, based on a Multi-head Deep Q-Network (MH-DQN) architecture with Prioritized Experience Replay (PER), has 17 distinct hyperparameters.
+To manage this complexity, a three-round coarse-to-fine optimization strategy was adopted.
+For all rounds, each trial consisted of 100 training episodes, each with a maximum of 100 steps, followed by 20 evaluation episodes.
 
-Initially, the parameters were grouped into five logical groups (Learning Rate, Architecture, Replay Buffer, Exploration Strategy, and Reward Weights).
-The first round was conducted on a broad search space for each group independently across 50 trials.
-This first round aimed to identify promising regions in the extensive search space.
+\begin{enumerate}
+    \item 
+        In the initial round, the hyperparameters were organized into five logical groups: Learning Rate, Architecture, Replay Buffer, Exploration Strategy, and Reward Weights.
+        An independent search was run for each group over 50 trials using broad search spaces to identify promising regions.
+    \item 
+        In the second round, the search range for each hyperparameter was refined based on the initial results.
+        Ranges were expanded for parameters whose optimal values were found at the boundaries of the search space and narrowed for those found centrally, allowing for a more granular search.
+        This focused round was also conducted over 50 trials per group.
+    \item 
+        In the final round, a unified fine-tuning sweep was performed across all 17 hyperparameters simultaneously over 100 trials.
+        This approach accounts for interdependencies between parameters from different groups.
+        The search spaces were further narrowed based on the results from the second round to converge on the optimal configuration.
+\end{enumerate}
 
-In the second round, the search ranges for each parameter were refined based on the results of the previous round.
-For parameters whose optimal parameters were found at the boundaries of the previous search space, the range was extended in this direction.
-Conversely, for parameters whose optimal values were located centrally in the search space, the search space was narrowed down for more fine granular optimization.
-This second, more focused round, was conducted over 50 trials per group as well.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/RDC_history_plot.png}
+    \caption{RDC Aggregated Optimization History}
+    \label{fig:ho-rdc-history}
+\end{figure}
 
-In the final round, a unified fine-tuning sweep was performed across all 17 parameters simultaneously.
-To combat the increase in complexity, the number of trials was increased to 100.
-Additionally, the search spaces for each parameter were narrowed down based on the results from the previous round.
-This final round ensures that dependencies between parameters of different groups are also addressed in the optimization process.\\
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/RDC_focused_slice_plot.png}
+    \caption{RDC Focused Slice Plot}
+    \label{fig:ho-rdc-focused-slice}
+\end{figure}
 
-The resulting optimal hyperparameter configurations are presented in \autoref{tab:rdc_final_hyperparameters}.
-More detailed descriptions for the parameters are provided in \autoref{tab:rdc_hyperparameters_description}, and the search spaces are defined in the \cref{tab:rdc_ho_first_round,tab:rdc_ho_second_round,tab:rdc_ho_final_round}.
+The resulting optimal hyperparameter configuration is presented in \autoref{tab:rdc_final_hyperparameters}. Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:rdc_hyperparameters_description}), while the search spaces for each optimization round are defined in the appendix (\cref{tab:rdc_ho_first_round,tab:rdc_ho_second_round,tab:rdc_ho_final_round}).
+
 
 \begin{table}[H]
     \centering
@@ -58,27 +63,27 @@ More detailed descriptions for the parameters are provided in \autoref{tab:rdc_h
         \toprule
         \textbf{Parameter} & \textbf{Summary Description} & \textbf{Final Value} \\
         \midrule
-        \texttt{lr} & Initial learning rate & $1 \times 10^{-5}$ \\
-        \texttt{lr\_step\_size} & LR decay step size & $1500$ \\
-        \texttt{lr\_gamma} & LR decay factor & $0.9$ \\
-        \texttt{gamma} & Discount factor & $0.926$\\
+        \texttt{RDC\_lr} & Initial learning rate & $1 \times 10^{-5}$ \\
+        \texttt{RDC\_lr\_step\_size} & LR decay step size & $1500$ \\
+        \texttt{RDC\_lr\_gamma} & LR decay factor & $0.9$ \\
+        \texttt{RDC\_gamma} & Discount factor & $0.926$\\
         \midrule
-        \texttt{hidden\_size} & Hidden layer neuron count & $256$ \\
-        \texttt{batch\_size} & Minibatch size & $256$ \\
-        \texttt{tau} & Target network soft update rate & $0.001$ \\
+        \texttt{RDC\_hidden\_size} & Hidden layer neuron count & $256$ \\
+        \texttt{RDC\_batch\_size} & Minibatch size & $256$ \\
+        \texttt{RDC\_tau} & Target network soft update rate & $0.001$ \\
         \midrule
-        \texttt{rb\_capacity} & Replay buffer capacity & $10,000$\\
-        \texttt{per\_alpha} & PER prioritization exponent ($\alpha$) & $0.8$\\
-        \texttt{per\_beta\_start} & PER importance sampling start ($\beta_0$) & $0.3$\\
-        \texttt{per\_beta\_frames} & PER $\beta$ annealing frames & $150,000$\\
+        \texttt{RDC\_rb\_capacity} & Replay buffer capacity & $10,000$\\
+        \texttt{RDC\_per\_alpha} & PER prioritization exponent ($\alpha$) & $0.8$\\
+        \texttt{RDC\_per\_beta\_start} & PER importance sampling start ($\beta_0$) & $0.3$\\
+        \texttt{RDC\_per\_beta\_frames} & PER $\beta$ annealing frames & $150,000$\\
         \midrule
-        \texttt{epsilon\_start} & Initial exploration rate ($\epsilon_{start}$) & $1.0$\\
-        \texttt{epsilon\_end} & Final exploration rate ($\epsilon_{end}$) & $0.06$\\
-        \texttt{epsilon\_decay} & Exploration rate decay factor & $0.999$\\
+        \texttt{RDC\_epsilon\_start} & Initial exploration rate ($\epsilon_{start}$) & $1.0$\\
+        \texttt{RDC\_epsilon\_end} & Final exploration rate ($\epsilon_{end}$) & $0.06$\\
+        \texttt{RDC\_epsilon\_decay} & Exploration rate decay factor & $0.999$\\
         \midrule
-        \texttt{weight\_demand} & Satisfied demand weight & $1.1$ \\
-        \texttt{weight\_cost} & Rebalancing cost weight & $1.1$ \\
-        \texttt{weight\_gini} & Gini index penalty weight & $0.1$ \\
+        \texttt{RDC\_weight\_demand} & Satisfied demand weight & $1.1$ \\
+        \texttt{RDC\_weight\_cost} & Rebalancing cost weight & $1.1$ \\
+        \texttt{RDC\_weight\_gini} & Gini index penalty weight & $0.1$ \\
         \bottomrule
     \end{tabularx}
     \caption{Final optimized hyperparameter configuration for the RDC.}
@@ -86,50 +91,129 @@ More detailed descriptions for the parameters are provided in \autoref{tab:rdc_h
 \end{table}
 
 \subsection{User-Incentive Coordinator (UIC)}
-The User-Incentive Coordinator, which employs a PPO algorithm agent, has 15 different parameters for HO.
-A multi-stage optimization strategy, similar to that used for the RDC agent, was implemented over three rounds.
-Each trial of a round runs for 50,000 timesteps.\\
+The UIC agent, which employs a Proximal Policy Optimization (PPO) algorithm, has 15 distinct hyperparameters to be optimized.
+A multi-stage optimization strategy, similar to that used for the RDC, was implemented over three rounds.
+Each trial in every round was run for 50,000 timesteps.
 
-The initial round was conducted on a broad search space to identify search areas with high potential.
-For the initial and second rounds, the hyperparameters were divided into four groups: PPO core, architecture, stability, and reward weights.
+\begin{enumerate}
+    \item 
+        The initial round identified promising search areas using broad hyperparameter ranges.
+        For the first two rounds, the parameters were divided into four logical groups: PPO Core, Architecture, Stability, and Reward Weights.
+        The initial round consisted of 30 trials.
+    \item 
+        The second round refined the search by narrowing or expanding the parameter ranges based on the initial outcomes, following the same logic as the RDC optimization.
+        The second round again consisted of 30 trials.
+    \item 
+        The final round optimized all 15 parameters simultaneously to fine-tune the configuration, thereby accounting for any cross-group parameter dependencies.
+        To account for the increase in complexity, the final round consisted of 100 trials.
+\end{enumerate}
 
-The second round used optimized search spaces for each parameter based on the results of the initial round.
-The search spaces have been optimized similarly to the second round of the RDC's optimization strategy.
+The aggreagated optimization process is illustrated by \autoref{fig:ho-uic-history}, where the blue 
+It clearly shows a benefit of doing such a three round hyperparameter optimization strategy.
+The \textit{best-value} line indicated by the red line in the plot, displays a step-wise improvement.
 
-The third and last round optimized all parameters simultaneously to identify the most optimal hyperparameter configuration.
-This final round ensures that the hyperparameters are optimized, even when accounting for dependencies between parameters from different groups.\\ 
+The objective function could be optimized significantly over the course of the three rounds.
 
-The resulting optimal hyperparameter configurations for the UIC agent are presented in \autoref{tab:uic_final_hyperparameters}.
-More detailed descriptions for the parameters are provided in \autoref{tab:uic_hyperparameters_description}, and the search spaces are defined in the \cref{tab:uic_ho_first_round,tab:uic_ho_second_round,tab:uic_ho_final_round}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/UIC_history_plot.png}
+    \caption{UIC Aggregated Optimization History}
+    \label{fig:ho-uic-history}
+\end{figure}
 
-\begin{table}[!htb]
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/UIC_focused_slice_plot.png}
+    \caption{UIC Focused Slice Plot}
+    \label{fig:ho-uic-focused-slice}
+\end{figure}
+
+
+The resulting optimal hyperparameter configuration for the UIC agent is presented in \autoref{tab:uic_final_hyperparameters}.
+Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:uic_hyperparameters_description}), while the search spaces used are defined in the appendix (\cref{tab:uic_ho_first_round,tab:uic_ho_second_round,tab:uic_ho_final_round}).
+
+\begin{table}[H]
     \centering
     \begin{tabularx}{\textwidth}{lXl}
         \toprule
         Parameter & Description & Final Value \\
         \midrule
-        \texttt{lr} & Optimizer learning rate. & $1 \times 10^{-6}$ \\
-        \texttt{n\_steps} & Rollout buffer size per update. & $2048$ \\
-        \texttt{batch\_size} & Minibatch size for gradient updates. & $32$ \\
-        \texttt{clip\_range} & PPO policy update clipping range. & $0.13$\\
-        \texttt{ent\_coeff} & Entropy bonus weight for exploration. & $0.00078$\\
-        \texttt{vf\_coeff} & Value function loss weight. & $0.6$\\
+        \texttt{UIC\_lr}                    & Optimizer learning rate.                  & $1 \times 10^{-6}$ \\
+        \texttt{UIC\_n\_steps}              & Rollout buffer size per update.           & $2048$ \\
+        \texttt{UIC\_batch\_size}           & Minibatch size for gradient updates.      & $32$ \\
+        \texttt{UIC\_clip\_range}           & PPO policy update clipping range.         & $0.13$\\
+        \texttt{UIC\_ent\_coeff}            & Entropy bonus weight for exploration.     & $0.00078$\\
+        \texttt{UIC\_vf\_coeff}             & Value function loss weight.               & $0.6$\\
         \midrule
-        \texttt{gamma} & Reward discount factor. & $0.918$ \\
-        \texttt{gae\_lambda} & Lambda parameter for GAE& $0.99$ \\
-        \texttt{target\_kl} & Target KL divergence for policy updates. & $0.02$\\
+        \texttt{UIC\_gamma}                 & Reward discount factor.                   & $0.918$ \\
+        \texttt{UIC\_gae\_lambda}           & Lambda parameter for GAE                  & $0.99$ \\
+        \texttt{UIC\_target\_kl}            & Target KL divergence for policy updates.  & $0.02$\\
         \midrule
-        \texttt{num\_hidden\_layers} & Number of network hidden layers. & $3$\\
-        \texttt{hidden\_size} & Neurons per hidden layer. & $256$ \\
-        \texttt{activation\_fn} & Hidden layer activation function. & Tanh \\
+        \texttt{UIC\_num\_hidden\_layers}   & Number of network hidden layers.          & $3$\\
+        \texttt{UIC\_hidden\_size}          & Neurons per hidden layer.                 & $256$ \\
+        \texttt{UIC\_activation\_fn}        & Hidden layer activation function.         & Tanh \\
         \midrule
-        \texttt{weight\_demand} & Satisfied demand weight & $1.1$ \\
-        \texttt{weight\_cost} & Rebalancing cost weight & $1.1$ \\
-        \texttt{weight\_gini} & Gini index penalty weight & $0.1$ \\
+        \texttt{UIC\_weight\_demand}        & Satisfied demand weight                   & $1.1$ \\
+        \texttt{UIC\_weight\_cost}          & Rebalancing cost weight                   & $1.1$ \\
+        \texttt{UIC\_weight\_gini}          & Gini index penalty weight                 & $0.1$ \\
         \bottomrule
     \end{tabularx}
     \caption{Final hyperparameter values for the User-Incentive Coordinator after optimization.}
     \label{tab:uic_final_hyperparameters}
 \end{table}
+
+\section{Experimental Setup}\label{sec:evaluation-setup}
+Fleet sizes have been determined by the mean number of vehicles available based on all GBFS snapshots.
+For training and hyperparameter optimization, this fleet size has been reduced to 90\% to allow the agent to learn from more experiences with undersupply.
+For the evaluation, three different fleet sizes were used: the mean from the GBFS data, 80\% of the mean, and 120\% of the mean.
+Evaluating the models with different fleet sizes results in a more robust evaluation since, multiple scenarios are tested, including scenarios with oversupply and with undersupply.
+
+
+\subsection{Evaluation Metrics}
+\label{sec:evaluation-metrics}
+
+\subsection{Baselines}\label{sec:evaluation-setup-baselines}
+For evaluating the proposed HRL rebalancing framework, multiple baselines have been chosen.
+The evaluation against multiple baselines elevates the interpretability of the results.
+Each baseline has been chosen to test a different hypothesis, which should test the design choices of the proposed framework thoroughly.
+
+\subsubsection{RDC-only Baseline}
+The first baseline for comparison is running the Regional Distribution Coordinator (RDC) only without the User-Incentive Coordinators (UICs).
+By comparing the results to this baseline, it can be observed whether broad operator-based rebalancing is enough to increase trip satisfaction.
+
+
+\subsubsection{UIC-only Baseline}
+The second baseline is running the second tier of the proposed HRL framework only, i.e., only the UIC agents propose incentive levels to locally rebalance the system without any rebalancing between communities and focusing on user-based rebalancing.
+With this baseline, the hypothesis is whether local fleet optimization can result in similar results as if the system is rebalanced over multiple hierarchies.
+
+\subsubsection{Greedy Heuristic}
+The third baseline implemented as a greedy heuristic should test whether a hierarchical Reinforcement Learning approach can outperform simple rule-based algorithms.
+This baseline serves as a lower bound that the proposed HRL framework should outperform.
+
+This greedy heuristic is implemented in a similar two-tier hierarchy mimicking the design of the proposed HRL framework.
+The top-tier greedy heuristic proposes rebalancing quotas for manual rebalancing, similarly to the RDC.
+The greedy strategy works as follows: first, for each community, the expected deficit of vehicles is calculated based on the current vehicle counts and the demand forecasts provided by the Demand Forecasting Module.
+This list is then sorted in descending order by the calculated deficit to identify the communities with the highest gap between supply and expected demand.
+The rebalancer iterates over this prioritized list and determines the number of vehicles that ideally would be needed to add.
+It then selects the most suitable action value from the same discrete action values used by the RDC.
+The same is done for communities with an expected surplus of vehicles.
+Here, action values are selected to match supply and expected demand by removing vehicles from these communities.
+Based on the maximum number of rebalanced vehicles, the selected action values for each community with the most surplus or deficit are chosen.
+Additionally, the action values are scaled to meet fleet size preservation and only non-negative vehicle counts per community.
+
+The second tier of this greedy heuristic works similarly to the UIC agents.
+This heuristic is applied to each community and determines incentive levels for each zone within the community to encourage users to drop-off vehicles in zones that are predicted to have a vehicle deficit.
+First, the ratio between supply and expected demand is calculated for each zone.
+A threshold (e.g., 0.8) is defined by which the maximum incentive is given for dropping off a vehicle at that zone.
+If the ratio for a zone exceeds the threshold or no demand is expected, then no incentive is offered.
+
+
+
+\subsubsection{State-of-the-art Model}
+Lastly, a SOTA model identified in the literature review is implemented as an upper bound.
+By comparing the HRL framework against this baseline, it can be observed whether the proposed framework can compete with current SOTA models developed by whole research teams over more extended periods and with more expertise in this research field.
+\todo{Add information about the specific model if implemented}
 
 \section{Results and Analysis}
