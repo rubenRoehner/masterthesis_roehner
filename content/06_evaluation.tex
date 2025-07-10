@@ -21,7 +21,8 @@ To ensure reproducibility, all optimization runs were seeded.
 As HO is computationally intensive, the process was parallelized across multiple jobs.
 Furthermore, demand forecasts were pre-calculated to reduce computation time. The remainder of this section details the specific HO processes for the RDC and UIC agents.
 
-\subsection{Regional Distribution Coordinator (RDC)}
+\newpage
+\subsection{Regional Distribution Coordinator (RDC)}\label{sec:evaluation-ho-rdc}
 The RDC agent, based on a Multi-head Deep Q-Network (MH-DQN) architecture with Prioritized Experience Replay (PER), has 17 distinct hyperparameters.
 To manage this complexity, a three-round coarse-to-fine optimization strategy was adopted.
 For all rounds, each trial consisted of 100 training episodes, each with a maximum of 100 steps, followed by 20 evaluation episodes.
@@ -40,12 +41,38 @@ For all rounds, each trial consisted of 100 training episodes, each with a maxim
         The search spaces were further narrowed based on the results from the second round to converge on the optimal configuration.
 \end{enumerate}
 
+This three round optimization process results are illustrated in \autoref{fig:ho-rdc-history}.
+Each blue point corresponds to an individual trial, and the solid red line tracks the best-performing trial of each run.
+
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{content/figures/RDC_history_plot.png}
     \caption{RDC Aggregated Optimization History}
     \label{fig:ho-rdc-history}
 \end{figure}
+
+\autoref{fig:ho-rdc-focused-slice} dives deeper into the analysis of the HO process of the RDC agent.
+It demonstrates the four most critical hyerparameters, with each point representing a single trial.
+These four hyperparameters have been selected by visually analyizing the slice plot for all parameters and by analyzing the importance parameter for each HO run.
+Since in the first two rounds the hyperparameters were grouped and individually optimized, a global importance metric couldn't be plotted over all HO runs, due to the lack of comparability.
+
+The plot of the learning rate of the RDC agent shows a trend to lower values.
+The more consistent high-performing trials are found in the range between $1e^{-6}$ and $5e^{-5}$.
+This suggests that smaller more conservative updates are preferable for the RDC agent.
+The discount factor \texttt{RDC\_gamma} has a strong positive correlation to the objective value.
+The best results are concentrated in the upper range of $[0.94, 0.99]$, which suggests that the RDC is far-sighted.
+This priorities decision that lead to optimal longterm fleet distributions across all communities.
+Short-term optimization is less prioritized.
+The third important parameter of the RDC agent is the target network update rate \texttt{RDC\_tau}.
+This rate manages the degree of soft updates between the target and the policy network introduced by the DDQN architecture.
+The plot of the trials display a trend towards low values for this ratio.
+Higher values greater than 0.003 result in much more instable objective values.
+The \texttt{RDC\_epsilon\_decay} which controls the exploration decay of the $\epsilon$-Greedy strategy shows more scattered results.
+The highest objective values can only be observed for decay rates of $0.99$ and greater, but a high decay rate doesn't guarantee success.
+Even for high decay rates, the objective value fluctuates, which suggests that the \texttt{RDC\_epsilon\_decay} parameter is dependent on other critical parameters and only enables the possibility of a optimal performance.
+The trend of higher epsilon decay rates suggests a prolonged exploration phase for the RDC agent to capture the complex dynamics of the e-scooter sharing system.
+
 
 \begin{figure}[H]
     \centering
@@ -90,7 +117,7 @@ The resulting optimal hyperparameter configuration is presented in \autoref{tab:
     \label{tab:rdc_final_hyperparameters}
 \end{table}
 
-\subsection{User-Incentive Coordinator (UIC)}
+\subsection{User-Incentive Coordinator (UIC)}\label{sec:evaluation-ho-uic}
 The UIC agent, which employs a Proximal Policy Optimization (PPO) algorithm, has 15 distinct hyperparameters to be optimized.
 A multi-stage optimization strategy, similar to that used for the RDC, was implemented over three rounds.
 Each trial in every round was run for 50,000 timesteps.
@@ -108,11 +135,12 @@ Each trial in every round was run for 50,000 timesteps.
         To account for the increase in complexity, the final round consisted of 100 trials.
 \end{enumerate}
 
-The aggreagated optimization process is illustrated by \autoref{fig:ho-uic-history}, where the blue 
+The aggreagated optimization process is illustrated by \autoref{fig:ho-uic-history}.
+Each blue point corresponds to an individual trial, and the solid red line tracks the best-performing trial of each run.
 It clearly shows a benefit of doing such a three round hyperparameter optimization strategy.
-The \textit{best-value} line indicated by the red line in the plot, displays a step-wise improvement.
-
-The objective function could be optimized significantly over the course of the three rounds.
+UNlike the RDC, the UIC's optimization history displays a distinct step-wise improvement.
+This step-wise improvement, indicated by the solid red line, suggests that the PPO agent is more sensitive to specific paramter configurations.
+This phenomenom is likely due to the less manual optimization before running the HO process.
 
 \begin{figure}[H]
     \centering
@@ -121,6 +149,17 @@ The objective function could be optimized significantly over the course of the t
     \label{fig:ho-uic-history}
 \end{figure}
 
+
+\autoref{fig:ho-uic-focused-slice} dives deeper into the analysis of the HO process of the UIC agent.
+The top four most relevant parameters have been selected similarly to the process done for the RDC agent (see \autoref{sec:evaluation-ho-rdc}).
+The plots show that the performance of the agent is strongly correlated to the learning rate, where lower values ($[1e^{-6}, 1e^{-5}]$) resulted in an increase in performance.
+The \texttt{UIC\_n\_steps} parameter, that controls the number of experiences the agent observes before performing and update, has a sweet-spot at 1024 steps, which provide the agent the optimal amount of data to learn from.
+For the \texttt{UIC\_gamma} parameter a strong trend showing that higher values around 0.91 and 0.96 leading to better performance.
+This finding suggests that the UIC agent should behave far-sighted to effectively find an optimal rebalancing problem.
+Higher gamma values prioritized long-term rewards, which suggest that the agent prefers to optimized the overall fleet distribution on the long run instead of optimizing current vehicle shortages.
+The \texttt{UIC\_ent\_coef} that controls the agetnt's exlporation-exploitation trade-off, shows a clear pattern where the best performing values are all concentrated at the lower bounds (below 0.002).
+This suggests that the agent rather quickly finds a good policy that the agent tries to exploit fast instead of focusing on much exploration of the search space.
+This also means that only a tiny amount of entropy is needed to prevent the agent from getting stuck in suboptimal policies.
 
 
 \begin{figure}[H]
@@ -141,7 +180,7 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
         Parameter & Description & Final Value \\
         \midrule
         \texttt{UIC\_lr}                    & Optimizer learning rate.                  & $1 \times 10^{-6}$ \\
-        \texttt{UIC\_n\_steps}              & Rollout buffer size per update.           & $2048$ \\
+        \texttt{UIC\_n\_steps}              & Rollout buffer size per update.           & $1024$ \\
         \texttt{UIC\_batch\_size}           & Minibatch size for gradient updates.      & $32$ \\
         \texttt{UIC\_clip\_range}           & PPO policy update clipping range.         & $0.13$\\
         \texttt{UIC\_ent\_coeff}            & Entropy bonus weight for exploration.     & $0.00078$\\
