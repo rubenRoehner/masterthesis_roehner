@@ -1,4 +1,4 @@
-\chapter{Evaluation}\label{sec:evaluation} % approx. 8 pages
+\chapter{Evaluation}\label{sec:evaluation} % approx. 14 pages
 The following chapter details the experimental setup used for evaluation, the hyperparameter optimization for the RDC and UIC agents, and the 
 
 
@@ -204,49 +204,63 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
 \end{table}
 
 \section{Experimental Setup}\label{sec:evaluation-setup}
-Fleet sizes have been determined by the mean number of vehicles available based on all GBFS snapshots.
-For training and hyperparameter optimization, this fleet size has been reduced to 90\% to allow the agent to learn from more experiences with undersupply.
-For the evaluation, three different fleet sizes were used: the mean from the GBFS data, 80\% of the mean, and 120\% of the mean.
-Evaluating the models with different fleet sizes results in a more robust evaluation since, multiple scenarios are tested, including scenarios with oversupply and with undersupply.
+Fleet sizes for the experiments have been determined by the mean number of vehicles available based on the collected GBFS snapshots.
+For training and hyperparameter optimization, this fleet size was reduced to 90\% to allow the agents to learn from more experiences with vehicle undersupply.
+For the final evaluation, three different fleet sizes were used to test the robustness: the mean fleet size (100\%), an undersupply scenario (80\%), and an oversupply scenario (1290\%).
+Evaluating the models under these varied conditions ensures a more comprehensive assessment of their performance in both oversupply and undersupply situations.
 
 
-\subsection{Evaluation Metrics}
-\label{sec:evaluation-metrics}
+\subsection{Evaluation Metrics}\label{sec:evaluation-setup-metrics}
+To quantitatively compare the performance of the different rebalancing strategies developed by HRL framework an by the baselines, the following metrics are used:
+
+\begin{itemize}
+    \item \textbf{Satisfied Demand Ratio:} 
+        This is the primary metric for evaluating the service quality and user satisfaction.
+        This ratio is defined as the percentage of total user trip requests that were successfully served, as formulated in \autoref{eq:problem-definition-satisfied-demand-ratio}.
+        A higher Satisfied Demand Ratio indicates a more effective rebalancing strategy.
+    \item \textbf{Manual Rebalancing Costs:}
+        This metric quantifies the operational cost of manual rebalancing actions.
+        It is calculated as the total number of vehicles rebalanced by service workers in the whole evaluation period.
+        A lower value is preferred.
+    \item \textbf{User-based Rebalancing Costs:}
+        This metric, on the other hand, measures the costs incurred by offering incentives to users for rebalancing vehicles on trip drop-off.
+        It is calculated as the total number of trips where users accepted the offered incentive to change their drop-off location.
+        Similarly to the previous metric, a lower value is also preferred.
+    \item \textbf{Fleet Imbalance:}
+        The Gini index is used as a metric to measure the equity of the vehicle distribution.
+        This metric is calculated over the number of vehicles per zone at every time step and then averaged (see \autoref{eq:pb-objective-gini}).
+        A Gini index of zero indicates a fully balanced fleet, and a value of one indicates the maximum imbalance.
+\end{itemize}
 
 \subsection{Baselines}\label{sec:evaluation-setup-baselines}
-For evaluating the proposed HRL rebalancing framework, multiple baselines have been chosen.
-The evaluation against multiple baselines elevates the interpretability of the results.
-Each baseline has been chosen to test a different hypothesis, which should test the design choices of the proposed framework thoroughly.
+To evaluate the proposed HRL rebalancing framework, multiple baselines have been selected.
+The evaluation against these baselines elevates the interpretability of the results.
+Each baseline has been selected to test a distinct hypothesis, thereby thoroughly evaluating the design choices of the proposed framework.
 
 \subsubsection{RDC-only Baseline}
-The first baseline for comparison is running the Regional Distribution Coordinator (RDC) only without the User-Incentive Coordinators (UICs).
-By comparing the results to this baseline, it can be observed whether broad operator-based rebalancing is enough to increase trip satisfaction.
+The first baseline for comparison is running the Regional Distribution Coordinator (RDC) only, without the User-Incentive Coordinators (UICs).
+By comparing the results to this baseline, it can be observed whether broad, operator-based rebalancing is enough to significantly improve trip satisfaction.
 
 
 \subsubsection{UIC-only Baseline}
-The second baseline is running the second tier of the proposed HRL framework only, i.e., only the UIC agents propose incentive levels to locally rebalance the system without any rebalancing between communities and focusing on user-based rebalancing.
-With this baseline, the hypothesis is whether local fleet optimization can result in similar results as if the system is rebalanced over multiple hierarchies.
+The second baseline involves running only the second tier of the proposed HRL framework, i.e., only the UIC agents propose incentive levels to locally rebalance the system.
+This baseline, which involves no rebalancing between communities, tests the hypothesis that localized, user-driven fleet optimization can achieve comparable results to a system with multi-level rebalancing.
 
 \subsubsection{Greedy Heuristic}
-The third baseline implemented as a greedy heuristic should test whether a hierarchical Reinforcement Learning approach can outperform simple rule-based algorithms.
-This baseline serves as a lower bound that the proposed HRL framework should outperform.
+The third baseline is a greedy heuristic designed to test whether the HRL approach can outperform a simple, rule-based algorithm. This baseline serves as a lower bound that the proposed framework should outperform. The greedy heuristic is implemented in the same two-tier hierarchy as the HRL framework:
 
-This greedy heuristic is implemented in a similar two-tier hierarchy mimicking the design of the proposed HRL framework.
-The top-tier greedy heuristic proposes rebalancing quotas for manual rebalancing, similarly to the RDC.
-The greedy strategy works as follows: first, for each community, the expected deficit of vehicles is calculated based on the current vehicle counts and the demand forecasts provided by the Demand Forecasting Module.
-This list is then sorted in descending order by the calculated deficit to identify the communities with the highest gap between supply and expected demand.
-The rebalancer iterates over this prioritized list and determines the number of vehicles that ideally would be needed to add.
-It then selects the most suitable action value from the same discrete action values used by the RDC.
-The same is done for communities with an expected surplus of vehicles.
-Here, action values are selected to match supply and expected demand by removing vehicles from these communities.
-Based on the maximum number of rebalanced vehicles, the selected action values for each community with the most surplus or deficit are chosen.
-Additionally, the action values are scaled to meet fleet size preservation and only non-negative vehicle counts per community.
+\begin{itemize}
+    \item \textbf{Top-Tier (Operator Rebalancing):}
+        The top-tier heuristic calculates the expected vehicle deficit for each community based on current vehicle counts and demand forecasts.
+        It then prioritizes communities with the highest deficit or surplus.
+        To meet the expected demand, it selects the most suitable discrete action from the same action space available to the RDC, with the total number of rebalanced vehicles capped at 5\% of the total fleet size per hour to simulate operational constraints.
 
-The second tier of this greedy heuristic works similarly to the UIC agents.
-This heuristic is applied to each community and determines incentive levels for each zone within the community to encourage users to drop-off vehicles in zones that are predicted to have a vehicle deficit.
-First, the ratio between supply and expected demand is calculated for each zone.
-A threshold (e.g., 0.8) is defined by which the maximum incentive is given for dropping off a vehicle at that zone.
-If the ratio for a zone exceeds the threshold or no demand is expected, then no incentive is offered.
+    \item \textbf{Second-Tier (User Incentives):}
+        The second-tier heuristic determines incentive levels for each zone within a community.
+        It calculates the ratio of vehicle supply to expected demand for each zone.
+        If this ratio is below a threshold of 0.8, a maximal incentive is offered to encourage users to drop-off vehicles in that zone.
+        If the ratio exceeds the threshold or no demand is expected, no incentive is offered.
+\end{itemize}
 
 
 
