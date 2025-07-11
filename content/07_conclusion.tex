@@ -3,15 +3,41 @@ The conclusion is the last chapter of your thesis.
 Make sure to match its content to your design, implementation, and evaluation.
 Also, that you recap your introduction and motivation to ensure you solved the actual problem.
 
-\section{Summary}
-The summary recaps the complete thesis.
-Make sure to highlight the most important pieces of your work with a reference to the introduction.
-Additionally, present the applicability of your design and implementation.
+\section{Summary}\label{sec:conclusion-summary}
 
-\section{Future Work}
-Which tasks, problems, or ideas are still open?
-In the future work section, you should highlight these open points and give reasons for their relevance.
+\section{Future Work}\label{sec:conclusion-future_work}
+This research successfully developed a hierarchical reinforcement learning framework for e-scooter rebalancing.
+However, the complexity of urban mobility systems presents numerous avenues for future investigation.
+The following points outline promising directions to build upon the findings of this thesis.
 
-\todo{high-fidelity simulation}
-\todo{State-of-charge: incorporate battery swap, handle state-of-charge in simulation}
-\todo{Incorporate other data: weather, public events,...}
+\subsection{Enhancing Simulation}
+\begin{itemize}
+    \item \textbf{High-Fidelity Simulation:}
+        As noted in the literature review there exists a research gap for implementing a high-fidelity simulator for testing share micromoblity services under real conditions.
+        Simulators like SUMO and MATSim provide macroscopic traffic models to simulate the complex dynamics of urban mobility.
+        Developing such a simulator would allow for the evaluation of rebalancing strategies under realistic traffic congestion, travel time variations, and interactions with other modes of transport.
+        This would address the oversimplification present in many current simulation environments.
+    \item \textbf{Advanced User-Willingnes Modeling:}
+\end{itemize}
+
+\subsection{Expanding the Problem Scope}
+\begin{itemize}
+    \item \textbf{Incorporate State-of-Charge:}
+        A major simplification in this work was not explicitly modeling the state-of-charge (SoC) of the e-scooters.
+        A significant extension would be to incorporate battery levels into the simulation and agent's state and actions.
+        This would involve integrating battery swapping or charging tasks into the operator's rebalancing routes, adding a new layer of complexity to the optimization problem.
+    \item \textbf{Operator Vehicle Routing:}
+    \item \textbf{Dynamic Fleet Management:}
+\end{itemize}
+
+\subsection{Improving the Algorithmic Framework}
+
+\begin{itemize}
+    \item \textbf{Incorporation of External-Data:}
+    \item \textbf{Inter-Agent Communication:}
+    \item \textbf{Alternative RL Algorithms:}
+    \item \textbf{Improving the HRL Framework:}
+        This work proposed a two-level hierarchy based on communities and zones.
+        Future work could investigate alternative hierarchical structures.
+        This might include adding a third, higher-level agent responsible for meta-strategies across the entire service area or testing different spatial aggregation methods to define the boundaries between agent responsibilities.
+\end{itemize}
