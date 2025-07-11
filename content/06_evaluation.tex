@@ -179,24 +179,24 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
         \toprule
         Parameter & Description & Final Value \\
         \midrule
-        \texttt{UIC\_lr}                    & Optimizer learning rate.                  & $1 \times 10^{-6}$ \\
+        \texttt{UIC\_lr}                    & Optimizer learning rate.                  & $2.057 \times 10^{-6}$ \\
         \texttt{UIC\_n\_steps}              & Rollout buffer size per update.           & $1024$ \\
         \texttt{UIC\_batch\_size}           & Minibatch size for gradient updates.      & $32$ \\
-        \texttt{UIC\_clip\_range}           & PPO policy update clipping range.         & $0.13$\\
-        \texttt{UIC\_ent\_coeff}            & Entropy bonus weight for exploration.     & $0.00078$\\
-        \texttt{UIC\_vf\_coeff}             & Value function loss weight.               & $0.6$\\
+        \texttt{UIC\_clip\_range}           & PPO policy update clipping range.         & $0.2$\\
+        \texttt{UIC\_ent\_coeff}            & Entropy bonus weight for exploration.     & $0.000112$\\
+        \texttt{UIC\_vf\_coeff}             & Value function loss weight.               & $0.413$\\
         \midrule
-        \texttt{UIC\_gamma}                 & Reward discount factor.                   & $0.918$ \\
-        \texttt{UIC\_gae\_lambda}           & Lambda parameter for GAE                  & $0.99$ \\
-        \texttt{UIC\_target\_kl}            & Target KL divergence for policy updates.  & $0.02$\\
+        \texttt{UIC\_gamma}                 & Reward discount factor.                   & $0.936$ \\
+        \texttt{UIC\_gae\_lambda}           & Lambda parameter for GAE                  & $0.902$ \\
+        \texttt{UIC\_target\_kl}            & Target KL divergence for policy updates.  & $0.022$\\
         \midrule
         \texttt{UIC\_num\_hidden\_layers}   & Number of network hidden layers.          & $3$\\
-        \texttt{UIC\_hidden\_size}          & Neurons per hidden layer.                 & $256$ \\
-        \texttt{UIC\_activation\_fn}        & Hidden layer activation function.         & Tanh \\
+        \texttt{UIC\_hidden\_size}          & Neurons per hidden layer.                 & $128$ \\
+        \texttt{UIC\_activation\_fn}        & Hidden layer activation function.         & ReLU \\
         \midrule
-        \texttt{UIC\_weight\_demand}        & Satisfied demand weight                   & $1.1$ \\
-        \texttt{UIC\_weight\_cost}          & Rebalancing cost weight                   & $1.1$ \\
-        \texttt{UIC\_weight\_gini}          & Gini index penalty weight                 & $0.1$ \\
+        \texttt{UIC\_weight\_demand}        & Satisfied demand weight                   & $0.5$ \\
+        \texttt{UIC\_weight\_cost}          & Rebalancing cost weight                   & $1.5$ \\
+        \texttt{UIC\_weight\_gini}          & Gini index penalty weight                 & $0.0$ \\
         \bottomrule
     \end{tabularx}
     \caption{Final hyperparameter values for the User-Incentive Coordinator after optimization.}
