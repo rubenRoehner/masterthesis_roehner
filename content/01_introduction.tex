@@ -6,17 +6,40 @@ Shared micromobility services, such as electric scooter sharing, are a large, gr
 Shared micromobility offers an ecologically friendly and convenient way to bridge short distances.
 They address the common problem of the "first and last mile gap", which describes the distance between public transport stations and the trip's origin and destination.
 The growing popularity of micromobility sharing services comes from their flexibility, ease of use, low environmental impacts, and the possibility of reducing private car rides.
-To fulfill all these benefits from a user perspective, the operators of such sharing services face challenges in keeping service quality high.
+However, this popularity brings significant challenges for service providers aiming to maintain high service quality.
+The spatiotemporal dynamics of urban mobility, particularly the flow patterns of commuters, systematically create severe fleet imbalances within micromobility systems.
+These imbalances lead to a poor user experience, notable by the unavailability and overcrowding of vehicles in specific locations.
+To counteract these effects, operators employ rebalancing strategies.
 Rebalancing is a common approach to maintaining a balanced fleet of vehicles and, therefore, providing a high service quality.
-Fleet rebalancing refers to the operation of moving vehicles from low-demand areas to high-demand areas to increase satisfied user demand.
-Traditional rebalancing strategies often only focus on periodically rebalancing operations based on static demand models.
-These rebalancing strategies miss out on the dynamics of shared micromobility services, where user demand fluctuates and is highly dynamic.
-Demand can peak unexpectedly due to public events, which static rebalancing strategies can not account for.
-Therefore, there is a need for rebalancing strategies that can react to such unexpected demand fluctuations.
+Rebalancing refers to the process of relocating vehicles from low-demand areas to high-demand areas to increase satisfied user demand.
+This can be achieved through two primary modes: operator-based rebalancing, where service crews manually move vehicles using trucks, and user-based rebalancing, where users are incentivized to end their trips in specific, under-supplied locations.
+Effectively managing these strategies is critical to maximizing vehicle availability, user satisfaction, and keeping operational costs low.
 
 
 
 \section{Research Gap and Objectives}
+Various rebalancing methods exists, but current approaches suffer from significant limitations.
+Traditional strategies based on mathematical optimization and simple heuristics often depend on highly abstracted simulation environments and demand models.
+Demand can peak unexpectedly due to public events, which static rebalancing strategies can not account for.
+This makes such approaches slow to adapt to the highly dynamic nature of urban mobility.
+Additionally, such strategies struggle to scale for large real-world systems.
+
+Although Reinforcement Learning (RL) approaches have emerged due to the outstanding relevance of artificial intelligence, they offer more dynamic strategies.
+But a critical research gap remains: the vast majority of existing studies address operator-based and user-based rebalancing in solution, without integrating them into a unified framework.
+This clear separation between the two rebalancing approaches overlooks the potential of a combined strategy that can benefit from both approaches' advantages while reducing the limitations of both if correctly combined.
+Furthermore, many RL rebalancing strategies either focus on city-wide or local neighborhood optimization, but both rely on each other, which, combined, could enhance service quality significantly.\\
+
+This thesis addresses these identified research gaps by proposing an integrated system that combines both rebalancing modes.
+The primary objectives of this work are:
+\begin{goal}\label{goal:design}
+    Design a Hierarchical Reinforcement Learning (HRL) framework that integrates operator-based and user-based rebalancing by decomposing the problem into spatially and functionally distinct sub-problems.
+\end{goal}
+\begin{goal}\label{goal:implementation}
+    Implement the designed HRL framework by developing agents with specific RL algorithms and creating a custom simulation environment driven by real-world demand data.
+\end{goal}
+\begin{goal}\label{goal:evaluation}
+    Evaluate the framework's effectiveness by systematically benchmarking its performance against multiple baselines, using metrics for service quality, operational cost, and fleet distribution.
+\end{goal}
 
 
 

@@ -1,9 +1,26 @@
 \chapter{Conclusion}\label{sec:conclusion} % approx. 5 pages
-The conclusion is the last chapter of your thesis.
-Make sure to match its content to your design, implementation, and evaluation.
-Also, that you recap your introduction and motivation to ensure you solved the actual problem.
+This chapter summarizes the core findings of this thesis and gives an overview of areas for improvement.
+\todo{Adress goals from introduction}
 
 \section{Summary}\label{sec:conclusion-summary}
+Shared micromobility services offer a convenient and sustainable solution for urban transportation.
+They are commonly used for shorter-distance journeys, such as commuting and leisure trips.
+Such sharing provides face challenges in satisfying user demand.
+Natural imbalances between vehicle supply and user demand occur, which decreases service quality.
+This thesis was motivated by the need for a dynamic rebalancing strategy that incorporates both manual and user-based rebalancing within a single system.
+This strategy should proactively reposition vehicles to meet user demand by suggesting vehicles to rebalance using service workers and offering user incentives to drop-off vehicles at zones with an undersupply on an hourly basis to address imbalances throughout the day.
+
+To address this research gap, a novel Hierarchical Reinforcement Learning (HRL) framework was designed and implemented.
+This framework decomposes the complex city-wide rebalancing problem into two manageable levels:
+
+\begin{enumerate}
+    \item A high-level Regional Distribution Coordinator (RDC), based on a Multi-head Deep Q-Network (MH-DQN), responsible for strategic, operator-based relocations between predefined communities.
+    \item A set of low-level User-Incentive Coordinators (UICs), based on Proximal Policy Optimization (PPO), are responsible for fine-grained, user-based rebalancing within each of the defined communities.
+    To address the imbalances occurring inside the communities.
+\end{enumerate}
+
+\todo{Finish conclusion}
+
 
 \section{Future Work}\label{sec:conclusion-future_work}
 This research successfully developed a hierarchical reinforcement learning framework for e-scooter rebalancing.
@@ -11,31 +28,57 @@ However, the complexity of urban mobility systems presents numerous avenues for 
 The following points outline promising directions to build upon the findings of this thesis.
 
 \subsection{Enhancing Simulation}
+The current work relies on a custom simulation environment that uses simplified models for complex system dynamics.
+Future research could significantly enhance the realism of the evaluation.
 \begin{itemize}
     \item \textbf{High-Fidelity Simulation:}
-        As noted in the literature review there exists a research gap for implementing a high-fidelity simulator for testing share micromoblity services under real conditions.
+        As noted in the literature review, there exists a research gap for implementing a high-fidelity simulator for testing shared micromobility services under real conditions.
         Simulators like SUMO and MATSim provide macroscopic traffic models to simulate the complex dynamics of urban mobility.
         Developing such a simulator would allow for the evaluation of rebalancing strategies under realistic traffic congestion, travel time variations, and interactions with other modes of transport.
         This would address the oversimplification present in many current simulation environments.
     \item \textbf{Advanced User-Willingnes Modeling:}
+        The current implementation uses a linear function to model users' willingness to accept user incentives.
+        A key area for improvement is the development of more sophisticated user choice models.
+        This could be done by learning a user preferences model directly from trip data to better capture the complex factors influencing decisions, such as walking distance, cost, and trip purpose.
 \end{itemize}
 
 \subsection{Expanding the Problem Scope}
+This thesis focused on the core rebalancing problem, while other critical operation aspects were deliberately excluded due to time constraints of this work.
+Future work could expand the scope of this framework by integrating other operational aspects.
 \begin{itemize}
     \item \textbf{Incorporate State-of-Charge:}
         A major simplification in this work was not explicitly modeling the state-of-charge (SoC) of the e-scooters.
-        A significant extension would be to incorporate battery levels into the simulation and agent's state and actions.
+        A significant extension would be to incorporate battery levels into the simulation and the agent's state and actions.
         This would involve integrating battery swapping or charging tasks into the operator's rebalancing routes, adding a new layer of complexity to the optimization problem.
     \item \textbf{Operator Vehicle Routing:}
+        As stated in \autoref{sec:design-problem_definition}, this work explicitly excluded the vehicle routing problem to focus on the rebalancing problem, due to the many implementations already published.
+        By incorporating the vehicle routing problem for the operator-based rebalancing, the suggested rebalancing quotas by the RDC agent could be fulfilled using VRP algorithms.
+        
     \item \textbf{Dynamic Fleet Management:}
+        The current implementation of the simulation environment forces a constant fleet size based on the mean of the observed GBFs data.
+        Many sharing services operate a depot from which e-scooters can be picked up or dropped off.
+        A vehicle that needs to be maintained or repaired can be dropped off there.
+        Additionally, to overcome periods of high demand, additional vehicles can be collected from such depots.
+        This is especially useful for public events, where there is a significant increase in demand over a short period of time.
 \end{itemize}
 
 \subsection{Improving the Algorithmic Framework}
-
+The proposed HRL framework can be extended and refined.
 \begin{itemize}
     \item \textbf{Incorporation of External-Data:}
+        Both the HRL agents and the demand forecasting module could be enhanced by integrating external data sources that influence mobility patterns.
+        Typical external data sources include real-time weather data, public transport schedules, information about public events, Point of Interest (POI) data, and land use data.
+        These external data sources can cause significant demand fluctuations, which could be anticipated by the models if included.
     \item \textbf{Inter-Agent Communication:}
+        The current implementation of the proposed HRL framework relies only on implicit communication between the two tiers.
+        The performance of the framework could benefit from incorporating explicit communication between the two tiers and between the UIC agents.
+        By doing so, the agents could coordinate rebalancing tasks to work together more effectively and minimize actions that work against each other.
+        Implementing Inter-Agent Communication in any MARL or HRL can cause significant problems and needs to be consciously designed and evaluated.
     \item \textbf{Alternative RL Algorithms:}
+        The implementation of the RDC and UIC agents is done using MH-DQN and PPO algorithms.
+        The RDC agent could be designed to work on a continuous action space as well and be implemented using PPO or similar algorithms.
+        The UIC agents currently implemented as PPO could be tested using DDPG or a multi-agent PPO (MAPPO), which uses a shared critic and multiple agents.
+        MAPPO demonstrated promising performances in the past \cite{yu_surprising_2022}.
     \item \textbf{Improving the HRL Framework:}
         This work proposed a two-level hierarchy based on communities and zones.
         Future work could investigate alternative hierarchical structures.

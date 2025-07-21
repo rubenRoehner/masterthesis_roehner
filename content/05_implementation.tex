@@ -132,6 +132,16 @@ $\epsilon = \max(\epsilon_{min}, \epsilon_{start} \cdot (\delta_{\epsilon}^{n_{s
 , where $n_{step}$ is the current step count.
 Lastly, the priorities of the PER are updated using the newly calculated TD errors by the \texttt{update\_priorities} from the \texttt{ReplayBuffer}.
 
+The learning progress of the RDC agent over the course of the final training run is visualized in \autoref{fig:rdc_training_curves}.
+The plot displays the episodic reward, which shows a clear upward trend before converging, indicating that the agent successfully learned a policy to maximize its objective function. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{content/figures/rdc_reward_plot.png}
+    \caption{RDC training progress showing the episodic reward}
+    \label{fig:rdc_training_curves}
+\end{figure}
+
 
 
 \section{User-Incentive Coordinator}\label{sec:implementation_uic}
@@ -241,6 +251,20 @@ The computed total loss is then backpropagated to determine the gradients.
 An Adam optimizer, configured with the \texttt{UIC\_lr} learning rate, executes a single optimization step, updating the parameters ($\theta$) of both the policy and value networks.
 Finally, a learning rate scheduler adjusts the learning rate according to a predefined schedule, completing the training cycle.
 
+The learning process of the UIC agents is demonstrated in \autoref{fig:uic_reward_curve}.
+The figure illustrates the episodic average reward of one of the nine UIC agents as a representative.
+The reward curve demonstrates a consistent upward trend that eventually plateaus, confirming that the agents successfully learned to optimize their local incentive strategies.
+
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{content/figures/uic_reward_plot.png}
+    \caption{UIC training progress showing the average episodic reward}
+    \label{fig:uic_reward_curve}
+\end{figure}
+
 \section{Demand Forecasting Module}\label{sec:implementation_demand-forecasting-module}
 The Demand Forecasting Module, which feeds accurate demand forecasts into the RL agents, depends on the implementation by Li et al. \cite{li_improving_2023}.
 For training this model, the standard parameters provided by Li et al. have been used.
@@ -271,4 +295,5 @@ The cells for the kernel are derived from the calculation of the similarity matr
 The six most similar zones across the entire community, in terms of demand similarity, are selected to form the kernel.
 
 For training the agents and hyperparameter optimization, the forecasts have been pre-computed for the entire training set, which drastically improved computational performance and, therefore, resulted in faster training.
+
 
