@@ -1,26 +1,26 @@
 \chapter{Background}\label{sec:background} % approx. 11 pages
-This chapter is focused on fundamentals to clearly understand the concepts and approaches discussed in the Related Works section and the following.
+This chapter focuses on fundamentals to clearly understand the concepts and approaches discussed in the Related Works section and the subsequent chapters.
 The following chapter is structured as follows: \autoref{sec:background-mss} focuses on fundamentals of micromobility sharing services, including rebalancing. \autoref{sec:background-reinforcement_learning} describes different reinforcement learning (RL) algorithms and approaches. \autoref{sec:background-heuristics} introduces heuristics and meta-heuristics. Lastly, \autoref{sec:background-mathematical_optimization} presents mathematical optimization techniques.
 
 \section{Micromobility Sharing Services}\label{sec:background-mss}
 Shared micromobility refers to a service that allows users to rent a vehicle for short trips within the service provider's operating area.
 Typically, the vehicles are lightweight electric vehicles such as electric scooters or electric bikes.
-Micromobility sharing services offer customers a flexible and environmentally friendly alternative for individual mobility.
+Micromobility sharing services offer customers a flexible and environmentally friendly alternative to traditional individual transportation.
 Electric scooters (e-scooters) or electric bikes (e-bikes) are the preferred vehicles of micromobility sharing services, due to their compactness, motor-assistance, and sufficient speed \cite{liao_electric_2022}.
 
 
 E-scooters and e-bikes both offer many benefits.
 E-scooters typically serve shorter-distance journeys, averaging approximately 1.8 kilometers per trip, whereas e-bikes are generally preferred for slightly longer distances, averaging about 2 kilometers.
-Trips of e-scooters and e-bikes not only differ in length but also in their purpose.
-E-scooter trips are often for leisure, such as shopping or social events.
+Trips on e-scooters and e-bikes differ not only in length but also in their purpose.
+E-scooter trips are often taken for leisure activities, such as shopping or attending social events.
 The second most common use of e-scooters is commuting trips, which is the dominant use of shared e-bikes \cite{liao_electric_2022}.
 
 In urban areas, e-scooters and e-bikes have been identified as promising modes for reducing carbon emissions and air pollutants.
 Electrically powered vehicles have the potential to achieve carbon neutrality when powered by renewable energy sources.
-Recent studies in the United States have shown that private electric scooters have replaced about 34\% of car trips, while electric bicycles have replaced between 5\% and 17\% of such trips \cite{liao_electric_2022}.
+Recent studies in the United States have shown that private electric scooters have replaced approximately 34\% of car trips, while electric bicycles have replaced between 5\% and 17\% of such trips \cite{liao_electric_2022}.
 The high substitution rates observed for private electric micro-mobility suggest that the deployment of shared micro-mobility services can effectively encourage a modal shift from high-emission automobile travel to low-emission shared micro-mobility alternatives.
 
-Micromobility sharing services try to increase user satisfaction to maximize profit.
+Micromobility sharing services aim to enhance user satisfaction in order to maximize profits.
 Users of micromobility sharing services are often willing to walk a short distance to a sharing vehicle.
 Demand that the sharing service has met, i.e., the sharing service could satisfy the user's demand by providing an available vehicle within the user's walking radius, is often referred to in the literature as met or satisfied demand.
 Unmet or unsatisfied demand is user demand that the sharing service cannot satisfy, i.e., when a user cannot find an available vehicle within the walking radius.
@@ -274,7 +274,7 @@ This communication can be implicit through observation or explicit as part of th
 MARL cannot be formalized with an MDP due to the lack of support for multiple agents.
 Therefore, numerous approaches have been introduced to formalize MARL models.
 A well-known approach is the Markov game (MG). 
-In MG, each agent has its own set of actions and its reward function.
+In MG, each agent has its own set of actions and its own reward function.
 The state space and the state transition probabilities are shared between all agents.
 The reward functions should be chosen according to the agents' interaction type.
 A zero-sum reward is often used for competitive agents, where one's gain in reward is another's loss.
@@ -326,7 +326,7 @@ The problem for ACO is modeled as a Graph with different paths to find the optim
 The "Ants" try out different solution paths.
 Good solution paths will be marked with more pheromones than bad-performing paths.
 In new iterations, the "Ants" will follow paths with more pheromones but will also try out different paths to find more optimal solutions.
-This graph representation of the problem makes ACO well-suited for routing problems or similar because this kind of problem can be naturally modeled as a graph.
+This graph representation of the problem makes ACO well-suited for routing problems or similar, because this kind of problem can be naturally modeled as a graph.
 
 \subsection{Summary}
 Heuristic and metaheuristic methods offer different approaches to optimization problems, each with distinct advantages and limitations.
