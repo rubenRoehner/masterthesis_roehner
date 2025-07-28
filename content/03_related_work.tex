@@ -345,8 +345,6 @@ SUMO can be vastly extended due to its modularity and open-source nature.
 An external control API (TraCI) enables users to observe and update the current state via Python scripts, which opens up numerous opportunities, such as incorporating rebalancing algorithms.
 Overall, SUMO provides a high-fidelity representation of urban mobility, making it well-suited for evaluating how rebalancing frameworks perform under realistic conditions.
 SUMO does not explicitly offer agent-based modeling of users or vehicles, but could be extended via TraCI.
-
-SUMO has been utilized primarily in studies for traffic simulation.
 \\
 
 \subsubsection{ODySSEUS}
@@ -383,6 +381,8 @@ In contrast, MATSim employs a large-scale, agent-based, mesoscopic approach cent
 The program's strength lies in simulating how changes in service attributes affect user mode choice, overall travel patterns, demand satisfaction, and the system's equilibrium state.
 This makes it ideal for strategic analysis and exploring user responses to incentives.
 The implementation of custom rebalancing frameworks is more complex because MATSim is Java-based, whereas machine learning and similar algorithms are predominantly written in Python.
+Most recent studies choose to implement custom simulation environments, especially for RL approaches.
+This trend can be seen, due to the high friction of incorporating rebalancing algorithms in one of the open-source simulations, which often lack in detailed documentation and performance, which makes them not suitable for training RL algorithms and only ideal for detailed evaluation which obviously results in both implementing an performant simulation for training and setting up a detailed simulation for evaluation.
 
 
 \section{Summary and Research Gaps}

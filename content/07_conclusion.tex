@@ -40,6 +40,10 @@ Future research could significantly enhance the realism of the evaluation.
         The current implementation uses a linear function to model users' willingness to accept user incentives.
         A key area for improvement is the development of more sophisticated user choice models.
         This could be done by learning a user preferences model directly from trip data to better capture the complex factors influencing decisions, such as walking distance, cost, and trip purpose.
+    \item \textbf{Incorporating Latent Demand:}
+        The demand utilized in this study is historical observed demand, which is biased or censored, meaning that it only contains a portion of the actual demand, as only satisfied demand is quantified through the GBFS data.
+        Incorporating an unbiased, uncensored demand model results in more realistic possibilities to increase satisfied demand by addressing the unsatisfied demand not present in historical demand data.
+        Gammeli et al. \cite{gammelli_estimating_2020} developed a model based on Gaussian Processes to estimate the uncensored demand that is not present in historical demand data.
 \end{itemize}
 
 \subsection{Expanding the Problem Scope}
@@ -50,6 +54,9 @@ Future work could expand the scope of this framework by integrating other operat
         A major simplification in this work was not explicitly modeling the state-of-charge (SoC) of the e-scooters.
         A significant extension would be to incorporate battery levels into the simulation and the agent's state and actions.
         This would involve integrating battery swapping or charging tasks into the operator's rebalancing routes, adding a new layer of complexity to the optimization problem.
+        With the current underlying demand data, incporporating the SOC isn't directly possible, since only trip start and end locations that are not connected to each other are available.
+        This would mean, that the decrease of the SOC must be modeled based on the GBFS data that includes a parameter for the SOC.
+        This modeling does come with a bias and is a limited solution, ideally would be connected t
     \item \textbf{Operator Vehicle Routing:}
         As stated in \autoref{sec:design-problem_definition}, this work explicitly excluded the vehicle routing problem to focus on the rebalancing problem, due to the many implementations already published.
         By incorporating the vehicle routing problem for the operator-based rebalancing, the suggested rebalancing quotas by the RDC agent could be fulfilled using VRP algorithms.

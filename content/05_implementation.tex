@@ -82,7 +82,7 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
     \item \textbf{Rebalancing Simulation: }
         After scaling the rebalancing quotas, the rebalancing is performed with these scaled quotas.
         For communities with a positive quota, vehicles are added to the zones with the lowest vehicle counts first.
-        Conversely, for communities receiving a negative quota, vehicles are removed from zones with the highest vehicle counts first.\todo{Ref: Simulation besser als Penalty um in den Constraints zu bleiben}
+        Conversely, for communities receiving a negative quota, vehicles are removed from zones with the highest vehicle counts first.
     \item \textbf{Demand Simulation: }
         After the vehicle counts are updated based on the rebalancing actions chosen by the agent, the user demand is simulated for the entire step (e.g., 60 minutes).
         Historical demand data drives this demand simulation.

@@ -154,7 +154,11 @@ This section formalizes the fleet rebalancing problem of a free-floating e-scoot
 The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, relocations performed by users guided by incentives.
 The rebalancing mechanisms addressed are operator-based relocations between communities and user-based relocations within communities, which are achieved through incentives.
 The routing problem of service vehicles performing operator-based rebalancing is not addressed in this work. 
-Several works have been published on the routing problem for operator-based rebalancing, so there is no need to account for that \cite{lee_battery_2024, emami_integrated_2024, jimenez-merono_optimization_2024, paparella_optimization-based_2023, sanchez_simulation_2022}.   
+Several works have been published on the routing problem for operator-based rebalancing, so there is no need to for further research \cite{lee_battery_2024, emami_integrated_2024, jimenez-merono_optimization_2024, paparella_optimization-based_2023, sanchez_simulation_2022}.  
+The state-of-charge (SOC) of the vehicles isn't modeled in the simulation as well, this is due to the limited data availability and this has been done in multiple recent works as well \cite{cederle_fairness-oriented_2025, villa-zapata_incorporating_2024, schofield_handling_2021, pan_deep_2019}.
+As detailed in \autoref{sec:design-data} only the trip start and endpoints are available and no full trip data.
+Therefore, modeling whole trips in the simulation, which is nesecarry to update the SOC accordingly, isn't directly possible with the available data.
+In \autoref{sec:conclusion-future_work} possible solutions to incorporate the SOC into the simulation are dicussed.
 
 \subsection{Scope and Notation}
 The service area is partitioned into a set of zones($\mathcal{Z}$).
