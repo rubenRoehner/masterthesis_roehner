@@ -312,7 +312,7 @@ In summary, the various reinforcement learning approaches discussed in this sect
 These approaches strike a balance between ease of use and the scalability and complexity required to effectively handle the complex and dynamic environment found in shared micromobility systems.
 
 
-\section{Heuristics}\label{sec:background-heuristics}
+\section{Heuristics}\label{sec:background-heuristics}\todo{Add citation}
 A heuristic is a problem-solving approach, similar to a rule of thumb, that attempts to find a satisfactory solution quickly.
 This is particularly relevant for complex problems, where finding an exact optimal solution is computationally impossible or too time-consuming.
 While heuristics offer such a significant computational performance advantage, they do not guarantee global optimality. 
@@ -325,12 +325,12 @@ Greed-and-match enhances the simple greedy heuristic by incorporating a simple m
 This matching strategy assesses relationships between multiple decision elements simultaneously.
 This allows for more informed local choices, which often yield better overall solutions than a simple greedy algorithm but come at the cost of increased computational complexity.
 
-\subsection{Metaheuristic Optimization}
+\subsection{Metaheuristic Optimization}\todo{Add citation}
 Metaheuristics are frameworks that aim to enhance heuristics by guiding their actions to improve the search space and discover more optimal solutions than can be found solely with the heuristics themselves.
 Metaheuristics manage the trade-off between exploration and exploitation to overcome local optima and discover more optimal solutions.
 These methods are often inspired by natural processes, such as evolution or swarm intelligence, and typically operate on a population of candidate solutions.
 
-\subsubsection{Genetic Algorithms (GAs)}
+\subsubsection{Genetic Algorithms (GAs)}\todo{Add citation}
 Genetic algorithms (GAs) are a class of metaheuristics inspired by the principles of biological evolution.
 GAs improve a population of candidate solutions iteratively to identify a near-optimal solution.
 Each candidate is evaluated by a fitness function, which quantifies its suitability relative to the optimization objective. 
@@ -342,9 +342,9 @@ The algorithm generates a new population in each generation through three primar
     \item \textbf{Mutation:} At the same time, the mutation operator randomly modifies individual candidates to preserve genetic diversity and prevent premature convergence. 
 \end{itemize}
 
-This iterative process, involving the selection, crossover, and mutation operators, is repeated across multiple generations until the fitness function converges to a stable optimum or a predefined termination criterion is met.
+This iterative process, involving the selection, crossover, and mutation operators, is repeated across multiple generations until the fitness function converges to a stable optimum or a predefined termination criterion is met \cite{holland_adaptation_1992}.
 
-\subsubsection{Ant Colony Optimization (ACO)}
+\subsubsection{Ant Colony Optimization (ACO)}\todo{Add citation}
 Ant colony optimization (ACO) is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants.
 The optimization problem is modeled as a graph, where the nodes represent the problem's components and the edges represent possible connections or choices.
 Artificial \textit{ants} then traverse this graph to construct candidate solutions.
@@ -353,28 +353,30 @@ As the ants build these solutions, they deposit artificial pheromones along thei
 Paths corresponding to superior solutions receive more potent pheromones.
 In subsequent iterations, the ants are probabilistically attracted to paths with higher concentrations of pheromones, thereby exploiting known good routes.
 At the same time, a degree of stochastic exploration is maintained to allow the ants to discover novel paths.
-This mechanism makes ACO well-suited for solving routing and scheduling problems, as well as other combinatorial optimization problems that can be naturally represented as graphs.
+This mechanism makes ACO well-suited for solving routing and scheduling problems, as well as other combinatorial optimization problems that can be naturally represented as graphs \cite{dorigo_ant_1997}.
 
-\subsection{Summary}\todo{Continue improving}
-Heuristic and metaheuristic methods provide distinct approaches to optimization problems, each with its own advantages and limitations.
-Greedy heuristics operate by making a locally optimal choice at each decision point, providing fast and computationally inexpensive solutions.
+\subsection{Summary}
+Heuristic and metaheuristic methods offer a range of approaches to optimization problems, each with its distinct advantages and limitations.
+Simple heuristics, such as the greedy heuristic, operate by making a locally optimal choice at each decision point, providing fast and computationally inexpensive solutions.
 However, this results in suboptimal global performance.
-Greed-and-match heuristics extend the greedy approach by incorporating matching strategies, which help improve overall solution quality, but also introduce additional computational overhead and complexity compared to simple greedy algorithms.
+Greed-and-match heuristics improve upon this by incorporating matching strategies, which help enhance overall solution quality.
+However, they also introduce additional computational overhead and complexity compared to simple heuristics.
 In contrast, GAs simulate the process of natural selection by evolving a population of candidate solutions.
-GAs can explore larger search spaces by combining features from different solutions.
-However, they often require significantly more computational resources to avoid premature convergence and maintain genetic diversity.
+
+In contrast, metaheuristics such as GAs and ACO offer more robust frameworks for navigating complex search spaces.
+GAs leverage evolutionary principles to evolve a population of solutions.
 ACO mimics the pheromone-based foraging behavior of ant swarms, where artificial ants traverse a graph representing the problem space.
-This method is particularly well-suited for routing and network design problems.
-However, ACO can sometimes suffer from getting trapped in local optima, resulting in less optimal solutions.
+However, they often require significantly more computational resources to avoid premature convergence and maintain genetic diversity.
+
 In summary, while greedy and greed-and-match heuristics offer simplicity and speed, they may not be sufficient to address global optimization challenges.
-Conversely, GAs and ACO provide more robust frameworks that are better equipped to handle complex, dynamic problem spaces, but at the cost of increased computational complexity.
+Conversely, GAs and ACO provide more robust frameworks that are better equipped to handle complex, dynamic problem spaces, but at the cost of a significant increase in computational complexity.
 
 \section{Mathematical Optimization}\label{sec:background-mathematical_optimization}
-Mathematical optimization uses a drastically different approach from RL and heuristics.
+Mathematical optimization uses a drastically different approach than RL and heuristics.
 Mathematical optimization approaches decision problems by formulating them as mathematical expressions consisting of objective functions and constraints that can be solved mathematically.
-This approach contrasts the previously discussed RL and heuristic methods with the trial-and-error approach combined with simulation environments.
-Formulating a mathematical expression comes with some limitations.
-A simplified model of the environment is often formulated due to the high complexity of real-world scenarios, which can not be formulated as a mathematical expression in a feasible time.
+This approach contrasts the previously discussed RL and heuristic methods with a trial-and-error approach combined with simulation environments.
+Formulating a mathematical expression based on real-world problems comes with some challenges and limitations.
+A simplified model of the environment is often formulated due to the high complexity of real-world scenarios, which cannot be formulated as a mathematical expression in a feasible amount of time.
 Linear Programming (LP) and Mixed Integer Linear Programming (MILP) are the most common approaches for problem formulation in the field of mathematical optimization.
 
 \subsection{Linear Programming (LP)}
@@ -382,26 +384,30 @@ Linear programming (LP) is an optimization technique that is used to solve mathe
 In the context of LP, objective functions and constraints are linear, and their variables are continuous.
 This restriction, however, limits the scope of applications of the LP approach when confronted with complex real-world scenarios.
 A variety of algorithms exist to solve LPs for optimal solutions, but the most common are the simplex algorithm and the interior-point method.
-The simplex algorithm utilizes a convex-shaped polytope, defined by the intersections of the LP constraints.
-The algorithm starts with a base solution located at one of the vertices of the polytope.
-Thereafter, the algorithm systematically moves from one vertex to the adjacent vertex, which provides the most significant improvement in terms of the objective function.
-This iterative process continues until no neighboring vertex improves the objective function value, at which point the algorithm achieves optimality.
-In contrast, the interior-point method traverses the interior of the feasible region rather than on the edges or the vertices.
-To ensure that the method remains within the boundaries of the formulated LP, it incorporates barrier functions into the objective function.
-By calculating a gradient, the algorithm determines its traversal direction.
-As the iterations progress, the influence of the barrier functions decreases to ensure convergence to an optimal solution.
+
+\begin{itemize}
+    \item The simplex algorithm utilizes a convex-shaped polytope, defined by the intersections of the LP constraints.
+    The algorithm starts with a base solution located at one of the vertices of the polytope.
+    Thereafter, the algorithm systematically moves from one vertex to the adjacent vertex, which provides the most significant improvement in terms of the objective function.
+    This iterative process continues until no neighboring vertex improves the objective function value, at which point the algorithm achieves optimality.
+    \item The interior-point method takes a different path, traversing through the interior of the feasible region.
+    It uses barrier functions to ensure it remains within the constraint boundaries and calculates a gradient to determine the direction of traversal.
+    As the algorithm progresses, the influence of the barriers is reduced, allowing convergence to an optimal solution.
+\end{itemize}
+
 The simplex algorithm is particularly well-suited for moderately sized LPs due to its potential for nonconvergence when applied to larger LPs.
-In contrast, the interior-point method is a more robust alternative when scaled to large LPs with much more complex constraints to find an optimal solution.
+In contrast, the interior-point method is a more robust alternative when scaled to large LPs, including much more complex constraints, to find an optimal solution.
 While the interior-point method scales better, it comes with more computational overhead.
-In summary, the simplex method is more suited for solving smaller or repetitive LPs, while the interior point method is better suited for larger and more complex LPs.
+In summary, the simplex method is more suited for solving smaller or repetitive LPs, while the interior-point method is better suited for larger and more complex LPs.
 
 
 \subsection{Mixed Integer Linear Programming (MILP)}
-Mixed integer linear programming (MILP) extends LP by allowing integer variables to be an alternative to continuous variables.
-These integer variables allow modeling of binary variables (0/1) as well, which increases the usability of MILPs in contrast to LPs.
-Branch-and-cut algorithms often solve MILP problems.
-These algorithms solve numerous LP relaxations in order to prune impossible or inefficient branches.
-These branch-and-cut algorithms work well for a moderately complex system and will find optimal solutions.
-The computing time for such algorithms increases exponentially, which makes them unsuitable for highly complex systems with large numbers of equations to solve.
-Nevertheless, MILP is still helpful for such highly complex systems.
-They can be split into multiple subproblems or can be used in combination with heuristic approaches.
+Mixed integer linear programming (MILP) is an extension of linear programming (LP) that allows some decision variables to be restricted to integer values.
+This greatly enhances the modeling capabilities of the framework, enabling the direct representation of discrete choices, such as binary (0/1) decisions.
+
+MILP problems are NP-hard and are typically solved using algorithms such as branch-and-cut.
+This method solves a series of LP relaxations, where the integer constraints are temporarily ignored, to establish bounds on the optimal solution.
+The algorithm then systematically branches on integer variables, creating a tree of subproblems.
+It uses \textit{cuts}, or additional constraints, to prune branches of the tree that cannot yield an optimal solution.
+While effective for moderately complex problems, the computational time of these algorithms can grow exponentially with problem size, making them unsuitable for finding exact solutions to very large or time-sensitive systems.
+For such systems, however, MILP can still be applied to subproblems or used with heuristic methods to find high-quality approximate solutions.
