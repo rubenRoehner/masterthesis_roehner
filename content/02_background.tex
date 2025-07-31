@@ -26,7 +26,7 @@ This threshold is commonly referred to as the acceptable walking radius and depe
 When a user finds an available vehicle within this acceptable walking area, their demand is considered met or satisfied.
 Conversely, if no vehicle is available inside this area, the demand is considered unmet or unsatisfied.
 Therefore, service providers' primary goal in enhancing user satisfaction is to minimize unmet demand, i.e., maximize satisfied demand.
-Fleet rebalancing is a key strategy employed to meet this objective by aligning vehicle supply with user needs \cite{liao_electric_2022}.
+Fleet rebalancing is a key strategy employed to meet this objective by aligning vehicle supply with user needs \cite{jaber_preferences_2023}.
 
 \subsection{Rebalancing}\label{sec:background-mss-rebalancing}
 Rebalancing is the process of repositioning vehicles from areas of high supply (or low demand) to areas of high demand (or low supply) to correct imbalances in the fleet distribution.
@@ -45,22 +45,22 @@ In terms of scheduling rebalancing operations, these strategies are broadly cate
     Additionally, this approach requires continuous data collection and more advanced rebalancing strategies.
 \end{itemize}
 
-Hybrid schemes can combine the benefits of both, balancing operational costs and flexibility by utilizing both static and dynamic rebalancing.
+Hybrid schemes can combine the benefits of both, balancing operational costs and flexibility by utilizing both static and dynamic rebalancing \cite{jaber_preferences_2023}.
 The two predominant methods for executing these strategies, user-based and operator-based rebalancing, are discussed in the following sections.
 
 \subsubsection{User-based Rebalancing}
 User-based rebalancing leverages service users to perform rebalancing tasks.
 Operators typically incentivize users, often with discounts or credits, to pick-up or drop-off vehicles at specific locations that help balance the fleet.
 This method is cost-effective, but its efficacy is constrained by the users' willingness to adjust their routes in response to incentives.
-Therefore, the operator's control over the outcome of operator-based rebalancing is indirect and limited.
+Therefore, the operator's control over the outcome of user-based rebalancing is indirect and limited \cite{emami_integrated_2024}.
 
 \subsubsection{Operator-based Rebalancing}
 Operator-based rebalancing is performed by a dedicated crew of service workers who use specialized vehicles, such as vans or trucks, to perform relocations.
 These trucks are often equipped with battery charging technologies and spare batteries, allowing them to perform maintenance tasks while relocating vehicles.
 This method is more expensive than user-based rebalancing due to labor and equipment costs.
-The primary advantage is the reliable control over the fleet distributions, as this method doesn't depend on user participation.
-Given the distinct advantages and disadvantages of each approach, service providers must individually choose which approach best suits their use case.
-Typically, a combined approach creates efficient and robust solutions, but needs fine-tuning based on the specific requirements.
+The primary advantage is the reliable control over the fleet distributions, as this method doesn't depend on user participation \cite{dellamico_bike_2014}.
+Given the distinct advantages and disadvantages of each approach, service providers must determine the optimal mix of strategies for their specific operational context.
+Typically, a combined approach creates efficient and robust solutions, but needs fine-tuning based on the specific requirements \cite{mahmoodian_design_2019}.
 
 \section{Reinforcement Learning (RL)}\label{sec:background-reinforcement_learning}
 Reinforcement Learning (RL) is a machine learning paradigm in which an agent learns to make optimal decisions through sequential interactions with an environment.
@@ -117,8 +117,8 @@ Here, $\gamma \in [0, 1]$ is the discount factor, which balances the importance 
 
 \subsubsection{Bellman Equations}
 The previously defined state-value and action-value functions accurately describe the rewards associated with a given state, policy, and action.
-However, they are very complex to solve and require complete knowledge of the model.
-Therefore, the Bellman equations describe an iterative approach for calculating the state-value function (see equation \ref{eq:bellman-action-value-function}) and the action-value function(see equation \ref{eq:bellman-state-value-function}) \cite{zhang_dive_2023}.
+However, solving these equations directly is computationally complex and requires a complete model of the environment's dynamics ($\mathcal{P}$ and $\mathcal{R}$), which is often unavailable.
+Therefore, the Bellman equations describe an iterative approach for calculating the state-value function (see equation \ref{eq:bellman-state-value-function}) and the action-value function(see equation \ref{eq:bellman-action-value-function}) \cite{zhang_dive_2023}.
 They decompose the value of a state or state-action pair into the sum of the immediate reward and the discounted value of the successor states.
 This recursive property is fundamental to many RL algorithms \cite{zhang_dive_2023}.
 
@@ -214,17 +214,17 @@ With this update rule, the algorithm iteratively updates the action-value functi
 \subsection{Deep-Q-Networks (DQN)}\label{sec:background-reinforcement_learning-dqn}
 Traditional Q-learning struggles with high-dimensional or continuous state spaces, as maintaining a tabular representation of Q-values becomes infeasible.
 Deep Q-Networks (DQN) address this problem by using neural networks instead.
-In DQN, a multi-layer CNN (Convolutional Neural Network) approximates the Q-value function $q(s, a;\theta)$, with network weights $\theta$.
+In DQN, a deep neural network approximates the Q-value function $q(s, a;\theta)$, with network weights $\theta$.
 The network takes the state as input and outputs estimated Q-values for each possible action.
-By training this network, the agent can generalize past experiences to new unseen states \cite{arulkumaran_deep_2017}.
+By training this network, the agent can generalize past experiences to new unseen states \cite{mnih_human-level_2015}.
 
 DQN gained popularity due to several key innovations in this field, which massively increased the usability of DQN.
 Experience replay stabilizes training by using a replay memory to store the agent's experiences (e.g., transitions $(s_t, a_t, s_{t+1}, r_{t+1})$ at each time step), instead of learning from consecutive, correlated state transitions.
-From this memory, mini-batches are sampled uniformly to break temporal correlations between state transitions, which stabilizes training \cite{arulkumaran_deep_2017}.
+From this memory, mini-batches are sampled uniformly to break temporal correlations between state transitions, which stabilizes training \cite{mnih_human-level_2015}.
 
 Double DQN (DDQN) introduces a second network.
 This second network, the target network, can compute Q-learning target values.
-These targets are computed after several iterations, reducing fluctuations in these targets and stabilizing training \cite{arulkumaran_deep_2017}.
+These targets are computed after several iterations, which reduces fluctuations in these targets and stabilizes training \cite{hasselt_deep_2016}.
 
 \subsection{Policy Gradient Methods}\label{sec:background-reinforcement_learning-pgm}
 In contrast to Value-based methods, such as Q-Learning, which estimate the optimal value function and derive it from their policy, policy gradient methods directly optimize the policy.
@@ -281,18 +281,26 @@ For a cooperative task, a shared reward is often recommended \cite{busoniu_multi
 
 
 \subsection{Hierarchical Reinforcement Learning (HRL)}
-Hierarchical Reinforcement Learning (HRL) addresses complex, long-horizon tasks by decomposing them into a hierarchy of simpler subtasks.
-Instead of learning a single monolithic policy, HRL frameworks typically involve a high-level policy that sets goals (or subtasks) and one or more low-level policies that learn to achieve those goals.
-This abstraction allows for more efficient exploration and facilitates the transfer of learned skills across different tasks \cite{shubham_hierarchical_2024}.
+Hierarchical Reinforcement Learning (HRL) addresses the challenges of solving complex, long-horizon tasks by decomposing them into a hierarchy of simpler sub-problems.
+Instead of learning a single, monolithic policy to map high-level states to low-level actions, HRL introduces multiple levels of control.
+The most common structure is a two-level hierarchy consisting of a high-level policy (often called a manager or meta-controller) and one or more low-level policies (often called workers or controllers).
+The high-level policy operates at a coarse temporal scale, observing the environment's state and selecting a "goal" or sub-task for the low-level policy to accomplish.
+The low-level policy then operates at a finer temporal scale, taking primitive actions in the environment to achieve the specified goal, after which control returns to the high-level policy.
+This division of labor allows the framework to learn policies at different levels of abstraction simultaneously \cite{pateria_hierarchical_2021}.
 
-A prevalent framework for HRL is the \textit{options framework} from Sutton et al. \cite{sutton_between_1999}.
-Whereby options generalize one-step actions into multi-step actions.
-This means options consist of multiple actions chosen autonomously in a series.
-The agent then learns a higher-level policy over options, rather than actions.
-The biggest challenge with this options framework is modeling the options.
-Experts typically do this with extensive domain knowledge.
-Several approaches have been employed to learn such options.
-However, they are not generally applicable and often fail to identify optimal options.
+This hierarchical decomposition yields several significant benefits, most notably temporal abstraction and improved exploration.
+Temporal abstraction enables the high-level policy to make decisions over extended periods without needing to specify every primitive action, thereby drastically reducing the complexity of the planning horizon.
+For instance, a high-level rebalancing agent might decide to "increase vehicle supply in region X," leaving the low-level policy to execute the sequence of actions required to achieve that goal.
+This also leads to more efficient exploration; the low-level policy can learn meaningful, short-term skills (e.g., "pick-up a scooter" or "travel to a specific location"), while the high-level policy explores more strategically in the space of sub-goals rather than in the vast space of primitive actions.
+This structured exploration is often more effective and leads to faster convergence.
+While powerful, the design of HRL frameworks introduces its own set of challenges \cite{pateria_hierarchical_2021}.
+
+A foundational approach to formalizing this hierarchy is the options framework introduced by Sutton et al. \cite{sutton_between_1999}, where multi-step actions, or "options," are learned as temporally extended sub-policies.
+However, a key challenge in HRL is defining these subtasks or goals.
+In many cases, they must be predefined by a human expert with significant domain knowledge.
+While research into automatic goal discovery exists, it remains an open problem.
+Furthermore, designing the reward structure for both levels of the hierarchy is non-trivial; the low-level policy requires intrinsic motivation (rewards for achieving goals), whereas extrinsic rewards from the environment drive the high-level policy.
+Despite these challenges, HRL provides a powerful paradigm for tackling problems with a clear hierarchical structure, such as the strategic and operational decisions involved in fleet optimization.
 
 \subsection{Summary}
 This section has provided an overview of Reinforcement Learning, from its theoretical foundations in Markov Decision Processes to advanced, practical algorithms.
@@ -312,7 +320,7 @@ In summary, the various reinforcement learning approaches discussed in this sect
 These approaches strike a balance between ease of use and the scalability and complexity required to effectively handle the complex and dynamic environment found in shared micromobility systems.
 
 
-\section{Heuristics}\label{sec:background-heuristics}\todo{Add citation}
+\section{Heuristics}\label{sec:background-heuristics}
 A heuristic is a problem-solving approach, similar to a rule of thumb, that attempts to find a satisfactory solution quickly.
 This is particularly relevant for complex problems, where finding an exact optimal solution is computationally impossible or too time-consuming.
 While heuristics offer such a significant computational performance advantage, they do not guarantee global optimality. 
@@ -321,16 +329,15 @@ The most common heuristic is the greedy heuristic, which operates by making the 
 Greedy treats every choice individually, without regarding future or previous decisions.
 This simple approach makes the greedy heuristic computationally efficient.
 However, it lacks complexity, resulting in globally suboptimal solutions.
-Greed-and-match enhances the simple greedy heuristic by incorporating a simple matching strategy.
-This matching strategy assesses relationships between multiple decision elements simultaneously.
-This allows for more informed local choices, which often yield better overall solutions than a simple greedy algorithm but come at the cost of increased computational complexity.
+Greed-and-match enhances this by incorporating a matching strategy, which considers relationships between multiple elements simultaneously, e.g., matching a set of supply locations to a set of demand locations.
+This allows for more informed local choices, which often yield better overall solutions than a simple greedy algorithm but come at the cost of increased computational complexity \cite{wu_challenges_2020}.
 
-\subsection{Metaheuristic Optimization}\todo{Add citation}
+\subsection{Metaheuristic Optimization}
 Metaheuristics are frameworks that aim to enhance heuristics by guiding their actions to improve the search space and discover more optimal solutions than can be found solely with the heuristics themselves.
 Metaheuristics manage the trade-off between exploration and exploitation to overcome local optima and discover more optimal solutions.
 These methods are often inspired by natural processes, such as evolution or swarm intelligence, and typically operate on a population of candidate solutions.
 
-\subsubsection{Genetic Algorithms (GAs)}\todo{Add citation}
+\subsubsection{Genetic Algorithms (GAs)}
 Genetic algorithms (GAs) are a class of metaheuristics inspired by the principles of biological evolution.
 GAs improve a population of candidate solutions iteratively to identify a near-optimal solution.
 Each candidate is evaluated by a fitness function, which quantifies its suitability relative to the optimization objective. 
@@ -344,7 +351,7 @@ The algorithm generates a new population in each generation through three primar
 
 This iterative process, involving the selection, crossover, and mutation operators, is repeated across multiple generations until the fitness function converges to a stable optimum or a predefined termination criterion is met \cite{holland_adaptation_1992}.
 
-\subsubsection{Ant Colony Optimization (ACO)}\todo{Add citation}
+\subsubsection{Ant Colony Optimization (ACO)}
 Ant colony optimization (ACO) is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants.
 The optimization problem is modeled as a graph, where the nodes represent the problem's components and the edges represent possible connections or choices.
 Artificial \textit{ants} then traverse this graph to construct candidate solutions.
@@ -372,7 +379,7 @@ In summary, while greedy and greed-and-match heuristics offer simplicity and spe
 Conversely, GAs and ACO provide more robust frameworks that are better equipped to handle complex, dynamic problem spaces, but at the cost of a significant increase in computational complexity.
 
 \section{Mathematical Optimization}\label{sec:background-mathematical_optimization}
-Mathematical optimization uses a drastically different approach than RL and heuristics.
+Mathematical optimization uses a fundamentally different approach than RL and heuristics.
 Mathematical optimization approaches decision problems by formulating them as mathematical expressions consisting of objective functions and constraints that can be solved mathematically.
 This approach contrasts the previously discussed RL and heuristic methods with a trial-and-error approach combined with simulation environments.
 Formulating a mathematical expression based on real-world problems comes with some challenges and limitations.
@@ -395,10 +402,9 @@ A variety of algorithms exist to solve LPs for optimal solutions, but the most c
     As the algorithm progresses, the influence of the barriers is reduced, allowing convergence to an optimal solution.
 \end{itemize}
 
-The simplex algorithm is particularly well-suited for moderately sized LPs due to its potential for nonconvergence when applied to larger LPs.
-In contrast, the interior-point method is a more robust alternative when scaled to large LPs, including much more complex constraints, to find an optimal solution.
+While the simplex algorithm is efficient in practice for many problems, its worst-case time complexity can be exponential. In contrast, interior-point methods have polynomial-time complexity, making them more robust for very large-scale LPs.
 While the interior-point method scales better, it comes with more computational overhead.
-In summary, the simplex method is more suited for solving smaller or repetitive LPs, while the interior-point method is better suited for larger and more complex LPs.
+In summary, the simplex method is more suited for solving smaller or repetitive LPs, while the interior-point method is better suited for larger and more complex LPs \cite{boyd_convex_2004}.
 
 
 \subsection{Mixed Integer Linear Programming (MILP)}
@@ -410,4 +416,4 @@ This method solves a series of LP relaxations, where the integer constraints are
 The algorithm then systematically branches on integer variables, creating a tree of subproblems.
 It uses \textit{cuts}, or additional constraints, to prune branches of the tree that cannot yield an optimal solution.
 While effective for moderately complex problems, the computational time of these algorithms can grow exponentially with problem size, making them unsuitable for finding exact solutions to very large or time-sensitive systems.
-For such systems, however, MILP can still be applied to subproblems or used with heuristic methods to find high-quality approximate solutions.
+For such systems, however, MILP can still be applied to subproblems or used with heuristic methods to find high-quality approximate solutions \cite{vielma_mixed_2015}.
