@@ -57,29 +57,30 @@
     \end{tabular}
     \caption{Second round of RDC's hyperparameter optimization.}
     \label{tab:rdc_ho_second_round}
-\end{table}\begin{table}[!htb]
+\end{table}
+\begin{table}[!htb]
     \centering
     \begin{tabular}{lll}
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{RDC\_lr}                 & $[1e^{-6}, 2e^{-6}]$      & log-uniform \\
-        \texttt{RDC\_lr\_step\_size}     & [4000, 5500]               & 100 \\
-        \texttt{RDC\_lr\_gamma}          & [0.950, 0.999]              & 0.001 \\
-        \texttt{RDC\_gamma}              & [0.940, 0.999]              & 0.001\\
+        \texttt{RDC\_lr}                 & $[1e^{-6}, 1e^{-5}]$      & log-uniform \\
+        \texttt{RDC\_lr\_step\_size}     & [1000, 6000]               & 100 \\
+        \texttt{RDC\_lr\_gamma}          & [0.7, 0.8]              & 0.001 \\
+        \texttt{RDC\_gamma}              & [0.96, 0.99]              & 0.001\\
         \midrule
-        \texttt{RDC\_hidden\_size}       & \{128, 256\}                 & - \\
-        \texttt{RDC\_batch\_size}        & \{128, 256\}          & - \\
+        \texttt{RDC\_hidden\_size}       & \{256, 512, 1024\}                 & - \\
+        \texttt{RDC\_batch\_size}        & \{256, 512, 1024\}          & - \\
         \texttt{RDC\_tau}                & [0.0078, 0.0102]           & 0.0001 \\
         \midrule
-        \texttt{RDC\_rb\_capacity}       & [1000, 45000]             & log-uniform\\
-        \texttt{RDC\_per\_alpha}         & [0.1, 0.4]              & 0.01\\
-        \texttt{RDC\_per\_beta\_start}   & [0.1, 0.2]              & 0.01\\
-        \texttt{RDC\_per\_beta\_frames}  & [7000, 35000]           & log-uniform\\
+        \texttt{RDC\_rb\_capacity}       & [5000, 70000]             & log-uniform\\
+        \texttt{RDC\_per\_alpha}         & [0.2, 1.0]              & 0.1\\
+        \texttt{RDC\_per\_beta\_start}   & [0.25, 0.56]              & 0.01\\
+        \texttt{RDC\_per\_beta\_frames}  & [5000, 65000]           & log-uniform\\
         \midrule
         \texttt{RDC\_epsilon\_start}     & 1.0                       & - \\
-        \texttt{RDC\_epsilon\_end}       & [0.03, 0.15]              & 0.001 \\
-        \texttt{RDC\_epsilon\_decay}     & [0.96, 0.98]            & 0.001\\
+        \texttt{RDC\_epsilon\_end}       & [0.06, 0.075]              & 0.001 \\
+        \texttt{RDC\_epsilon\_decay}     & [0.96, 0.975]            & 0.001\\
         \midrule
     \end{tabular}
     \caption{Final round of RDC's hyperparameter optimization.}
@@ -93,7 +94,7 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{UI\_lr}                 & $[1e^{-6}, 2e^{-4}]$      & log-uniform \\
+        \texttt{UIC\_lr}                 & $[1e^{-6}, 2e^{-4}]$      & log-uniform \\
         \texttt{UIC\_n\_steps}     & \{256, 512\}              & - \\
         \texttt{UIC\_batch\_size}     & \{32, 64\}              & - \\
         \texttt{UIC\_clip\_range}     & [0.12, 0.22]              & 0.01 \\
@@ -123,7 +124,7 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{UI\_lr}                 & $[1e^{-6}, 3e^{-5}]$      & log-uniform \\
+        \texttt{UIC\_lr}                 & $[1e^{-6}, 3e^{-5}]$      & log-uniform \\
         \texttt{UIC\_n\_steps}     & \{512, 1024\}              & - \\
         \texttt{UIC\_batch\_size}     & \{32, 64\}              & - \\
         \texttt{UIC\_clip\_range}     & [0.1, 0.24]              & 0.01 \\
@@ -153,7 +154,7 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{UI\_lr}                 & $[7e^{-7}, 5e^{-6}]$      & log-uniform \\
+        \texttt{UIC\_lr}                 & $[7e^{-7}, 5e^{-6}]$      & log-uniform \\
         \texttt{UIC\_n\_steps}     & \{512, 1024\}              & - \\
         \texttt{UIC\_batch\_size}     & \{32, 64\}              & - \\
         \texttt{UIC\_clip\_range}     & [0.087, 0.243]              & 0.001 \\
