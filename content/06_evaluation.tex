@@ -73,7 +73,7 @@ The highest objective values can only be observed for decay rates of $0.99$ and 
 Even for high decay rates, the objective value fluctuates, which suggests that the \texttt{RDC\_epsilon\_decay} parameter is dependent on other critical parameters and only enables the possibility of an optimal performance.
 The trend of higher epsilon decay rates suggests a prolonged exploration phase for the RDC agent to capture the complex dynamics of the e-scooter sharing system.
 
-
+\todo{update paragraph describing the updated plots}
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{content/figures/RDC_focused_slice_plot.png}
@@ -81,7 +81,8 @@ The trend of higher epsilon decay rates suggests a prolonged exploration phase f
     \label{fig:ho-rdc-focused-slice}
 \end{figure}
 
-The resulting optimal hyperparameter configuration is presented in \autoref{tab:rdc_final_hyperparameters}. Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:rdc_hyperparameters_description}), while the search spaces for each optimization round are defined in the appendix (\cref{tab:rdc_ho_first_round,tab:rdc_ho_second_round,tab:rdc_ho_final_round}).
+The resulting optimal hyperparameter configuration is presented in \autoref{tab:rdc_final_hyperparameters}.
+Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:rdc_hyperparameters_description}), while the search spaces for each optimization round are defined in the appendix (\cref{tab:rdc_ho_first_round,tab:rdc_ho_second_round,tab:rdc_ho_final_round}).
 
 
 \begin{table}[H]
@@ -90,27 +91,27 @@ The resulting optimal hyperparameter configuration is presented in \autoref{tab:
         \toprule
         \textbf{Parameter} & \textbf{Summary Description} & \textbf{Final Value} \\
         \midrule
-        \texttt{RDC\_lr} & Initial learning rate & $1 \times 10^{-5}$ \\
-        \texttt{RDC\_lr\_step\_size} & LR decay step size & $1500$ \\
+        \texttt{RDC\_lr} & Initial learning rate & $1 \times 1.1^{-6}$ \\
+        \texttt{RDC\_lr\_step\_size} & LR decay step size & $30,000$ \\
         \texttt{RDC\_lr\_gamma} & LR decay factor & $0.9$ \\
-        \texttt{RDC\_gamma} & Discount factor & $0.926$\\
+        \texttt{RDC\_gamma} & Discount factor & $0.978$\\
         \midrule
-        \texttt{RDC\_hidden\_size} & Hidden layer neuron count & $256$ \\
-        \texttt{RDC\_batch\_size} & Minibatch size & $256$ \\
-        \texttt{RDC\_tau} & Target network soft update rate & $0.001$ \\
+        \texttt{RDC\_hidden\_size} & Hidden layer neuron count & $1024$ \\
+        \texttt{RDC\_batch\_size} & Minibatch size & $512$ \\
+        \texttt{RDC\_tau} & Target network soft update rate & $0.0026$ \\
         \midrule
-        \texttt{RDC\_rb\_capacity} & Replay buffer capacity & $10,000$\\
-        \texttt{RDC\_per\_alpha} & PER prioritization exponent ($\alpha$) & $0.8$\\
-        \texttt{RDC\_per\_beta\_start} & PER importance sampling start ($\beta_0$) & $0.3$\\
-        \texttt{RDC\_per\_beta\_frames} & PER $\beta$ annealing frames & $150,000$\\
+        \texttt{RDC\_rb\_capacity} & Replay buffer capacity & $13,000$\\
+        \texttt{RDC\_per\_alpha} & PER prioritization exponent ($\alpha$) & $1.0$\\
+        \texttt{RDC\_per\_beta\_start} & PER importance sampling start ($\beta_0$) & $0.25$\\
+        \texttt{RDC\_per\_beta\_frames} & PER $\beta$ annealing frames & $400,000$\\
         \midrule
         \texttt{RDC\_epsilon\_start} & Initial exploration rate ($\epsilon_{start}$) & $1.0$\\
-        \texttt{RDC\_epsilon\_end} & Final exploration rate ($\epsilon_{end}$) & $0.06$\\
-        \texttt{RDC\_epsilon\_decay} & Exploration rate decay factor & $0.999$\\
+        \texttt{RDC\_epsilon\_end} & Final exploration rate ($\epsilon_{end}$) & $0.07$\\
+        \texttt{RDC\_epsilon\_decay} & Exploration rate decay factor & $0.99997$\\
         \midrule
-        \texttt{RDC\_weight\_demand} & Satisfied demand weight & $1.1$ \\
-        \texttt{RDC\_weight\_cost} & Rebalancing cost weight & $1.1$ \\
-        \texttt{RDC\_weight\_gini} & Gini index penalty weight & $0.1$ \\
+        \texttt{RDC\_weight\_demand} & Satisfied demand weight & $7.0$ \\
+        \texttt{RDC\_weight\_cost} & Rebalancing cost weight & $0.2$ \\
+        \texttt{RDC\_weight\_gini} & Gini index penalty weight & $7.0$ \\
         \bottomrule
     \end{tabularx}
     \caption{Final optimized hyperparameter configuration for the RDC.}
@@ -161,7 +162,7 @@ The \texttt{UIC\_ent\_coef} that controls the agetnt's exlporation-exploitation 
 This suggests that the agent rather quickly finds a good policy that the agent tries to exploit fast instead of focusing on much exploration of the search space.
 This also means that only a tiny amount of entropy is needed to prevent the agent from getting stuck in suboptimal policies.
 
-
+\todo{update paragraph describing the updated plots}
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_focused_slice_plot.png}
