@@ -1,5 +1,6 @@
 \chapter{Design}\label{sec:design} % approx. 21 pages
-The following chapter is structured as follows: the first section describes the data used for training and testing the rebalancing algorithms, the second section formulates the rebalancing problem, and the third section focuses on the proposed framework to tackle the rebalancing problem.
+This chapter details the design of the proposed rebalancing solution.
+\autoref{sec:design-data} describes the data acquisition and preprocessing, \autoref{sec:design-problem_definition} formally defines the rebalancing problem, and \autoref{sec:design-rl_framework} presents the HRL framework.
 
 \section{Data}\label{sec:design-data}
 The data underlying this thesis was collected from a General Bike Sharing Specification (GBFS) feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{mobidata_bw_gebundelte_2022}.
@@ -8,8 +9,16 @@ This section details the collection, preprocessing, and exploratory analysis of 
 
 
 \subsection{Data Collection}
-To capture a comprehensive view of e-scooter usage, data was acquired from the GBFS feeds of the two most prominent service providers in Stuttgart: Bolt and Voi.
-The data was collected by crawling the public feed at 15-minute intervals, creating detailed time-series snapshots of all available vehicles.
+To capture a comprehensive view of e-scooter usage, data was acquired from the GBFS feeds of two of the leading service providers in Stuttgart: Bolt and Voi.
+The data was collected by crawling the public feed, creating detailed time-series snapshots of all available vehicles.
+These snapshots were stored as JSON files for later use.
+The initial data collection interval was set to 15 minutes as a conservative, precautionary measure.
+Public data APIs, including the GBFS feed used in this work, often employ rate-limiting mechanisms to protect their services from excessive traffic and ensure high availability for all users.
+To avoid the risk of our data collection script being automatically flagged or blocked, we chose a longer interval to guarantee the establishment of a stable, long-term data pipeline.
+After confirming the reliability of this process over an initial period, the sampling rate was later refined and reduced to 5 minutes to capture vehicle dynamics with greater temporal resolution.
+The subsequent data processing steps address this variation in sampling frequency.
+Because the final analysis relies on event data aggregated into one-hour time bins, the differences in the underlying snapshot frequency are normalized.
+While the 15-minute interval may theoretically under-capture very short trips compared to the 5-minute data, this effect is considered negligible for the hourly resolution used in the demand analysis and model training.
 This process was conducted continuously over a 128-day period, from 11 February 2025 to 18 June 2025.
 
 The GBFS format, a standard for publishing shared micromobility vehicle data, provides several key attributes for each vehicle.
@@ -43,8 +52,9 @@ A complete list of the data fields extracted from the feed is presented in \auto
 \subsection{Data Preprocessing}
 The primary goal of preprocessing was to transform the raw location snapshots into a dataset of discrete pick-up and drop-off events.
 A methodological limitation of the GBFS feed is the randomization of vehicle identifiers for user anonymization, which prevents the direct tracking of individual trips.
-To overcome this, an inferential approach was adopted: by comparing consecutive snapshots, the disappearance of a vehicle ID from one frame to the next was classified as a pick-up, while the appearance of a new ID was classified as a drop-off.
-This inference can result in wrong 
+To overcome this, an inferential approach was adopted: by comparing consecutive snapshots, the disappearance of a vehicle ID from one frame to the next was classified as a pick-up.
+In contrast, the appearance of a new ID was classified as a drop-off.
+This inference can result in errors, for instance, vehicles taken offline for maintenance may be misidentified as trip pick-ups, and newly deployed vehicles as drop-offs.
 
 This event inference process yielded a total of 2,168,331 combined pick-up and drop-off events for Voi and 680,459 for Bolt.
 Subsequently, the dataset was filtered to remove geographical outliers by defining a boundary corresponding to the city of Stuttgart and excluding events in outlying regions (e.g., Böblingen).
@@ -92,31 +102,6 @@ Third, as a global standard, H3 ensures that the grid is predefined worldwide, s
 
 
 \subsection{Descriptive Statistics}
-Exploratory analysis of the processed data revealed distinct spatio-temporal patterns in vehicle demand, confirming the necessity for a dynamic rebalancing strategy to mitigate service imbalances.
-A summary of the dataset's key statistics is provided in \autoref{tab:general_statistics}.
-
-\begin{table}[!htb]
-    \centering
-    \begin{tabularx}{.8\textwidth}{Xc}
-        \toprule
-        \textbf{Metric} & \textbf{Value} \\ 
-        \midrule
-        Total Number of Pick-Ups            & 765,878 events \\
-        Total Number of Drop-Offs           & 766,221 events \\
-        Analysis Period                     & 128 days\\
-        Average Daily Events                & ~11,970 events/day \\
-        Busiest Hour                        & 15:00 \\
-        \bottomrule
-    \end{tabularx}
-    \caption{Dataset summary statistics}
-    \label{tab:general_statistics}
-\end{table}
-
-
-Significant temporal imbalances are noticeable on an aggregate daily basis.
-As shown in \autoref{fig:demand_net_imbalance}, a net surplus of scooters occurs in the early morning (approx. 3:00–6:00), when drop-offs outpace pick-ups.
-This is followed by a period of relatively balanced usage around midday.
-In the afternoon and evening, a clear vehicle deficit occurs as pick-ups consistently exceed drop-offs.
 
 \begin{figure}[!htb]
     \centering
@@ -125,12 +110,31 @@ In the afternoon and evening, a clear vehicle deficit occurs as pick-ups consist
     \label{fig:demand_net_imbalance}
 \end{figure}
 
-These imbalances also manifest spatially, creating distinct demand hotspots that fluctuate over time.
-For example, during the morning commute hours (3:00–8:00), a strong flow of e-scooters from residential areas towards Stuttgart's city center creates a vehicle surplus in the center and deficits in the periphery.
-This pattern is illustrated in \autoref{fig:demand_net_imbalance_map_morning}.
-Conversely, evening hours exhibit an opposite flow, with trips predominantly originating in the city center and terminating in outlying residential zones (\autoref{fig:demand_net_imbalance_map_evening}).
-These observed imbalances, detailed in \autoref{fig:demand_net_imbalance_map}, underscore the critical need for a predictive rebalancing model to maintain service quality.
+Exploratory analysis of the processed data revealed distinct spatio-temporal patterns in vehicle demand, underscoring the importance of a dynamic rebalancing strategy to mitigate service imbalances.
+A summary of the dataset's key statistics is provided in \autoref{tab:general_statistics}.
 
+\begin{table}[!htb]
+    \centering
+    \begin{tabularx}{.8\textwidth}{Xc}
+        \toprule
+        \textbf{Metric} & \textbf{Value} \\ 
+        \midrule
+        Total Number of Pick-Ups                        & 765,878 events \\
+        Total Number of Drop-Offs                       & 766,221 events \\
+        Analysis Period                                 & 128 days\\
+        Average Daily Events (Pick-ups + Drop-offs)     & ~11,970 events/day \\
+        Busiest Hour                                    & 15:00 \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Dataset summary statistics}
+    \label{tab:general_statistics}
+\end{table}
+
+
+Significant temporal imbalances are noticeable when demand is aggregated by the hour of the day.
+As shown in \autoref{fig:demand_net_imbalance}, a net surplus of scooters occurs in the early morning (approx. 3:00–6:00), when drop-offs outpace pick-ups.
+This is followed by a period of relatively balanced usage around midday.
+In the afternoon and evening, a clear vehicle deficit occurs as pick-ups consistently exceed drop-offs.
 
 \begin{figure}[!htb]
   \centering
@@ -147,24 +151,31 @@ These observed imbalances, detailed in \autoref{fig:demand_net_imbalance_map}, u
   \caption{Spatial distribution of e-scooter net imbalance during morning and evening peak periods. Red zones indicate a net deficit (more pick-ups than drop-offs), while blue zones indicate a net surplus.}
   \label{fig:demand_net_imbalance_map}
 \end{figure}
-\newpage\null\thispagestyle{empty}\newpage
+
+These imbalances also manifest spatially, creating distinct demand hotspots that fluctuate over time.
+For example, during the morning commute hours (3:00–8:00), a clear pattern emerges where zones in the city center accumulate a net surplus of vehicles, while those in outlying residential areas show a net deficit, as illustrated in \autoref{fig:demand_net_imbalance_map_morning}.
+Conversely, evening hours exhibit the opposite pattern: a net deficit of vehicles occurs in the city center as a net surplus builds up in residential zones (\autoref{fig:demand_net_imbalance_map_evening}).
+These observed imbalances, detailed in \autoref{fig:demand_net_imbalance_map}, underscore the critical need for a predictive rebalancing model to maintain service quality.
 
 \section{Problem Definition}\label{sec:design-problem_definition}
 This section formalizes the fleet rebalancing problem of a free-floating e-scooter sharing system.
-The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, relocations performed by users guided by incentives.
+The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, performed by users guided by incentives.
 The rebalancing mechanisms addressed are operator-based relocations between communities and user-based relocations within communities, which are achieved through incentives.
-The routing problem of service vehicles performing operator-based rebalancing is not addressed in this work. 
-Several works have been published on the routing problem for operator-based rebalancing, so there is no need to for further research \cite{lee_battery_2024, emami_integrated_2024, jimenez-merono_optimization_2024, paparella_optimization-based_2023, sanchez_simulation_2022}.  
-The state-of-charge (SOC) of the vehicles isn't modeled in the simulation as well, this is due to the limited data availability and this has been done in multiple recent works as well \cite{cederle_fairness-oriented_2025, villa-zapata_incorporating_2024, schofield_handling_2021, pan_deep_2019}.
-As detailed in \autoref{sec:design-data} only the trip start and endpoints are available and no full trip data.
-Therefore, modeling whole trips in the simulation, which is nesecarry to update the SOC accordingly, isn't directly possible with the available data.
-In \autoref{sec:conclusion-future_work} possible solutions to incorporate the SOC into the simulation are dicussed.
+The routing problem of service vehicles performing operator-based rebalancing is not addressed in this work, as the focus is on developing a framework for strategic decision-making rather than the operational vehicle routing problem (VRP).
+The VRP for rebalancing is a well-studied field \cite{lee_battery_2024, emami_integrated_2024, jimenez-merono_optimization_2024, paparella_optimization-based_2023, sanchez_simulation_2022}.
+It is assumed that an existing VRP solver can be used to implement the strategic decisions made by our framework.
+
+The state of charge (SOC) of the vehicles is also not modeled in the simulation.
+This simplification is due to limited data availability, and is a common approach in recent literature \cite{cederle_fairness-oriented_2025, villa-zapata_incorporating_2024, schofield_handling_2021, pan_deep_2019}.
+As detailed in \autoref{sec:design-data}, only the trip start and endpoints are available, and no full trip data.
+Therefore, modeling whole trips in the simulation, which is necessary to update the SOC accordingly, isn't directly possible with the available data.
+In \autoref{sec:conclusion-future_work}, possible solutions for incorporating the SOC into the simulation despite these data limitations are discussed.
 
 \subsection{Scope and Notation}
-The service area is partitioned into a set of zones($\mathcal{Z}$).
+The service area is partitioned into a set of zones($\mathcal{Z}$), which are grouped into communities ($\mathcal{C}$), as displayed in \autoref{fig:data_grid_community_structure}.
 The time is discretized into hourly intervals ($\mathcal{T}$) in which all pick-up, drop-off, and rebalancing events occur.
 The fleet size ($\mathcal{N}$) remains constant over all timesteps $t$.
-\autoref{tab:problem_notation} summarizes all notation used for the problem formulation, including all sets, parameters, and decision variables.
+\autoref{tab:problem_notation} summarizes all notation used for the problem formulation, including all sets, parameters, and rebalancing outcomes.
 The subset of zones for a given community $c$ is defined as:
 \begin{equation}
     \mathcal{Z}_c = \{z \in \mathcal{Z} \mid \kappa(z) = c\}
@@ -208,9 +219,7 @@ The formulated rebalancing problem distinguishes between forecasted demand ($\ha
 All performance metrics, such as the satisfied demand, are computed against the actual demand values.
 
 \subsection{Rebalancing actions}
-The framework considers both operator-based and user-based rebalancing, which is why the problem definition includes decision variables for both approaches.
-Those decision variables are described in the following paragraphs.
-These decision variables represent the outcomes of rebalancing efforts.
+The framework considers both operator-based and user-based rebalancing, which is why the problem definition includes rebalancing outcomes for both approaches.
 They do not directly correspond to the action spaces of the reinforcement learning agents, which are detailed in \autoref{sec:design-rl_framework}.
 
 \subsubsection{Operator-based rebalancing}
@@ -220,7 +229,7 @@ Service workers move e-scooters between communities, which is represented by $X_
 \subsubsection{User-based rebalancing}
 User-based rebalancing is performed between zones inside a community.
 Users are incentivized to drop-off vehicles at a different zone than they originally intended to.
-The decision variable $Y_{z\rightarrow z'}(t)$ describes such a relocation done by a user from zone $z$ to $z'$.
+The rebalancing outcome $Y_{z\rightarrow z'}(t)$ describes such a relocation done by a user from zone $z$ to $z'$.
 \autoref{eq:rb-user-constraint-spatial} constrains user-based rebalancing to occur only within a community.
 Additionally, user-based rebalancing operations are restricted to the neighboring zones.
 \begin{equation}\label{eq:rb-user-constraint-spatial}
@@ -233,7 +242,6 @@ Y_{z\to z'}(t) \;=\; 0
 
 \subsection{System Dynamics}
  
-
 \autoref{eq:rp-fleet-conservation} formulates the global fleet conservation.
 This constraint ensures that the total number of e-scooters across all zones remains constant at every time period $t$.
 
@@ -245,8 +253,10 @@ This constraint ensures that the total number of e-scooters across all zones rem
 \autoref{eq:pb-demand-flow} illustrates the demand flow of a single zone, defining the number of e-scooters at time $t+1$ by accounting for demand and relocation operations.
 This demand flow enables a step-wise calculation of available scooters at every timestep $t$.
 The demand flow considers both pick-up demand $P_z(t)$ and drop-off demand $D_z(t)$.
-Additionally, rebalancing operations are considered by the decision variables $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$.
+Additionally, rebalancing operations are considered by the rebalancing outcomes $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$.
 The formulation assumes that vehicles moved by operators to a community $c'$ are distributed uniformly among all zones $\mathcal{Z}_{\kappa(z)}$ within that community.
+This simplified assumption is made within the defined scope of how operator-based rebalancing should be utilized in this framework.
+Operator-based rebalancing should focus on strategic rebalancing between communities, and therefore does not specify fine-grained zone-level drop-off locations.
 
 \begin{equation}\label{eq:pb-demand-flow}
     \begin{aligned}
@@ -255,6 +265,8 @@ The formulation assumes that vehicles moved by operators to a community $c'$ are
         &+ \sum_{z' \in \mathcal{Z}} Y_{z'\rightarrow z}(t) - \sum_{z' \in \mathcal{Z}} Y_{z\rightarrow z'}(t)
     \end{aligned}
 \end{equation}
+
+\todo{Consider adding a flowchart illustrating the scooter flows (demand, drop-offs, user rebalancing, operator rebalancing) into and out of a single zone }
 
 \subsection{Objective}
 
@@ -274,17 +286,20 @@ This satisfied demand is used to calculate the ratio of satisfied demand, which 
     \end{equation}
 \end{subequations}
 
-\autoref{eq:pb-objective} defines the objective of the rebalancing problem.
-It combines the costs from rebalancing operations performed by user- and operator-based rebalancing, and includes minimizing the amount of unmet demand.
-The objective is calculated over the whole simulation horizon, e.g., over all time steps $t$.
+To quantify the spatial imbalance of the fleet, the Gini coefficient is utilized, a metric used to promote fairness in rebalancing systems \cite{cederle_fairness-oriented_2025}.
+A Gini coefficient of 0 represents a perfectly uniform distribution, with an equal number of scooters in every zone.
+A value of 1 indicates maximum imbalance, where all vehicles are concentrated in one zone.
+Minimizing this value helps prevent service dead zones and improves overall accessibility.
+We measure this imbalance at two scales: globally across the entire service area, and locally within each community.
+The Gini coefficient for the entire service area, $G(t)$, is defined as:
 
 \begin{equation}\label{eq:pb-objective-gini}
 G(t) \;=\; 
-\frac{1}{2 \, \mathcal{N}_z^2 \, \bar{n}(t)} 
-\sum_{i=1}^{\mathcal{N}_z} \sum_{j=1}^{\mathcal{N}_z} 
+\frac{1}{2 \, |\mathcal{Z}|^2 \, \bar{n}(t)} 
+\sum_{i \in \mathcal{Z}} \sum_{j \in \mathcal{Z}} 
 \bigl\lvert n_i(t) - n_j(t)\bigr\rvert,
 \qquad
-\bar{n}(t) \;=\; \frac{1}{\mathcal{N}_z} \sum_{z=1}^{\mathcal{N}_z} n_z(t).
+\bar{n}(t) \;=\; \frac{1}{|\mathcal{Z}|} \sum_{z \in \mathcal{Z}} n_z(t).
 \end{equation}
 
 Similarly, the Gini coefficient for a single community $c$, used to measure intra-community imbalance, is defined as:
@@ -297,6 +312,14 @@ G_c(t) \;=\;
 \bar{n}_c(t) \;=\; \frac{1}{|\mathcal{Z}_c|} \sum_{z \in \mathcal{Z}_c} n_z(t).
 \end{equation}
 
+\autoref{eq:pb-objective} defines the objective of the rebalancing problem.
+Its primary goal is to maximize the satisfied demand ratio while reducing the costs associated with operator- and user-based rebalancing.
+Additionally, an imbalance penalty based on the Gini coefficient is included to promote service equity.
+The objective is calculated over the whole simulation horizon, e.g., over all time steps $t$.
+This equation serves as a high-level, conceptual formulation of the overall system's goals.
+It is intentionally presented as a simplified, unweighted sum to provide a clear and concise problem statement.
+This structure acts as an abstraction of the more detailed, operational reward functions that guide the individual reinforcement learning agents, which are discussed in the following sections.
+
 \begin{equation}\label{eq:pb-objective}
 \max\;\sum_{t\in \mathcal{T}}\Biggl[
   \sum_{z\in \mathcal{Z}} r^S_z(t)
@@ -308,10 +331,11 @@ G_c(t) \;=\;
 
 
 This problem can be modeled using two coupled Markov Decision Processes (MDPs), where the rebalancing outcomes $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$ result from the actions taken within a two-tier hierarchical reinforcement learning framework.
-The objective of this problem formulation can be seen as the reward function for both agents.
-The following section defines an HRL framework that manages operator-based rebalancing on a macroscopic level and user-based rebalancing on a microscopic level.
+This global objective function defines the overall optimization goal.
+In the following section, the HRL framework is described, which is designed to maximize this objective function.
+Additionally, this section details how this global objective is decomposed into specific reward functions tailored to particular agents.
 
- \section{Framework}\label{sec:design-rl_framework}
+\section{Framework}\label{sec:design-rl_framework}
 A \gls{HRL} framework is proposed to address the e-scooter rebalancing challenge.
 The HRL framework comprises two tiers.
 The first tier, the \gls{RDC}, manages inter-community imbalances by determining the target number of vehicles for each defined community.

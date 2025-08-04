@@ -18,16 +18,17 @@ Effectively managing these strategies is critical to maximizing vehicle availabi
 
 
 \section{Research Gap and Objectives}
-Various rebalancing methods exists, but current approaches suffer from significant limitations.
+Various rebalancing methods exist, but current approaches suffer from significant limitations.
 Traditional strategies based on mathematical optimization and simple heuristics often depend on highly abstracted simulation environments and demand models.
-Demand can peak unexpectedly due to public events, which static rebalancing strategies can not account for.
+Demand can peak unexpectedly due to public events or similar, which static rebalancing strategies can not account for.
 This makes such approaches slow to adapt to the highly dynamic nature of urban mobility.
 Additionally, such strategies struggle to scale for large real-world systems.
 
-Although Reinforcement Learning (RL) approaches have emerged due to the outstanding relevance of artificial intelligence, they offer more dynamic strategies.
-But a critical research gap remains: the vast majority of existing studies address operator-based and user-based rebalancing in solution, without integrating them into a unified framework.
-This clear separation between the two rebalancing approaches overlooks the potential of a combined strategy that can benefit from both approaches' advantages while reducing the limitations of both if correctly combined.
-Furthermore, many RL rebalancing strategies either focus on city-wide or local neighborhood optimization, but both rely on each other, which, combined, could enhance service quality significantly.\\
+Reinforcement Learning (RL) approaches have emerged due to the outstanding relevance of artificial intelligence.
+They offer more dynamic strategies than traditional approaches.
+But a critical research gap remains: the vast majority of existing studies address operator-based and user-based rebalancing in isolation, without integrating them into a unified framework.
+This clear separation between the two rebalancing approaches overlooks the potential of a combined strategy that can benefit from the advantages of both approaches while mitigating their limitations when properly combined.
+Furthermore, many RL rebalancing strategies focus on either city-wide or local neighborhood optimization, but both rely on each other, which, combined, could significantly enhance service quality.\\
 
 This thesis addresses these identified research gaps by proposing an integrated system that combines both rebalancing modes.
 The primary objectives of this work are:
@@ -50,4 +51,4 @@ The remainder of this thesis is structured as follows.
 \autoref{sec:design} describes the available data for this study, details the simulation environment built to test and evaluate different rebalancing algorithms, presents different rebalancing algorithms, and formulates baselines and metrics for evaluation of the proposed algorithms.
 \autoref{sec:implementation} focuses on the implementation details of the simulation framework and rebalancing algorithms.
 \autoref{sec:evaluation} presents and discusses the results from evaluating the different rebalancing algorithms.
-Lastly, \autoref{sec:conclusion} summarizes the key findings from this thesis and gives recommendations on future work in this research area.
+Lastly, \autoref{sec:conclusion} summarizes the key findings of this thesis and provides recommendations for future work in this research area.

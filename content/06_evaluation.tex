@@ -54,26 +54,29 @@ Each blue point corresponds to an individual trial, and the solid red line track
 
 \autoref{fig:ho-rdc-focused-slice} dives deeper into the analysis of the HO process of the RDC agent.
 It demonstrates the four most critical hyperparameters, with each point representing a single trial.
-These four hyperparameters were selected by visually analyzing the slice plot for all parameters and by examining the importance parameter for each HO run.
-Since in the first two rounds the hyperparameters were grouped and individually optimized, a global importance metric couldn't be plotted over all HO runs, due to the lack of comparability.
+These four hyperparameters were selected by visually analyzing the slice plot for all parameters and by examining the importance value for each HO run.
+Since the hyperparameters were grouped and individually optimized in the first two rounds, a global importance metric couldn't be plotted over all HO runs due to a lack of comparability.
 
-The plot of the learning rate of the RDC agent shows a trend to lower values.
-The more consistent high-performing trials are found in the range between $1e^{-6}$ and $5e^{-5}$.
-This suggests that smaller, more conservative updates are preferable for the RDC agent.
 The discount factor \texttt{RDC\_gamma} has a strong positive correlation to the objective value.
-The best results are concentrated in the upper range of $[0.94, 0.99]$, which suggests that the RDC is far-sighted.
-This priority decision leads to optimal long-term fleet distributions across all communities.
+The best results are concentrated in the upper range of $[0.98, 0.99]$, which suggests that the RDC prefers to be far-sighted.
+This priority decision results in a more optimal long-term fleet distribution across all communities.
 Short-term optimization is less prioritized.
-The third important parameter of the RDC agent is the target network update rate \texttt{RDC\_tau}.
-This rate manages the degree of soft updates between the target and the policy network introduced by the DDQN architecture.
-The plot of the trials displays a trend towards low values for this ratio.
-Higher values greater than 0.003 result in much more unstable objective values.
-The \texttt{RDC\_epsilon\_decay}, which controls the exploration decay of the $\epsilon$-Greedy strategy, shows more scattered results.
-The highest objective values can only be observed for decay rates of $0.99$ and greater, but a high decay rate doesn't guarantee success.
-Even for high decay rates, the objective value fluctuates, which suggests that the \texttt{RDC\_epsilon\_decay} parameter is dependent on other critical parameters and only enables the possibility of an optimal performance.
-The trend of higher epsilon decay rates suggests a prolonged exploration phase for the RDC agent to capture the complex dynamics of the e-scooter sharing system.
+This aligns with the intended purpose of the RDC agent, which is a strategic one.
 
-\todo{update paragraph describing the updated plots}
+The target network update rate, \texttt{RDC\_tau}, exhibits a clear pattern.
+The vast majority of high-performing trials are concentrated at very low values, specifically in the range of [0,0.02].
+This indicates that slow, incremental updates to the target network are crucial for stable and effective learning.
+As \texttt{tau} increases, the objective values become significantly more varied and trend lower.
+
+The \texttt{RDC\_epsilon\_decay}, which controls the exploration decay of the $\epsilon$-Greedy strategy, reveals a distinct optimal region.
+The best results are found for decay rates between approximately 0.96 and 0.985.
+Values outside of this band, both lower and higher, correlate with more scattered and generally poorer outcomes.
+This suggests that a carefully balanced exploration schedule is necessary for the agent to succeed.
+
+Finally, the \texttt{RDC\_batch\_size} plot indicates a preference for medium-sized batches.
+The most consistent high-performing trials are clustered at batch sizes of 128 and 256.
+While good results are possible at other sizes, the smallest (64) and largest (1024) batches show much greater variance and are associated with many of the lowest-performing trials.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{content/figures/RDC_focused_slice_plot.png}
