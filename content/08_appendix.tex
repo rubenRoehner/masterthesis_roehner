@@ -94,24 +94,20 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{UIC\_lr}                 & $[1e^{-6}, 2e^{-4}]$      & log-uniform \\
-        \texttt{UIC\_n\_steps}     & \{256, 512\}              & - \\
-        \texttt{UIC\_batch\_size}     & \{32, 64\}              & - \\
-        \texttt{UIC\_clip\_range}     & [0.12, 0.22]              & 0.01 \\
-        \texttt{UIC\_ent\_coeff}     & $[1e^{-6}, 1e^{-2}]$              & log-uniform \\
-        \texttt{UIC\_vf\_coeff}     & [0.1, 1.0]              & 0.01 \\
+        \texttt{UIC\_lr}                 & $[5e^{-6}, 5e^{-4}]$      & log-uniform \\
+        \texttt{UIC\_n\_steps}     & \{256, 512, 1024, 2048\}              & - \\
+        \texttt{UIC\_batch\_size}     & \{32, 64, 128, 256\}              & - \\
+        \texttt{UIC\_clip\_range}     & [0.1, 0.3]              & 0.05 \\
+        \texttt{UIC\_ent\_coeff}     & $[1e^{-5}, 1e^{-3}]$              & log-uniform \\
+        \texttt{UIC\_vf\_coeff}     & [0.4, 0.8]              & 0.05 \\
         \midrule
-        \texttt{UIC\_hidden\_size}       & \{64, 128, 256\}     & - \\
-        \texttt{UIC\_n\_layers}        & \{1, 2, 3\}     & - \\
-        \texttt{UIC\_activation\_fn}                & \{ReLU, TanH, LeakyReLU\}            & - \\
+        \texttt{UIC\_hidden\_size}       & \{64, 96, 128, 256\}     & - \\
+        \texttt{UIC\_n\_layers}        & \{2, 3, 4\}     & - \\
+        \texttt{UIC\_activation\_fn}                & \{ReLU, TanH, LeakyReLU, SiLU\}            & - \\
         \midrule
-        \texttt{UIC\_gamma}       & [0.88, 0.95]             & 0,01\\
-        \texttt{UIC\_gae\_lambda}         & [0.878, 0.962]                & 0.01\\
-        \texttt{UIC\_target\_kl}   & \{None, 0.005, 0.01, 0.02\}                & -\\
-        \midrule
-        \texttt{UIC\_weight\_demand}     & [0.2, 2.0]                & 0.1 \\
-        \texttt{UIC\_weight\_cost}       & [0.2, 2.0]                & 0.1 \\
-        \texttt{UIC\_weight\_gini}       & [0.0, 0.5]                & 0.01 \\
+        \texttt{UIC\_gamma}       & [0.95, 0.999]             & log-uniform\\
+        \texttt{UIC\_gae\_lambda}         & [0.90, 0.98]                & 0.01\\
+        \texttt{UIC\_target\_kl}   & \{None, 0.01, 0.015, 0.02, 0.025\}                & -\\
         \bottomrule
     \end{tabular}
     \caption{First round of UIC's hyperparameter optimization.}
@@ -124,24 +120,20 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{UIC\_lr}                 & $[1e^{-6}, 3e^{-5}]$      & log-uniform \\
-        \texttt{UIC\_n\_steps}     & \{512, 1024\}              & - \\
-        \texttt{UIC\_batch\_size}     & \{32, 64\}              & - \\
-        \texttt{UIC\_clip\_range}     & [0.1, 0.24]              & 0.01 \\
-        \texttt{UIC\_ent\_coeff}     & $[1e^{-6}, 5e^{-3}]$              & log-uniform \\
-        \texttt{UIC\_vf\_coeff}     & [0.28, 1.12]              & 0.01 \\
+        \texttt{UIC\_lr}                 & $[1e^{-5}, 1e^{-4}]$      & log-uniform \\
+        \texttt{UIC\_n\_steps}     & \{256, 512, 768\}              & - \\
+        \texttt{UIC\_batch\_size}     & \{32, 64, 128\}              & - \\
+        \texttt{UIC\_clip\_range}     & [0.5, 0.3]              & 0.05 \\
+        \texttt{UIC\_ent\_coeff}     & $[1e^{-5}, 1e^{-4}]$              & log-uniform \\
+        \texttt{UIC\_vf\_coeff}     & [0.65, 0.85]              & 0.05 \\
         \midrule
-        \texttt{UIC\_hidden\_size}       & \{64, 128, 256\}     & - \\
+        \texttt{UIC\_hidden\_size}       & \{96, 128, 256\}     & - \\
         \texttt{UIC\_n\_layers}        & \{2, 3\}     & - \\
-        \texttt{UIC\_activation\_fn}                & \{ReLU, TanH\}            & - \\
+        \texttt{UIC\_activation\_fn}                & \{ReLU, TanH, LeakyReLU\}            & - \\
         \midrule
-        \texttt{UIC\_gamma}       & [0.913, 0.954]             & 0,001\\
-        \texttt{UIC\_gae\_lambda}         & [0.878, 0.962]                & 0.01\\
-        \texttt{UIC\_target\_kl}   & \{0.008, 0.01, 0.02, 0.022\}                & -\\
-        \midrule
-        \texttt{UIC\_weight\_demand}     & [0.1, 1.0]                & 0.1 \\
-        \texttt{UIC\_weight\_cost}       & [0.8, 2.0]                & 0.1 \\
-        \texttt{UIC\_weight\_gini}       & [0.0, 0.4]                & 0.01 \\
+        \texttt{UIC\_gamma}       & [0.95, 0.99]             & log-uniform \\
+        \texttt{UIC\_gae\_lambda}         & [0.90, 0.97]                & 0.01\\
+        \texttt{UIC\_target\_kl}   & \{0.01, 0.015, 0.02\}                & -\\
         \bottomrule
     \end{tabular}
     \caption{Second round of UIC's hyperparameter optimization.}
@@ -154,24 +146,20 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{UIC\_lr}                 & $[7e^{-7}, 5e^{-6}]$      & log-uniform \\
-        \texttt{UIC\_n\_steps}     & \{512, 1024\}              & - \\
+        \texttt{UIC\_lr}                 & $[2e^{-5}, 6e^{-5}]$      & log-uniform \\
+        \texttt{UIC\_n\_steps}     & \{256, 512\}              & - \\
         \texttt{UIC\_batch\_size}     & \{32, 64\}              & - \\
-        \texttt{UIC\_clip\_range}     & [0.087, 0.243]              & 0.001 \\
-        \texttt{UIC\_ent\_coeff}     & $[1e^{-5}, 2.75e^{-3}]$              & log-uniform \\
-        \texttt{UIC\_vf\_coeff}     & [0.339, 0.591]              & 0.001 \\
+        \texttt{UIC\_clip\_range}     & [0.25, 0.3]              & 0.01 \\
+        \texttt{UIC\_ent\_coeff}     & $[2e^{-5}, 1e^{-4}]$              & log-uniform \\
+        \texttt{UIC\_vf\_coeff}     & [0.65, 0.75]              & 0.01 \\
         \midrule
-        \texttt{UIC\_hidden\_size}       & \{64, 128\}     & - \\
-        \texttt{UIC\_n\_layers}        & \{2, 3\}     & - \\
-        \texttt{UIC\_activation\_fn}                & \{ReLU, TanH\}            & - \\
+        \texttt{UIC\_hidden\_size}       & \{128, 256\}     & - \\
+        \texttt{UIC\_n\_layers}        & \{2\}     & - \\
+        \texttt{UIC\_activation\_fn}                & \{ReLU, LeakyReLU\}            & - \\
         \midrule
-        \texttt{UIC\_gamma}       & [0.918, 0.957]             & 0,001\\
-        \texttt{UIC\_gae\_lambda}         & [0.892, 0.960]                & 0.001\\
-        \texttt{UIC\_target\_kl}   & \{0.01, 0.02, 0.022\}                & -\\
-        \midrule
-        \texttt{UIC\_weight\_demand}     & [0.5, 1.0]                & 0.1 \\
-        \texttt{UIC\_weight\_cost}       & [0.8, 1.5]                & 0.1 \\
-        \texttt{UIC\_weight\_gini}       & [0.0, 0.2]                & 0.01 \\
+        \texttt{UIC\_gamma}       & [0.95, 0.98]             & log-uniform \\
+        \texttt{UIC\_gae\_lambda}         & [0.94, 0.97]                & 0.01\\
+        \texttt{UIC\_target\_kl}   & \{0.02\}                & -\\
         \bottomrule
     \end{tabular}
     \caption{Final round of UIC's hyperparameter optimization.}
