@@ -45,10 +45,10 @@ The results of the three-round optimization process are illustrated in \autoref{
 Each blue point corresponds to an individual trial, and the solid red line tracks the best-performing trial of each run.
 
 
-\begin{figure}[H]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/RDC_history_plot.png}
-    \caption{RDC Aggregated Optimization History}
+    \caption{Aggregated Optimization History for the RDC Agent. This plot visualizes the results from the entire three-round hyperparameter optimization process for the RDC agent, comprising 500 total trials. Each blue dot represents the final objective value for a single trial, while the red line tracks the best objective value achieved up to that point in the optimization. The plot shows consistent improvement across the rounds, demonstrating the effectiveness of the coarse-to-fine search strategy.}
     \label{fig:ho-rdc-history}
 \end{figure}
 
@@ -77,10 +77,10 @@ Finally, the \texttt{RDC\_batch\_size} plot indicates a preference for medium-si
 The most consistent high-performing trials are clustered at batch sizes of 128 and 256.
 While good results are possible at other sizes, the smallest (64) and largest (1024) batches show much greater variance and are associated with many of the lowest-performing trials.
 
-\begin{figure}[H]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/RDC_focused_slice_plot.png}
-    \caption{RDC Focused Slice Plot}
+    \caption{Focused Slice Plot of Critical RDC Hyperparameters. This figure presents slice plots for the four most influential hyperparameters identified during the RDC's optimization process: the discount factor (\texttt{RDC\_gamma}), target network update rate (\texttt{RDC\_tau}), exploration decay (\texttt{RDC\_epsilon\_decay}), and batch size (\texttt{RDC\_batch\_size}). Each subplot shows the relationship between a single hyperparameter's value (x-axis) and the trial's objective value (y-axis). The dense clusters of high-performing trials reveal clear optimal ranges, such as a high discount factor and a very slow target network update rate.}
     \label{fig:ho-rdc-focused-slice}
 \end{figure}
 
@@ -88,7 +88,7 @@ The resulting optimal hyperparameter configuration is presented in \autoref{tab:
 Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:rdc_hyperparameters_description}), while the search spaces for each optimization round are defined in the appendix (\cref{tab:rdc_ho_first_round,tab:rdc_ho_second_round,tab:rdc_ho_final_round}).
 
 \todo{Add that Reward Weights were choosen manually due to poor results regarding the actual objective}
-\begin{table}[H]
+\begin{table}[!htb]
     \centering
     \begin{tabularx}{\textwidth}{lXl}
         \toprule
@@ -117,7 +117,7 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
         \texttt{RDC\_weight\_gini} & Gini index penalty weight & $7.0$ \\
         \bottomrule
     \end{tabularx}
-    \caption{Final optimized hyperparameter configuration for the RDC.}
+    \caption{Final Optimized Hyperparameter Configuration for the RDC. This table presents the final set of optimal hyperparameter values for the RDC agent. These values were determined through the three-round, coarse-to-fine hyperparameter optimization process using the Optuna framework. This configuration was used for the final evaluation of the RDC.}
     \label{tab:rdc_final_hyperparameters}
 \end{table}
 
@@ -146,10 +146,10 @@ UNlike the RDC, the UIC's optimization history displays a distinct step-wise imp
 This step-wise improvement, indicated by the solid red line, suggests that the PPO agent is more sensitive to specific paramter configurations.
 This phenomenom is likely due to the less manual optimization before running the HO process.
 
-\begin{figure}[H]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_history_plot.png}
-    \caption{UIC Aggregated Optimization History}
+    \caption{Aggregated Optimization History for the UIC Agent. This plot shows the aggregated results from the multi-round hyperparameter optimization for the UIC agent. Each blue dot represents the result of a single trial, and the red line indicates the best performance achieved over time. The distinct step-wise improvements in the best-so-far objective value suggest that the PPO agent's performance is highly sensitive to specific combinations of hyperparameters that were discovered in later, more focused optimization rounds.}
     \label{fig:ho-uic-history}
 \end{figure}
 
@@ -161,15 +161,15 @@ The \texttt{UIC\_n\_steps} parameter, that controls the number of experiences th
 For the \texttt{UIC\_gamma} parameter a strong trend showing that higher values around 0.91 and 0.96 leading to better performance.
 This finding suggests that the UIC agent should behave far-sighted to effectively find an optimal rebalancing problem.
 Higher gamma values prioritized long-term rewards, which suggest that the agent prefers to optimized the overall fleet distribution on the long run instead of optimizing current vehicle shortages.
-The \texttt{UIC\_ent\_coef} that controls the agetnt's exlporation-exploitation trade-off, shows a clear pattern where the best performing values are all concentrated at the lower bounds (below 0.002).
+The \texttt{UIC\_ent\_coef} that controls the agent's exlporation-exploitation trade-off, shows a clear pattern where the best performing values are all concentrated at the lower bounds (below 0.002).
 This suggests that the agent rather quickly finds a good policy that the agent tries to exploit fast instead of focusing on much exploration of the search space.
 This also means that only a tiny amount of entropy is needed to prevent the agent from getting stuck in suboptimal policies.
 
 \todo{update paragraph describing the updated plots}
-\begin{figure}[H]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_focused_slice_plot.png}
-    \caption{UIC Focused Slice Plot}
+    \caption{Focused Slice Plot of Critical UIC Hyperparameters. This figure displays slice plots for the four most critical hyperparameters for the PPO-based UIC agent: learning rate (\texttt{UIC\_lr}), number of steps (\texttt{UIC\_n\_steps}), discount factor (\texttt{UIC\_gamma}), and entropy coefficient (\texttt{UIC\_ent\_coef}). The plots show the objective value achieved for each value of a given hyperparameter across all trials. These visualizations clearly indicate optimal regions, such as a preference for low learning rates, a high discount factor, and a small entropy bonus, confirming that the agent benefits from stable updates and a far-sighted policy with minimal forced exploration.}
     \label{fig:ho-uic-focused-slice}
 \end{figure}
 
@@ -178,7 +178,7 @@ The resulting optimal hyperparameter configuration for the UIC agent is presente
 Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:uic_hyperparameters_description}), while the search spaces used are defined in the appendix (\cref{tab:uic_ho_first_round,tab:uic_ho_second_round,tab:uic_ho_final_round}).
 \todo{Add that Reward Weights were choosen manually due to poor results regarding the actual objective}
 
-\begin{table}[H]
+\begin{table}[!htb]
     \centering
     \begin{tabularx}{\textwidth}{lXl}
         \toprule
@@ -204,7 +204,7 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
         \texttt{UIC\_weight\_gini}          & Gini index penalty weight                 & $0.0$ \\
         \bottomrule
     \end{tabularx}
-    \caption{Final hyperparameter values for the User-Incentive Coordinator after optimization.}
+    \caption{Final Optimized Hyperparameter Configuration for the UIC. This table displays the final, optimized hyperparameter values for the UIC agents. The configuration was identified through a systematic, multi-round hyperparameter search. These settings were applied to all UIC agents used in the final evaluation experiments.}
     \label{tab:uic_final_hyperparameters}
 \end{table}
 
@@ -275,7 +275,7 @@ The results are analyzed to validate the design choices of the hierarchical arch
 A comprehensive summary of the evaluation results across all scenarios and models is presented in \autoref{tab:full_results_summary}.
 The subsequent sections provide a detailed analysis of these findings.
 
-\begin{table}[H]
+\begin{table}[!htb]
     \centering
     \begin{tabularx}{\textwidth}{lXXXX}
         \toprule
@@ -288,14 +288,14 @@ The subsequent sections provide a detailed analysis of these findings.
         No Rebalancing & [0.7878] & [0.0] & [0.0] & [0.4173] \\
         Greedy Heuristic & [0.7995] & [0.02] & [20.76] & [0.3978] \\
         \midrule
-        \multicolumn{5}{l}{\textit{Fleet Size: 600 (80\%)}} \\
+        \multicolumn{5}{l}{\textit{Fleet Size: 600 (67\%)}} \\
         HRL Both Enabled & [0.5355] & [2.7] & [1.3] & [0.6942] \\
         HRL Manual Only & [0.5545] & [2.7] & [0.0] & [0.6717] \\
         HRL Incentive Only & [0.7177] & [0.0] & [1.4] & [0.4025] \\
         No Rebalancing & [0.6860] & [0.0] & [0.0] & [0.4655] \\
         Greedy Heuristic & [0.7041] & [0.1225] & [25.95] & [0.4383] \\
         \midrule
-        \multicolumn{5}{l}{\textit{Fleet Size: 1200 (120\%)}} \\
+        \multicolumn{5}{l}{\textit{Fleet Size: 1200 (133\%)}} \\
         HRL Both Enabled & [0.8001] & [2.2] & [3.5] & [0.6381] \\
         HRL Manual Only & [0.9048] & [9.74] & [0.0] & [0.2457] \\
         HRL Incentive Only & [0.8115] & [0.0] & [2.6] & [0.3738] \\
@@ -303,7 +303,7 @@ The subsequent sections provide a detailed analysis of these findings.
         Greedy Heuristic & [0.8740] & [0.01] & [16.82] & [0.3503] \\
         \bottomrule
     \end{tabularx}
-    \caption{Summary of evaluation results across all models and fleet size scenarios.}
+    \caption{Summary of Evaluation Results Across All Models and Fleet Size Scenarios. This table presents the comprehensive performance comparison of the full HRL framework and the four baselines across three distinct fleet size scenarios: balanced (100\%), undersupply (67\%), and oversupply (133\%). Performance is measured using four key metrics: Mean Satisfied Demand Ratio, Manual Rebalancing Cost, Incentive Rebalancing Cost, and the Mean Gini Index. These results provide a quantitative basis for analyzing the efficacy, cost-effectiveness, and robustness of the proposed hierarchical approach compared to simpler strategies.}
     \label{tab:full_results_summary}
 \end{table}
 

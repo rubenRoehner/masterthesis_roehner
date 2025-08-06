@@ -26,7 +26,7 @@
         \texttt{RDC\_epsilon\_decay}     & [0.95, 0.9999]            & log-uniform\\
         \midrule
     \end{tabular}
-    \caption{First round of RDC's hyperparameter optimization.}
+    \caption{RDC Hyperparameter Optimization Search Space (Round 1). This table defines the broad search spaces for all 14 RDC hyperparameters used in the initial, exploratory round of the coarse-to-fine optimization process. This first round was designed to identify promising regions within a wide range of possible values for each parameter group.}
     \label{tab:rdc_ho_first_round}
 \end{table}
 
@@ -55,7 +55,7 @@
         \texttt{RDC\_epsilon\_decay}     & [0.950, 0.999]            & 0.001\\
         \midrule
     \end{tabular}
-    \caption{Second round of RDC's hyperparameter optimization.}
+    \caption{RDC Hyperparameter Optimization Search Space (Round 2). This table details the refined search spaces for the second round of the RDC hyperparameter optimization. The ranges were narrowed or shifted based on the results of the first round to focus the search on the most promising areas of the parameter space.}
     \label{tab:rdc_ho_second_round}
 \end{table}
 \begin{table}[!htb]
@@ -83,7 +83,7 @@
         \texttt{RDC\_epsilon\_decay}     & [0.96, 0.975]            & 0.001\\
         \midrule
     \end{tabular}
-    \caption{Final round of RDC's hyperparameter optimization.}
+    \caption{RDC Hyperparameter Optimization Search Space (Round 3). This table lists the final search spaces for the third and final round of the RDC hyperparameter optimization, where all 14 parameters were tuned simultaneously. These tightly constrained ranges reflect the knowledge gained from the previous two rounds and were used to fine-tune the agent's configuration.}
     \label{tab:rdc_ho_final_round}
 \end{table}
 
@@ -110,7 +110,7 @@
         \texttt{UIC\_target\_kl}   & \{None, 0.01, 0.015, 0.02, 0.025\}                & -\\
         \bottomrule
     \end{tabular}
-    \caption{First round of UIC's hyperparameter optimization.}
+    \caption{UIC Hyperparameter Optimization Search Space (Round 1). This table specifies the initial, broad search spaces for the hyperparameters of the UIC agent in the first round of optimization. This round aimed to explore a wide variety of configurations to identify potentially effective parameter settings for the PPO algorithm.}
     \label{tab:uic_ho_first_round}
 \end{table}
 
@@ -120,23 +120,23 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{UIC\_lr}                 & $[1e^{-5}, 1e^{-4}]$      & log-uniform \\
-        \texttt{UIC\_n\_steps}     & \{256, 512, 768\}              & - \\
-        \texttt{UIC\_batch\_size}     & \{32, 64, 128\}              & - \\
-        \texttt{UIC\_clip\_range}     & [0.5, 0.3]              & 0.05 \\
-        \texttt{UIC\_ent\_coeff}     & $[1e^{-5}, 1e^{-4}]$              & log-uniform \\
-        \texttt{UIC\_vf\_coeff}     & [0.65, 0.85]              & 0.05 \\
+        \texttt{UIC\_lr}                & $[1e^{-5}, 1e^{-4}]$      & log-uniform \\
+        \texttt{UIC\_n\_steps}          & \{256, 512, 768\}         & - \\
+        \texttt{UIC\_batch\_size}       & \{32, 64, 128\}           & - \\
+        \texttt{UIC\_clip\_range}       & [0.5, 0.3]                & 0.05 \\
+        \texttt{UIC\_ent\_coeff}        & $[1e^{-5}, 1e^{-4}]$      & log-uniform \\
+        \texttt{UIC\_vf\_coeff}         & [0.65, 0.85]              & 0.05 \\
         \midrule
-        \texttt{UIC\_hidden\_size}       & \{96, 128, 256\}     & - \\
-        \texttt{UIC\_n\_layers}        & \{2, 3\}     & - \\
-        \texttt{UIC\_activation\_fn}                & \{ReLU, TanH, LeakyReLU\}            & - \\
+        \texttt{UIC\_hidden\_size}      & \{96, 128, 256\}          & - \\
+        \texttt{UIC\_n\_layers}         & \{2, 3\}                  & - \\
+        \texttt{UIC\_activation\_fn}    & \{ReLU, TanH, LeakyReLU\} & - \\
         \midrule
-        \texttt{UIC\_gamma}       & [0.95, 0.99]             & log-uniform \\
-        \texttt{UIC\_gae\_lambda}         & [0.90, 0.97]                & 0.01\\
-        \texttt{UIC\_target\_kl}   & \{0.01, 0.015, 0.02\}                & -\\
+        \texttt{UIC\_gamma}             & [0.95, 0.99]              & log-uniform \\
+        \texttt{UIC\_gae\_lambda}       & [0.90, 0.97]              & 0.01\\
+        \texttt{UIC\_target\_kl}        & \{0.01, 0.015, 0.02\}     & -\\
         \bottomrule
     \end{tabular}
-    \caption{Second round of UIC's hyperparameter optimization.}
+    \caption{UIC Hyperparameter Optimization Search Space (Round 2). This table outlines the narrowed and refined search spaces used in the second round of the UIC's hyperparameter optimization. Based on the initial results, the search was concentrated on more promising value ranges for each parameter group.}
     \label{tab:uic_ho_second_round}
 \end{table}
 
@@ -146,36 +146,36 @@
         \toprule
         \textbf{Parameter} & \textbf{Range} & \textbf{Step} \\
         \midrule
-        \texttt{UIC\_lr}                 & $[2e^{-5}, 6e^{-5}]$      & log-uniform \\
-        \texttt{UIC\_n\_steps}     & \{256, 512\}              & - \\
-        \texttt{UIC\_batch\_size}     & \{32, 64\}              & - \\
-        \texttt{UIC\_clip\_range}     & [0.25, 0.3]              & 0.01 \\
-        \texttt{UIC\_ent\_coeff}     & $[2e^{-5}, 1e^{-4}]$              & log-uniform \\
-        \texttt{UIC\_vf\_coeff}     & [0.65, 0.75]              & 0.01 \\
+        \texttt{UIC\_lr}                & $[2e^{-5}, 6e^{-5}]$      & log-uniform \\
+        \texttt{UIC\_n\_steps}          & \{256, 512\}              & - \\
+        \texttt{UIC\_batch\_size}       & \{32, 64\}                & - \\
+        \texttt{UIC\_clip\_range}       & [0.25, 0.3]               & 0.01 \\
+        \texttt{UIC\_ent\_coeff}        & $[2e^{-5}, 1e^{-4}]$      & log-uniform \\
+        \texttt{UIC\_vf\_coeff}         & [0.65, 0.75]              & 0.01 \\
         \midrule
-        \texttt{UIC\_hidden\_size}       & \{128, 256\}     & - \\
-        \texttt{UIC\_n\_layers}        & \{2\}     & - \\
-        \texttt{UIC\_activation\_fn}                & \{ReLU, LeakyReLU\}            & - \\
+        \texttt{UIC\_hidden\_size}      & \{128, 256\}              & - \\
+        \texttt{UIC\_n\_layers}         & \{2\}                     & - \\
+        \texttt{UIC\_activation\_fn}    & \{ReLU, LeakyReLU\}       & - \\
         \midrule
-        \texttt{UIC\_gamma}       & [0.95, 0.98]             & log-uniform \\
-        \texttt{UIC\_gae\_lambda}         & [0.94, 0.97]                & 0.01\\
-        \texttt{UIC\_target\_kl}   & \{0.02\}                & -\\
+        \texttt{UIC\_gamma}             & [0.95, 0.98]              & log-uniform \\
+        \texttt{UIC\_gae\_lambda}       & [0.94, 0.97]              & 0.01\\
+        \texttt{UIC\_target\_kl}        & \{0.02\}                  & -\\
         \bottomrule
     \end{tabular}
-    \caption{Final round of UIC's hyperparameter optimization.}
+    \caption{UIC Hyperparameter Optimization Search Space (Round 3). This table defines the search spaces for the final, unified optimization round for the UIC agent. These focused ranges were used to perform a fine-tuning sweep across all 15 hyperparameters simultaneously to arrive at the final optimal configuration.}
     \label{tab:uic_ho_final_round}
 \end{table}
 
 \begin{figure}
     \centering
     \includegraphics[width=.9\linewidth]{content/figures/RDC_full_slice_plot.png}
-    \caption{RDC Full Slice Plot}
+    \caption{Full Slice Plot for All RDC Hyperparameter Optimization Trials. This figure provides the complete set of slice plots for all 14 hyperparameters optimized for the Regional Distribution Coordinator (RDC) agent. Each subplot displays the objective value (y-axis) achieved across the range of values tested for a single hyperparameter (x-axis) over the 500 trials. This comprehensive visualization allows for a detailed inspection of the sensitivity and optimal ranges for every parameter governing the MH-DQN agent's performance.}
     \label{fig:rdc-full-slice-plot}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_full_slice_plot.png}
-    \caption{UIC Full Slice Plot}
+    \caption{ Full Slice Plot for All UIC Hyperparameter Optimization Trials. This figure presents the complete collection of slice plots for all 12 hyperparameters that were tuned for the User-Incentive Coordinator (UIC) agent. Each subplot illustrates how the final objective value (y-axis) varied with the value of a specific hyperparameter (x-axis) during the optimization process. This detailed view is useful for understanding the complex interplay between the PPO algorithm's parameters and its resulting performance.}
     \label{fig:uic-full-slice-plot}
 \end{figure}

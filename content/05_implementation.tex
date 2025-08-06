@@ -68,7 +68,7 @@ This network is embedded within a custom simulation environment, which is descri
         \texttt{RDC\_weight\_gini}          & The weighting coefficient for the Gini index component ($w_{gini}^{RDC}$) in the composite reward function. \\
         \bottomrule
     \end{tabularx}
-    \caption{Configurable parameters for the Regional Distribution Coordinator agent.}
+    \caption{Configurable Hyperparameters for the Regional Distribution Coordinator (RDC) Agent. This table lists and describes the complete set of 17 hyperparameters that define the behavior and architecture of the RDC agent. These parameters govern aspects of the learning algorithm, network architecture, prioritized experience replay buffer, exploration strategy, and reward weights. The systematic optimization of these hyperparameters was crucial for achieving peak performance and is detailed in \autoref{sec:evaluation-ho-rdc}.}
     \label{tab:rdc_hyperparameters_description}
 \end{table}
 
@@ -140,7 +140,7 @@ The plot displays the episodic reward, which shows a clear upward trend before c
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\textwidth]{content/figures/rdc_reward_plot.png}
-    \caption{RDC training progress showing the episodic reward}
+    \caption{RDC Agent Training Progress. This plot shows the episodic reward achieved by the RDC agent during its final training run. The x-axis represents the training steps, while the y-axis shows the raw episodic reward. The clear upward trend in reward, which eventually converges to a stable plateau, indicates that the agent successfully learned an effective policy for maximizing its composite reward function.}
     \label{fig:rdc_training_curves}
 \end{figure}
 
@@ -176,7 +176,7 @@ The behavior of the PPO agent is determined by a set of key hyperparameters gove
         \texttt{UIC\_weight\_gini}      & The weighting coefficient for the Gini index component ($w_{gini}^{UIC}$) in the composite reward function. \\
         \bottomrule
     \end{tabularx}
-    \caption{Configurable hyperparameters for the User-Incentive Coordinator agent.}
+    \caption{Configurable Hyperparameters for the User-Incentive Coordinator (UIC) Agent. This table presents the 15 configurable hyperparameters for the PPO-based UIC agent. The parameters control the core PPO algorithm, network architecture, stability mechanisms, and reward weights. These values were systematically tuned to optimize the agent's ability to learn an effective local incentive policy (see \autoref{sec:evaluation-ho-uic}).}
     \label{tab:uic_hyperparameters_description}
 \end{table}
 
@@ -264,7 +264,7 @@ The reward curve demonstrates a consistent upward trend that eventually plateaus
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\textwidth]{content/figures/uic_reward_plot.png}
-    \caption{UIC training progress showing the average episodic reward}
+    \caption{Representative UIC Agent Training Progress. This plot illustrates the average episodic reward for a single, representative UIC agent over the course of its training. The x-axis tracks the training steps, and the y-axis shows the reward. Similar to the RDC, the consistent upward trend indicates that the agent has effectively learned to optimize its local incentive strategy.}
     \label{fig:uic_reward_curve}
 \end{figure}
 

@@ -25,7 +25,7 @@ The GBFS format, a standard for publishing shared micromobility vehicle data, pr
 These include its unique identifier, GPS coordinates (latitude and longitude), operational status (reserved or disabled), and battery level.
 A complete list of the data fields extracted from the feed is presented in \autoref{tab:gbfs_fields}.
 
-\begin{table}[H]
+\begin{table}[!htb]
     \centering
     \begin{tabularx}{\textwidth}{lX}
         \toprule
@@ -44,7 +44,7 @@ A complete list of the data fields extracted from the feed is presented in \auto
         \texttt{pricing\_plan\_id}     & Identifier for the pricing plan applicable to this rental. \\
         \bottomrule
     \end{tabularx}
-    \caption{Raw GBFS data fields}
+    \caption{Data Fields from the General Bikeshare Feed Specification (GBFS). This table lists and describes the data fields extracted from the raw GBFS JSON snapshots for each available e-scooter. Key attributes include the vehicle's GPS coordinates (\texttt{lat}, \texttt{lon}), its availability status (\texttt{is\_reserved}, \texttt{is\_disabled}), and its battery level (\texttt{current\_fuel\_percent}). This raw, time-series location data forms the foundation from which all pick-up and drop-off events were inferred for this study.}
     \label{tab:gbfs_fields}
 \end{table}
 
@@ -63,7 +63,7 @@ In contrast, the Bolt dataset was largely unaffected, retaining 96.4\% of its da
 This disparity suggests a differing operational focus between the two providers, with Voi maintaining a much larger service presence in the suburbs surrounding Stuttgart.
 \autoref{fig:demand_map_reduction} presents this filtering process by comparing the data displayed on a map before and after filtering.
 
-\begin{figure}[H]
+\begin{figure}[!htb]
     \centering
     \begin{subfigure}{0.48\textwidth}
         \includegraphics[width=\linewidth]{content/figures/voi_filtering_subplots.png}
@@ -75,7 +75,7 @@ This disparity suggests a differing operational focus between the two providers,
         \caption{Bolt}
         \label{fig:demand_map_bolt}
         \end{subfigure}
-    \caption{Data Filtering}
+    \caption{Geographical Filtering of Raw E-Scooter Event Data. The maps illustrate the spatial distribution of inferred e-scooter events before and after applying a geographical bounding box for the city of Stuttgart. Panel (a) shows the initial, unfiltered data for the provider Voi, revealing significant activity in surrounding suburban areas. Panel (b) shows the Bolt provider data, which is more concentrated within the city limits. This filtering step was crucial for isolating the analysis to the urban core.}
     \label{fig:demand_map_reduction}
 \end{figure}
 
@@ -96,7 +96,7 @@ Third, as a global standard, H3 ensures that the grid is predefined worldwide, s
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.66\linewidth]{content/figures/Grid_Community_Stucture.png}
-    \caption{Grid Community Structure}
+    \caption{Hierarchical Grid Structure for the Stuttgart Service Area. This map displays the two-layer spatial aggregation scheme used in this thesis, based on the H3 hexagonal grid system \cite{uber_h3_2018}. The smaller, colored hexagons represent fine-grained zones (H3 resolution 8), which are grouped into the larger communities outlined in black (H3 resolution 6). The color within each small hexagon indicates the relative density of pick-up and drop-off events. This hierarchical structure provides the spatial foundation for the proposed multi-level rebalancing framework.}
     \label{fig:data_grid_community_structure}
 \end{figure}
 
@@ -106,7 +106,7 @@ Third, as a global standard, H3 ensures that the grid is predefined worldwide, s
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/Net_imbalance_aggregated.png}
-    \caption{Net imbalance aggregated hourly}
+    \caption{Average Hourly Net Imbalance of E-Scooters. This bar chart displays the net flow of e-scooters aggregated by the hour of the day across the entire service area. The y-axis represents the net count of scooters, where positive values indicate a surplus (more drop-offs than pick-ups) and negative values indicate a deficit. The plot reveals strong temporal imbalances, with a consistent vehicle deficit appearing in the afternoon and evening hours, underscoring the need for a dynamic rebalancing strategy.}
     \label{fig:demand_net_imbalance}
 \end{figure}
 
@@ -126,7 +126,7 @@ A summary of the dataset's key statistics is provided in \autoref{tab:general_st
         Busiest Hour                                    & 15:00 \\
         \bottomrule
     \end{tabularx}
-    \caption{Dataset summary statistics}
+    \caption{Summary Statistics of the Processed E-Scooter Event Dataset. This table presents aggregated statistics for the final, preprocessed dataset used in this thesis after filtering and event inference. It includes the total number of pick-ups and drop-offs, the analysis period, the average daily event volume, and the busiest hour of the day. These metrics collectively illustrate the scale and temporal characteristics of the demand data used to train and evaluate the rebalancing agents.}
     \label{tab:general_statistics}
 \end{table}
 
@@ -148,7 +148,7 @@ In the afternoon and evening, a clear vehicle deficit occurs as pick-ups consist
     \caption{15:00–20:00 net imbalance}
   \label{fig:demand_net_imbalance_map_evening}
   \end{subfigure}
-  \caption{Spatial distribution of e-scooter net imbalance during morning and evening peak periods. Red zones indicate a net deficit (more pick-ups than drop-offs), while blue zones indicate a net surplus.}
+  \caption{Spatial Distribution of Net E-Scooter Imbalance During Peak Periods. These maps visualize the spatial patterns of vehicle imbalance during the morning (a) and evening (b) peak hours. Red zones indicate a net deficit of scooters (more pick-ups than drop-offs), while blue zones indicate a net surplus. The patterns show a precise commuter flow, with vehicles accumulating in the city center during the morning and dispersing to residential areas in the evening, highlighting the predictable yet severe spatial imbalances the framework must address.}
   \label{fig:demand_net_imbalance_map}
 \end{figure}
 
@@ -210,7 +210,7 @@ The subset of zones for a given community $c$ is defined as:
             & Binary adjacency: 1 if zone $j$ is a designated neighbor of zone $i$, 0 otherwise\\
         \bottomrule
     \end{tabularx}
-    \caption{Notation for the rebalancing problem}
+    \caption{Notation for the Fleet Rebalancing Problem Formulation. This table defines the sets, parameters, and rebalancing outcomes used to formally model the e-scooter rebalancing problem. The notation provides a formal language for describing the system's state (e.g., $n_z(t)$  for vehicle counts), demand (e.g., $P_z(t)$ for pick-ups), and rebalancing outcomes (e.g., $X_{c\rightarrow c'}(t)$ for operator moves). This formalization is essential for structuring the problem within the Markov Decision Process framework.}
     \label{tab:problem_notation}
 \end{table}
 
@@ -347,7 +347,7 @@ These coordinators aim to promote an equal distribution of vehicles by offering 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=.9\linewidth]{content/figures/hrl_architecture.pdf}
-    \caption{Conceptual illustration of the two-tier Hierarchical Reinforcement Learning framework for e-scooter rebalancing.}
+    \caption{The Two-Tier Hierarchical Reinforcement Learning (HRL) Rebalancing Framework. This diagram illustrates the conceptual architecture of the proposed HRL framework, which decomposes the rebalancing problem into two distinct levels. Tier 1 consists of a single, high-level Regional Distribution Coordinator (RDC) who performs strategic, operator-based rebalancing between communities. Tier 2 consists of multiple low-level User-Incentive Coordinators (UICs), each responsible for tactical, user-based rebalancing within a single community. This hierarchical decomposition allows the framework to address both large-scale and local imbalances simultaneously.}
     \label{fig:hrl-architecture}
 \end{figure}
 
@@ -436,7 +436,7 @@ The specific values for the weighting factors and the methodology for their sele
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/rdc_mdp.pdf}
-    \caption{Illustration of the RDC's MDP: state representation, action space, and reward function}
+    \caption{Markov Decision Process (MDP) for the Regional Distribution Coordinator (RDC). This figure provides a detailed schematic of the MDP formulation for the high-level RDC agent. The state ($\mathcal{S}^{RDC}_t$) includes community-level vehicle counts and demand forecasts. The action ($\mathcal{A}^{RDC}_t$) is a vector of discrete rebalancing quotas for each community. The reward ($\mathcal{R}^{RDC}_t$) is a composite function of the satisfied demand ratio, rebalancing cost, and inter-community imbalance. This MDP formalizes the RDC's strategic decision-making problem of maintaining a balanced vehicle supply across the entire service area.}
     \label{fig:rdc_mdp}
 \end{figure}
 
@@ -449,7 +449,7 @@ Alternative architectures, such as a single network predicting a composite actio
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/mh-dqn-architecture.pdf}
-    \caption{Multi‐head DQN architecture for the RDC, with shared layers and per‐community heads.}
+    \caption{Multi-Head Deep Q-Network (DQN) Architecture for the RDC. This diagram illustrates the neural network architecture for the RDC agent. A normalized input state is first processed by a series of shared layers that learn a common feature representation for the entire system. This shared representation is then fed into multiple independent \textit{heads,} where each head is a smaller neural network that outputs the Q-values for the discrete rebalancing actions of a single community. This multi-head design allows the agent to efficiently learn correlated but distinct policies for each community from a unified system state.}
     \label{fig:mdh-architecture}
 \end{figure}
 
@@ -581,7 +581,7 @@ The specific values for the weighting factors and the methodology for their sele
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/uic_mdp.pdf}
-    \caption{UIC MDP Formulation Diagram}
+    \caption{Markov Decision Process (MDP) for the User-Incentive Coordinator (UIC). This figure presents the MDP formulation for a low-level UIC agent, which operates within a single community 'c'. The state ($\mathcal{S}^{UIC}_t$) consists of vehicle counts and demand forecasts at the finer zone level. The action ($\mathcal{A}^{UIC}_t$) is a vector of continuous incentive levels for each zone within its assigned community. The reward ($\mathcal{R}^{UIC}_t$) is based on local satisfied demand, the cost of incentives, and intra-community imbalance. This formulation defines the UIC's task of optimizing local fleet distribution through user-based incentives.}
     \label{fig:uic_mdp}
 \end{figure}
 
@@ -630,7 +630,7 @@ The architecture is illustrated in \autoref{fig:ppo-architecture}.
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/ppo-architecture.pdf}
-    \caption{PPO architecture for the UIC, with two networks for the actor and the critic.}
+    \caption{Proximal Policy Optimization (PPO) Architecture for the UIC Agent. This diagram illustrates the actor-critic neural network architecture employed by the UIC agents. The architecture consists of two separate Multi-Layer Perceptrons (MLPs): an Actor (Policy) Network and a Critic (Value) Network. The Actor network outputs the parameters (mean $\mu$ and standard deviation $\sigma$) of a Gaussian probability distribution from which a continuous incentive action is sampled. The Critic network outputs a single scalar estimate of the state-value, $V(s)$, which is used to guide the policy updates. This two-network structure is a stable and practical approach for learning policies in continuous action spaces.}
     \label{fig:ppo-architecture}
 \end{figure}
 
@@ -684,10 +684,10 @@ The PCC measures the linear correlation between the historical time series of tw
 The DTW metric, on the other hand, measures the similarity between two temporal sequences.
 \autoref{fig:irconv-neighbors} illustrates these differences between standard kernels used in CNNs and semantic neighbour kernels used in IrConv layers.
 
-\begin{figure}[H]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.8\linewidth]{content/figures/IrConv-LSTM-Neighbors.pdf}
-    \caption{Comparison of spatial neighbors used in regular convolution and semantic neighbors used in irregular convolution \cite{li_improving_2023}}
+    \caption{Comparison of Standard and Irregular Convolution Kernels. This figure contrasts the receptive fields of a standard convolutional layer with the proposed irregular convolution. Regular convolution (left) operates on a fixed grid of immediate spatial neighbors. In contrast, irregular convolution (right) operates on \textit{semantic neighbors}—zones that are not necessarily adjacent but exhibit similar historical demand patterns, as measured by metrics like Dynamic Time Warping. This approach allows the demand forecasting model to capture non-local spatial dependencies that are common in urban mobility \cite{li_improving_2023}.}
     \label{fig:irconv-neighbors}
 \end{figure}
 
@@ -709,10 +709,10 @@ This multi-component structure allows the model to learn from immediate past dat
 Each of these three parallel streams feeds its sequence of historical demand data into a block containing three consecutive Irregular Convolutional (IrConv) layers followed by a flatten layer and an LSTM layer.
 
 
-\begin{figure}[H]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.7\linewidth]{content/figures/IrConv-LSTM-Architecture.pdf}
-    \caption{Architecture of the IrConvLSTM network proposed by Li et al. \cite{li_improving_2023}}
+    \caption{Architecture of the IrConvLSTM Demand Forecasting Network. This diagram shows the architecture of the Irregular Convolutional Long Short-Term Memory (IrConvLSTM) network used for demand forecasting, adapted from Li et al. \cite{li_improving_2023}. The model processes historical demand data through three parallel streams—Closeness, Period, and Trend—which capture short-term, daily, and weekly patterns, respectively. Each stream uses a block of IrConv layers to extract spatial features and an LSTM layer to model temporal dependencies, before their outputs are fused to produce the final forecast. This multi-stream architecture enables the model to learn and integrate demand dynamics across multiple time scales simultaneously.}
     \label{fig:irconv-architecture}
 \end{figure}
 
