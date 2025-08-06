@@ -29,7 +29,7 @@ For all rounds, each trial consisted of 100 training episodes, each with a maxim
 
 \begin{enumerate}
     \item 
-        In the initial round, the hyperparameters were organized into five logical groups: Learning Rate, Architecture, Replay Buffer, Exploration Strategy, and Reward Weights.
+        In the initial round, the hyperparameters were organized into four logical groups: Learning Rate, Architecture, Replay Buffer, and Exploration Strategy.
         An independent search was conducted for each group over 50 trials, utilizing broad search spaces to identify promising regions.
     \item 
         In the second round, the search range for each hyperparameter was refined based on the initial results.
@@ -129,7 +129,7 @@ Each trial in every round was run for 50,000 timesteps.
 \begin{enumerate}
     \item 
         The initial round identified promising search areas using broad hyperparameter ranges.
-        For the first two rounds, the parameters were divided into four logical groups: PPO Core, Architecture, Stability, and Reward Weights.
+        For the first two rounds, the parameters were divided into three logical groups: PPO Core, Architecture, and Stability.
         The initial round consisted of 30 trials.
     \item 
         The second round refined the search by narrowing or expanding the parameter ranges based on the initial outcomes, following the same logic as the RDC optimization.
@@ -314,3 +314,5 @@ Minimizing the costs for rebalancing and increasing the weight for satisfied dem
 New training setup was a breakthrough with almost 10\% increase in satisfied demand by accounting for the RDC actions.
 
 \todo{Updated rebalancing logic for RDC to distribute the vehicles more evenly resulted in: }
+
+\todo{Discuss Train Test Split}
