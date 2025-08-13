@@ -3,7 +3,7 @@ This chapter details the design of the proposed rebalancing solution.
 \autoref{sec:design-data} describes the data acquisition and preprocessing, \autoref{sec:design-problem_definition} formally defines the rebalancing problem, and \autoref{sec:design-rl_framework} presents the HRL framework.
 
 \section{Data}\label{sec:design-data}
-The data underlying this thesis was collected from a General Bike Sharing Specification (GBFS) feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{mobidata_bw_gebundelte_2022}.
+The data underlying this thesis was collected from a General Bikeshare Feed Specification (GBFS)  \cite{mobilitydata_specification_2024} feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{mobidata_bw_gebundelte_2022}.
 These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations.
 This section details the collection, preprocessing, and exploratory analysis of this GBFS data used to develop such a strategy.
 
@@ -44,7 +44,7 @@ A complete list of the data fields extracted from the feed is presented in \auto
         \texttt{pricing\_plan\_id}     & Identifier for the pricing plan applicable to this rental. \\
         \bottomrule
     \end{tabularx}
-    \caption{Data Fields from the General Bikeshare Feed Specification (GBFS). This table lists and describes the data fields extracted from the raw GBFS JSON snapshots for each available e-scooter. Key attributes include the vehicle's GPS coordinates (\texttt{lat}, \texttt{lon}), its availability status (\texttt{is\_reserved}, \texttt{is\_disabled}), and its battery level (\texttt{current\_fuel\_percent}). This raw, time-series location data forms the foundation from which all pick-up and drop-off events were inferred for this study.}
+    \caption{Data Fields from the General Bikeshare Feed Specification (GBFS) \cite{mobilitydata_specification_2024}. This table lists and describes the data fields extracted from the raw GBFS JSON snapshots for each available e-scooter. Key attributes include the vehicle's GPS coordinates (\texttt{lat}, \texttt{lon}), its availability status (\texttt{is\_reserved}, \texttt{is\_disabled}), and its battery level (\texttt{current\_fuel\_percent}). This raw, time-series location data forms the foundation from which all pick-up and drop-off events were inferred for this study.}
     \label{tab:gbfs_fields}
 \end{table}
 
@@ -265,8 +265,6 @@ Operator-based rebalancing should focus on strategic rebalancing between communi
         &+ \sum_{z' \in \mathcal{Z}} Y_{z'\rightarrow z}(t) - \sum_{z' \in \mathcal{Z}} Y_{z\rightarrow z'}(t)
     \end{aligned}
 \end{equation}
-
-\todo{Consider adding a flowchart illustrating the scooter flows (demand, drop-offs, user rebalancing, operator rebalancing) into and out of a single zone }
 
 \subsection{Objective}
 

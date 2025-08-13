@@ -4,22 +4,22 @@
 \section{Motivation}
 Shared micromobility services, such as electric scooter sharing, are a large, growing part of urban and suburban mobility.
 Shared micromobility offers an ecologically friendly and convenient way to bridge short distances.
-They address the common problem of the "first and last mile gap", which describes the distance between public transport stations and the trip's origin and destination.
+They address the common problem of the \textit{first and last mile gap}, which describes the distance between public transport stations and the trip's origin and destination.
 The growing popularity of micromobility sharing services comes from their flexibility, ease of use, low environmental impacts, and the possibility of reducing private car rides.
 However, this popularity brings significant challenges for service providers aiming to maintain high service quality.
-The spatiotemporal dynamics of urban mobility, particularly the flow patterns of commuters, systematically create severe fleet imbalances within micromobility systems.
+The spatiotemporal dynamics of urban mobility, particularly the flow patterns of commuters, systematically create significant fleet imbalances within micromobility systems.
 These imbalances lead to a poor user experience, notable by the unavailability and overcrowding of vehicles in specific locations.
 To counteract these effects, operators employ rebalancing strategies.
 Rebalancing is a common approach to maintaining a balanced fleet of vehicles and, therefore, providing a high service quality.
 Rebalancing refers to the process of relocating vehicles from low-demand areas to high-demand areas to increase satisfied user demand.
-This can be achieved through two primary modes: operator-based rebalancing, where service crews manually move vehicles using trucks, and user-based rebalancing, where users are incentivized to end their trips in specific, under-supplied locations.
+This can be achieved through two primary modes: operator-based rebalancing, where service crews manually move vehicles using trucks, and user-based rebalancing, where users are incentivized to start or end their trips at specific, over- or under-supplied locations.
 Effectively managing these strategies is critical to maximizing vehicle availability, user satisfaction, and keeping operational costs low.
 
 
 
 \section{Research Gap and Objectives}
 Various rebalancing methods exist, but current approaches suffer from significant limitations.
-Traditional strategies based on mathematical optimization and simple heuristics often depend on highly abstracted simulation environments and demand models.
+Traditional strategies based on mathematical optimization and heuristics often depend on highly abstracted simulation environments and demand models.
 Demand can peak unexpectedly due to public events or similar, which static rebalancing strategies can not account for.
 This makes such approaches slow to adapt to the highly dynamic nature of urban mobility.
 Additionally, such strategies struggle to scale for large real-world systems.
@@ -33,7 +33,7 @@ Furthermore, many RL rebalancing strategies focus on either city-wide or local n
 This thesis addresses these identified research gaps by proposing an integrated system that combines both rebalancing modes.
 The primary objectives of this work are:
 \begin{goal}\label{goal:design}
-    Design a Hierarchical Reinforcement Learning (HRL) framework that integrates operator-based and user-based rebalancing by decomposing the problem into spatially and functionally distinct sub-problems.
+    Design a Hierarchical Reinforcement Learning (HRL) framework that integrates operator- and user-based rebalancing by decomposing the problem into spatially and functionally distinct sub-problems.
 \end{goal}
 \begin{goal}\label{goal:implementation}
     Implement the designed HRL framework by developing agents with specific RL algorithms and creating a custom simulation environment driven by real-world demand data.
@@ -45,10 +45,10 @@ The primary objectives of this work are:
 
 
 \section{Structure}
-The remainder of this thesis is structured as follows.
+The remainder of this thesis is structured as follows:
 \autoref{sec:background} introduces the key foundations for fleet optimization in a dynamic context.
-\autoref{sec:related-work} surveys related works on optimizing shared micromobility services through rebalancing algorithms.
-\autoref{sec:design} describes the available data for this study, details the simulation environment built to test and evaluate different rebalancing algorithms, presents different rebalancing algorithms, and formulates baselines and metrics for evaluation of the proposed algorithms.
-\autoref{sec:implementation} focuses on the implementation details of the simulation framework and rebalancing algorithms.
-\autoref{sec:evaluation} presents and discusses the results from evaluating the different rebalancing algorithms.
+\autoref{sec:related-work} surveys related work on optimizing shared micromobility services through rebalancing algorithms.
+\autoref{sec:design} describes the available data for this study, defines the rebalancing problem for a combined user- and operator-based rebalancing system, and details the design choices of the proposed HRL framework.
+\autoref{sec:implementation} focuses on the implementation details of the core components of the proposed rebalancing framework.
+\autoref{sec:evaluation} details the hyperparameter optimization conducted for the RL agents and presents and discusses the results of evaluating the HRL framework against multiple baselines.
 Lastly, \autoref{sec:conclusion} summarizes the key findings of this thesis and provides recommendations for future work in this research area.

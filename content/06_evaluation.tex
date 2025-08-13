@@ -1,5 +1,5 @@
 \chapter{Evaluation}\label{sec:evaluation} % approx. 14 pages
-The following chapter details the experimental setup used for evaluation, the hyperparameter optimization for the RDC and UIC agents, and the 
+The following chapter details the experimental setup used for evaluation, the hyperparameter optimization for the RDC and UIC agents, and the discussion of the final results.
 
 
 \section{Hyperparameter Optimization}\label{sec:evaluation-ho}
@@ -21,7 +21,15 @@ To ensure reproducibility, all optimization runs were seeded.
 As HO is computationally intensive, the process was parallelized across multiple jobs.
 Furthermore, demand forecasts were pre-calculated to reduce computation time. The remainder of this section details the specific HO processes for the RDC and UIC agents.
 
-\newpage
+\paragraph{Reward Weight Optimization}
+Initial experiments in which the reward weights themselves were included in the HO process consistently led to undesirable agent behaviors.
+Both RDC and UIC agents learned to adopt passive strategies, as avoiding rebalancing entirely was the most effective way to achieve a high reward under automatically discovered weight configurations.
+This behavior directly conflicted with the intended operational goals.
+To address this, the reward weights were determined manually through targeted short-run experiments with different weight configurations.
+This manual tuning ensured that the reward structure encouraged active rebalancing while balancing the trade-offs between demand satisfaction, operational costs, and fleet balance.
+Furthermore, identical reward weights were selected for both the RDC and UIC agents to align their objectives and prevent them from working at cross-purposes during joint operation.
+The final chosen weights are documented in \autoref{tab:rdc_final_hyperparameters} and \autoref{tab:uic_final_hyperparameters}.
+
 \subsection{Regional Distribution Coordinator (RDC)}\label{sec:evaluation-ho-rdc}
 The RDC agent, based on a Multi-head Deep Q-Network (MH-DQN) architecture with Prioritized Experience Replay (PER), has 17 distinct hyperparameters.
 To manage this complexity, a three-round coarse-to-fine optimization strategy was adopted.
@@ -87,7 +95,6 @@ While good results are possible at other sizes, the smallest (64) and largest (1
 The resulting optimal hyperparameter configuration is presented in \autoref{tab:rdc_final_hyperparameters}.
 Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:rdc_hyperparameters_description}), while the search spaces for each optimization round are defined in the appendix (\cref{tab:rdc_ho_first_round,tab:rdc_ho_second_round,tab:rdc_ho_final_round}).
 
-\todo{Add that Reward Weights were choosen manually due to poor results regarding the actual objective}
 \begin{table}[!htb]
     \centering
     \begin{tabularx}{\textwidth}{lXl}
@@ -139,12 +146,12 @@ Each trial in every round was run for 50,000 timesteps.
         To account for the increase in complexity, the final round consisted of 100 trials.
 \end{enumerate}
 
-The aggreagated optimization process is illustrated by \autoref{fig:ho-uic-history}.
+The aggregated optimization process is illustrated by \autoref{fig:ho-uic-history}.
 Each blue point corresponds to an individual trial, and the solid red line tracks the best-performing trial of each run.
-It clearly shows a benefit of doing such a three round hyperparameter optimization strategy.
-UNlike the RDC, the UIC's optimization history displays a distinct step-wise improvement.
-This step-wise improvement, indicated by the solid red line, suggests that the PPO agent is more sensitive to specific paramter configurations.
-This phenomenom is likely due to the less manual optimization before running the HO process.
+It clearly demonstrates the benefits of employing a three-round hyperparameter optimization strategy.
+Unlike the RDC, the UIC's optimization history displays a step-wise improvement pattern, although the steps are less pronounced in the later stages.
+This suggests that while the PPO agent is sensitive to specific parameter configurations, gains beyond certain thresholds become increasingly incremental.
+This phenomenon is likely due to the reduced amount of manual tuning before running the HO process compared to the RDC.
 
 \begin{figure}[!htb]
     \centering
@@ -156,27 +163,24 @@ This phenomenom is likely due to the less manual optimization before running the
 
 \autoref{fig:ho-uic-focused-slice} dives deeper into the analysis of the HO process of the UIC agent.
 The top four most relevant parameters have been selected similarly to the process done for the RDC agent (see \autoref{sec:evaluation-ho-rdc}).
-The plots show that the performance of the agent is strongly correlated to the learning rate, where lower values ($[1e^{-6}, 1e^{-5}]$) resulted in an increase in performance.
-The \texttt{UIC\_n\_steps} parameter, that controls the number of experiences the agent observes before performing and update, has a sweet-spot at 1024 steps, which provide the agent the optimal amount of data to learn from.
-For the \texttt{UIC\_gamma} parameter a strong trend showing that higher values around 0.91 and 0.96 leading to better performance.
-This finding suggests that the UIC agent should behave far-sighted to effectively find an optimal rebalancing problem.
-Higher gamma values prioritized long-term rewards, which suggest that the agent prefers to optimized the overall fleet distribution on the long run instead of optimizing current vehicle shortages.
-The \texttt{UIC\_ent\_coef} that controls the agent's exlporation-exploitation trade-off, shows a clear pattern where the best performing values are all concentrated at the lower bounds (below 0.002).
-This suggests that the agent rather quickly finds a good policy that the agent tries to exploit fast instead of focusing on much exploration of the search space.
-This also means that only a tiny amount of entropy is needed to prevent the agent from getting stuck in suboptimal policies.
+The plots show that the agent's performance is strongly correlated with the learning rate, with competitive results achieved in a range between $1\mathrm{e}{-5}$ and $1\mathrm{e}{-4}$.
+For the \texttt{UIC\_n\_steps} parameter, most high-performing trials cluster around 512 steps, with another more minor concentration at the maximum value of 2048 steps.
+This pattern suggests two distinct but viable learning regimes: more frequent parameter updates with smaller batches or less frequent updates with larger batches that provide a more comprehensive gradient estimate.
+The \texttt{UIC\_gamma} parameter shows a clear and consistent trend toward higher values, with the best results approaching 1.0.
+This indicates that the agent benefits from strongly prioritizing long-term rewards, enabling it to optimize the overall fleet distribution over extended horizons rather than reacting only to immediate shortages.
+Finally, the \texttt{UIC\_ent\_coef}, which controls the exploration–exploitation trade-off, indicates that most of the best-performing configurations are concentrated near the lower bound (below 0.0002).
+This suggests that only a minimal entropy bonus is needed to prevent convergence to suboptimal strategies, allowing the agent to quickly exploit promising policies once they are discovered.
 
-\todo{update paragraph describing the updated plots}
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_focused_slice_plot.png}
-    \caption{Focused Slice Plot of Critical UIC Hyperparameters. This figure displays slice plots for the four most critical hyperparameters for the PPO-based UIC agent: learning rate (\texttt{UIC\_lr}), number of steps (\texttt{UIC\_n\_steps}), discount factor (\texttt{UIC\_gamma}), and entropy coefficient (\texttt{UIC\_ent\_coef}). The plots show the objective value achieved for each value of a given hyperparameter across all trials. These visualizations clearly indicate optimal regions, such as a preference for low learning rates, a high discount factor, and a small entropy bonus, confirming that the agent benefits from stable updates and a far-sighted policy with minimal forced exploration.}
+    \caption{Focused Slice Plot of Critical UIC Hyperparameters. This figure displays slice plots for the four most critical hyperparameters for the PPO-based UIC agent: learning rate (\texttt{UIC\_lr}), number of steps (\texttt{UIC\_n\_steps}), discount factor (\texttt{UIC\_gamma}), and entropy coefficient (\texttt{UIC\_ent\_coef}). The plots show the objective value achieved for each value of a given hyperparameter across all trials. These visualizations clearly indicate optimal regions, such as a preference for moderately low learning rates, a high discount factor close to~1.0, specific step sizes around 512 or 2048, and a very small entropy bonus, confirming that the agent benefits from stable updates, long-term planning, and minimal forced exploration.}
     \label{fig:ho-uic-focused-slice}
 \end{figure}
 
 
 The resulting optimal hyperparameter configuration for the UIC agent is presented in \autoref{tab:uic_final_hyperparameters}.
 Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:uic_hyperparameters_description}), while the search spaces used are defined in the appendix (\cref{tab:uic_ho_first_round,tab:uic_ho_second_round,tab:uic_ho_final_round}).
-\todo{Add that Reward Weights were choosen manually due to poor results regarding the actual objective}
 
 \begin{table}[!htb]
     \centering
@@ -184,24 +188,24 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
         \toprule
         Parameter & Description & Final Value \\
         \midrule
-        \texttt{UIC\_lr}                    & Optimizer learning rate.                  & $2.057 \times 10^{-6}$ \\
-        \texttt{UIC\_n\_steps}              & Rollout buffer size per update.           & $1024$ \\
+        \texttt{UIC\_lr}                    & Optimizer learning rate.                  & $2.124 \times e^{-5}$ \\
+        \texttt{UIC\_n\_steps}              & Rollout buffer size per update.           & $512$ \\
         \texttt{UIC\_batch\_size}           & Minibatch size for gradient updates.      & $32$ \\
-        \texttt{UIC\_clip\_range}           & PPO policy update clipping range.         & $0.2$\\
-        \texttt{UIC\_ent\_coeff}            & Entropy bonus weight for exploration.     & $0.000112$\\
-        \texttt{UIC\_vf\_coeff}             & Value function loss weight.               & $0.413$\\
+        \texttt{UIC\_clip\_range}           & PPO policy update clipping range.         & $0.26$\\
+        \texttt{UIC\_ent\_coeff}            & Entropy bonus weight for exploration.     & $0.00016$\\
+        \texttt{UIC\_vf\_coeff}             & Value function loss weight.               & $0.68$\\
         \midrule
-        \texttt{UIC\_gamma}                 & Reward discount factor.                   & $0.936$ \\
-        \texttt{UIC\_gae\_lambda}           & Lambda parameter for GAE                  & $0.902$ \\
-        \texttt{UIC\_target\_kl}            & Target KL divergence for policy updates.  & $0.022$\\
+        \texttt{UIC\_gamma}                 & Reward discount factor.                   & $0.963$ \\
+        \texttt{UIC\_gae\_lambda}           & Lambda parameter for GAE                  & $0.95$ \\
+        \texttt{UIC\_target\_kl}            & Target KL divergence for policy updates.  & $0.02$\\
         \midrule
         \texttt{UIC\_num\_hidden\_layers}   & Number of network hidden layers.          & $3$\\
-        \texttt{UIC\_hidden\_size}          & Neurons per hidden layer.                 & $128$ \\
-        \texttt{UIC\_activation\_fn}        & Hidden layer activation function.         & ReLU \\
+        \texttt{UIC\_hidden\_size}          & Neurons per hidden layer.                 & $256$ \\
+        \texttt{UIC\_activation\_fn}        & Hidden layer activation function.         & LeakyReLU \\
         \midrule
-        \texttt{UIC\_weight\_demand}        & Satisfied demand weight                   & $0.5$ \\
-        \texttt{UIC\_weight\_cost}          & Rebalancing cost weight                   & $1.5$ \\
-        \texttt{UIC\_weight\_gini}          & Gini index penalty weight                 & $0.0$ \\
+        \texttt{UIC\_weight\_demand}        & Satisfied demand weight                   & $7.0$ \\
+        \texttt{UIC\_weight\_cost}          & Rebalancing cost weight                   & $0.2$ \\
+        \texttt{UIC\_weight\_gini}          & Gini index penalty weight                 & $7.0$ \\
         \bottomrule
     \end{tabularx}
     \caption{Final Optimized Hyperparameter Configuration for the UIC. This table displays the final, optimized hyperparameter values for the UIC agents. The configuration was identified through a systematic, multi-round hyperparameter search. These settings were applied to all UIC agents used in the final evaluation experiments.}
@@ -211,16 +215,16 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
 \section{Experimental Setup}\label{sec:evaluation-setup}
 Fleet sizes for the experiments have been determined by the mean number of vehicles available based on the collected GBFS snapshots.
 For training and hyperparameter optimization, this fleet size was reduced to 90\% to allow the agents to learn from more experiences with vehicle undersupply.
-For the final evaluation, three different fleet sizes were used to test the robustness: the mean fleet size (100\%), an undersupply scenario (80\%), and an oversupply scenario (1290\%).
+For the final evaluation, three different fleet sizes were used to test the robustness: the mean fleet size (100\%), an undersupply scenario (67\%), and an oversupply scenario (133\%).
 Evaluating the models under these varied conditions ensures a more comprehensive assessment of their performance in both oversupply and undersupply situations.
 
 
 \subsection{Evaluation Metrics}\label{sec:evaluation-setup-metrics}
-To quantitatively compare the performance of the different rebalancing strategies developed by HRL framework an by the baselines, the following metrics are used:
+To quantitatively compare the performance of the different rebalancing strategies developed by the HRL framework and the baselines, the following metrics are used:
 
 \begin{itemize}
     \item \textbf{Satisfied Demand Ratio:} 
-        This is the primary metric for evaluating the service quality and user satisfaction.
+        The primary metric for evaluating the service quality and user satisfaction.
         This ratio is defined as the percentage of total user trip requests that were successfully served, as formulated in \autoref{eq:problem-definition-satisfied-demand-ratio}.
         A higher Satisfied Demand Ratio indicates a more effective rebalancing strategy.
     \item \textbf{Manual Rebalancing Costs:}
@@ -269,50 +273,121 @@ The third baseline is a greedy heuristic designed to test whether the HRL approa
 
 \section{Results and Analysis}
 This section presents the performance evaluation of the proposed Hierarchical Reinforcement Learning (HRL) framework.
-The framework is compared against the three previously defined baselines across the three fleet size scenarios to assess its effectiveness and robustness.
-The results are analyzed to validate the design choices of the hierarchical architecture and to understand the trade-offs between satisfying user demand and the associated rebalancing costs.
+The results are analyzed to validate the design choices of the hierarchical architecture and to understand the trade-offs between satisfying user demand, the associated costs of rebalancing, and fleet equity.
 
+The experiments follow the design described in \autoref{sec:evaluation-setup}.
+Each model–fleet size configuration was evaluated over 20 independent runs to account for stochasticity in the simulation environment and learning process.
+The analysis covers all five models introduced in \autoref{sec:evaluation-setup-baselines} across the three fleet size scenarios: 600, 900, and 1200 vehicles.
+Performance is assessed using the four evaluation metrics defined in \autoref{sec:evaluation-setup-metrics}.
+
+\subsection{Performance Summary}
 A comprehensive summary of the evaluation results across all scenarios and models is presented in \autoref{tab:full_results_summary}.
-The subsequent sections provide a detailed analysis of these findings.
+Best values for each metric and fleet size scenario are highlighted in bold in the table.
 
 \begin{table}[!htb]
     \centering
     \begin{tabularx}{\textwidth}{lXXXX}
         \toprule
-        \textbf{Configuration} & \textbf{Mean Satisfied Demand} & \textbf{Manual Rebal Cost} & \textbf{Incentive Rebal Cost} & \textbf{Mean Gini Index} \\
-        \midrule
-        \multicolumn{5}{l}{\textit{Fleet Size: 900 (100\%)}} \\
-        HRL Both Enabled & [0.8308] & [10.05] & [6.41] & [0.2861] \\
-        HRL Manual Only & [0.8454] & [9.93] & [0.0] & [0.2787] \\
-        HRL Incentive Only & [0.7876] & [0.0] & [1.9] & [0.3925] \\
-        No Rebalancing & [0.7878] & [0.0] & [0.0] & [0.4173] \\
-        Greedy Heuristic & [0.7995] & [0.02] & [20.76] & [0.3978] \\
+        \textbf{Configuration} & \textbf{Satisfied Demand Ratio} & \textbf{Manual Rebalancing Cost} & \textbf{Incentive Rebalancing Cost} & \textbf{Gini Coefficient} \\
         \midrule
         \multicolumn{5}{l}{\textit{Fleet Size: 600 (67\%)}} \\
-        HRL Both Enabled & [0.5355] & [2.7] & [1.3] & [0.6942] \\
-        HRL Manual Only & [0.5545] & [2.7] & [0.0] & [0.6717] \\
-        HRL Incentive Only & [0.7177] & [0.0] & [1.4] & [0.4025] \\
-        No Rebalancing & [0.6860] & [0.0] & [0.0] & [0.4655] \\
-        Greedy Heuristic & [0.7041] & [0.1225] & [25.95] & [0.4383] \\
+        HRL Both Enabled & [0.4702] & [5.204] & [53.89] & [0.6694] \\
+        HRL Manual Only & [\textbf{0.7176}] & [6.658] & [\textbf{0}] & [\textbf{0.3644}] \\
+        HRL Incentive Only & [0.4957] & [\textbf{0}] & [54.56] & [0.6946] \\
+        No Rebalancing & [0.6956] & [\textbf{0}] & [\textbf{0}] & [0.4701] \\
+        Greedy Heuristic & [0.6849] & [0.2457] & [46.28] & [0.4346] \\
+        \midrule
+        \multicolumn{5}{l}{\textit{Fleet Size: 900 (100\%)}} \\
+        HRL Both Enabled & [0.5985] & [3.919] & [55.45] & [0.6052] \\
+        HRL Manual Only & [\textbf{0.8385}] & [7.485] & [\textbf{0}] & [\textbf{0.2971}] \\
+        HRL Incentive Only & [0.5401] & [\textbf{0}] & [55.8] & [0.6835] \\
+        No Rebalancing & [0.7972] & [\textbf{0}] & [\textbf{0}] & [0.4059] \\
+        Greedy Heuristic & [0.7876] & [0.02] & [35.76] & [0.3807] \\
         \midrule
         \multicolumn{5}{l}{\textit{Fleet Size: 1200 (133\%)}} \\
-        HRL Both Enabled & [0.8001] & [2.2] & [3.5] & [0.6381] \\
-        HRL Manual Only & [0.9048] & [9.74] & [0.0] & [0.2457] \\
-        HRL Incentive Only & [0.8115] & [0.0] & [2.6] & [0.3738] \\
-        No Rebalancing & [0.8641] & [0.0] & [0.0] & [0.3766] \\
-        Greedy Heuristic & [0.8740] & [0.01] & [16.82] & [0.3503] \\
+        HRL Both Enabled & [0.6501] & [4.825] & [55.74] & [0.5806] \\
+        HRL Manual Only & [\textbf{0.892}] & [7.153] & [\textbf{0}] & [\textbf{0.2804}] \\
+        HRL Incentive Only & [0.5696] & [\textbf{0}] & [56.21] & [0.6647] \\
+        No Rebalancing & [0.8611] & [\textbf{0}] & [\textbf{0}] & [0.3632] \\
+        Greedy Heuristic & [0.8548] & [\textbf{0}] & [27.16] & [0.3478] \\
         \bottomrule
     \end{tabularx}
-    \caption{Summary of Evaluation Results Across All Models and Fleet Size Scenarios. This table presents the comprehensive performance comparison of the full HRL framework and the four baselines across three distinct fleet size scenarios: balanced (100\%), undersupply (67\%), and oversupply (133\%). Performance is measured using four key metrics: Mean Satisfied Demand Ratio, Manual Rebalancing Cost, Incentive Rebalancing Cost, and the Mean Gini Index. These results provide a quantitative basis for analyzing the efficacy, cost-effectiveness, and robustness of the proposed hierarchical approach compared to simpler strategies.}
+    \caption{Summary of Evaluation Results Across All Models and Fleet Size Scenarios. This table presents the comprehensive performance comparison of the full HRL framework and the four baselines across three distinct fleet size scenarios: balanced (100\%), undersupply (67\%), and oversupply (133\%). Performance is measured using four key metrics: Satisfied Demand Ratio, Manual Rebalancing Cost, Incentive Rebalancing Cost, and the Gini Coefficient. These results provide a quantitative basis for analyzing the efficacy, cost-effectiveness, and robustness of the proposed hierarchical approach compared to simpler strategies.}
     \label{tab:full_results_summary}
 \end{table}
 
+\subsection{Metric-Specific Analysis}
+Each evaluation metric is examined individually before considering cross-metric trade-offs.
 
-\todo{Reward weights from HO resulted in poor performance, agents were passive which the weights rewarded highly}
+
+\subsubsection{Satisfied Demand Ratio}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/eval-bars-sdr.png}
+    \caption{}
+    \label{fig:eval-bars-sdr}
+\end{figure}
+
+\subsubsection{Gini Coefficient}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/eval-bars-gini.png}
+    \caption{}
+    \label{fig:eval-bars-gini}
+\end{figure}
+
+\subsubsection{Manual Rebalancing Costs}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/eval-bars-manual.png}
+    \caption{}
+    \label{fig:eval-bars-manual}
+\end{figure}
+
+\subsubsection{Incentive Rebalancing Costs}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/eval-bars-incentives.png}
+    \caption{}
+    \label{fig:eval-bars-incentive}
+\end{figure}
+
+
+\subsection{Metric Trade-offs}
+Cross-metric relationships are examined to assess efficiency and fairness trade-offs.
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/eval-scatter-sdr-gini.png}
+    \caption{}
+    \label{fig:eval-scatter-sdr-gini}
+\end{figure}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/eval-scatter-sdr-manual.png}
+    \caption{}
+    \label{fig:eval-scatter-sdr-manual}
+\end{figure}
+
+\subsection{Fleet Size Robustness}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/eval-lines-sdr.png}
+    \caption{}
+    \label{fig:eval-lines-sdr}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\linewidth]{content/figures/eval-box-sdr.png}
+    \caption{}
+    \label{fig:eval-box-sdr}
+\end{figure}
+
+
+\subsection{Key Findings}
+
 Minimizing the costs for rebalancing and increasing the weight for satisfied demand resulted in positive results. With only a few rebalancing operations the satisfied demand resulted in much better performance.
 \todo{Training UICs with active RDC operating in the simulation resulted in drastically better performance}
 New training setup was a breakthrough with almost 10\% increase in satisfied demand by accounting for the RDC actions.
 
-\todo{Updated rebalancing logic for RDC to distribute the vehicles more evenly resulted in: }
-
-\todo{Discuss Train Test Split}
+\todo{Updated rebalancing logic for RDC to distribute the vehicles more evenly resulted in better performance}

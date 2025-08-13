@@ -47,7 +47,8 @@ The rebalancing problem is formulated as an Integer Linear Programming (ILP) mod
 This ILP model aims to identify optimal routes for service workers to allocate e-scooters.
 A generalized cost function is introduced based on the driving distance, pick-up and drop-off costs, and penalties for unmet demand and overcrowding. 
 The algorithm accounts for various e-scooter states, including low battery levels to trigger recharging, faulty e-scooters that require replacement, and usable e-scooters available for rebalancing. 
-For small-scale problems, the ILP is solved using the GNU Linear Programming Kit (GLPK), whereas more significant problems are addressed using a hybrid Ant Colony Optimization–ILP (ACO–ILP) algorithm. 
+For small-scale problems, the ILP is solved using the GNU Linear Programming Kit (GLPK).
+In contrast, more complex problems are addressed using a hybrid Ant Colony Optimization–ILP (ACO–ILP) algorithm. 
 This hybrid approach comprises two stages. 
 The ACO generates promising routes during the initial stage based on pheromone trails and visibility factors. 
 In the following stage, the ILP solver optimizes the pick-up and drop-off operations.
@@ -76,7 +77,7 @@ A comprehensive comparison with other rebalancing algorithms from prior research
 
 Rebalancing algorithms employing mathematical optimization techniques primarily concentrate on operator-based rebalancing, particularly addressing the routing problem of service vehicles.
 These approaches frequently encounter challenges with larger sharing systems, leading much of the research to employ simplified representations of the sharing system or to focus solely on a subset of the operational area.
-Problem formulation is commonly achieved using MILP or Linear Programming (LP), subsequently solved by algorithms such as Branch and Bound (BB), Interior Point Method (IPM), Coin-or Branch and Cut (CBC), or similar techniques.
+Problem formulation is commonly achieved using MILP or LP, subsequently solved by algorithms such as Branch and Bound (BB), Interior Point Method (IPM), Coin-or Branch and Cut (CBC), or similar techniques.
 Some research combines traditional solving algorithms with heuristics, thereby enabling the enhancement of problem definitions for more complex models.
 However, these methods are often constrained by their reliance on static demand forecasts, simplified system representations, and fixed rebalancing intervals.
 These limitations consequently restrict the scalability and responsiveness of such systems to real-time demand fluctuations.
@@ -112,7 +113,7 @@ The rebalancing problem is decomposed into two subproblems, one for intra-zone r
 In the first phase, which focuses on intra-zone rebalancing, the algorithm determines pick-up and drop-off locations based on the current number of available bikes and the expected demand for the next day. 
 This is done for each zone, treating the geometric center of the zone as the pick-up and drop-off points as a Traveling Salesman Problem (TSP) that ACO solves. 
 The second phase addresses the routing of service vehicles between these zones, where ACO is again employed to determine the optimal path.
-While this two-phase algorithm provides a robust mechanism for fleet reallocation, the authors acknowledge its significant computational intensity.
+While this two-phase algorithm provides a robust mechanism for fleet rebalancing, the authors acknowledge its significant computational intensity.
 The authors suggest that the high computational time demonstrated on high-end servers may pose a significant challenge when scaling the system to larger urban areas or integrating extended datasets.
 Another limitation of this rebalancing approach is its extensive reliance on static parameter settings, such as the acceptable walking distance or demand rate.
 This use of static values reduces the framework's ability to adapt to the dynamic fluctuations characteristic of real-world micromobility services.

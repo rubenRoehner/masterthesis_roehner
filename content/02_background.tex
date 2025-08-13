@@ -8,7 +8,7 @@ The chapter is structured as follows:
 Finally, \autoref{sec:background-mathematical_optimization} presents traditional mathematical optimization techniques. 
 
 \section{Micromobility Sharing Services}\label{sec:background-mss}
-Shared micromobility is a transportation service offering users short-term rentals of light vehicles, such as electric scooters (e-scooters) and electric bikes (e-bikes), within a defined operational area
+Shared micromobility is a transportation service offering users short-term rentals of light vehicles, such as electric scooters (e-scooters) and electric bikes (e-bikes), within a defined operational area.
 Micromobility sharing services offer customers a flexible and environmentally friendly alternative to traditional individual transportation.
 Due to their compactness, motor assistance, and sufficient speed for urban travel, e-scooters and e-bikes have become the predominant vehicles for these services \cite{liao_electric_2022}. 
 
@@ -17,7 +17,7 @@ E-scooters are typically used for shorter journeys, averaging around 1.8 kilomet
 
 From an environmental perspective, e-scooters and e-bikes offer a promising path toward reducing urban carbon emissions and air pollution, especially when powered by renewable energy.
 Recent studies in the United States have shown that private electric scooters have replaced approximately 34\% of car trips, while electric bicycles have replaced between 5\% and 17\% of such trips \cite{liao_electric_2022}.
-The high substitution rates observed for private electric micro-mobility suggest that the deployment of shared micro-mobility services can effectively encourage a modal shift from high-emission automobile travel to low-emission shared micro-mobility alternatives.
+The high substitution rates observed for private electric micro-mobility suggest that the deployment of shared micro-mobility services can effectively encourage a modal shift from high-emission automobile travel to low-emission shared micromobility alternatives.
 
 The commercial success of a micromobility sharing service is closely tied to user satisfaction, which depends on vehicle availability.
 Vehicle availability defines whether a trip request can be served or not.
@@ -45,11 +45,10 @@ In terms of scheduling rebalancing operations, these strategies are broadly cate
     Additionally, this approach requires continuous data collection and more advanced rebalancing strategies.
 \end{itemize}
 
-Hybrid schemes can combine the benefits of both, balancing operational costs and flexibility by utilizing both static and dynamic rebalancing \cite{jaber_preferences_2023}.
 The two predominant methods for executing these strategies, user-based and operator-based rebalancing, are discussed in the following sections.
 
 \subsubsection{User-based Rebalancing}
-User-based rebalancing leverages service users to perform rebalancing tasks.
+User-based rebalancing leverages users to perform rebalancing tasks.
 Operators typically incentivize users, often with discounts or credits, to pick-up or drop-off vehicles at specific locations that help balance the fleet.
 This method is cost-effective, but its efficacy is constrained by the users' willingness to adjust their routes in response to incentives.
 Therefore, the operator's control over the outcome of user-based rebalancing is indirect and limited \cite{emami_integrated_2024}.
@@ -64,11 +63,11 @@ Typically, a combined approach creates efficient and robust solutions, but needs
 
 \section{Reinforcement Learning (RL)}\label{sec:background-reinforcement_learning}
 Reinforcement Learning (RL) is a machine learning paradigm in which an agent learns to make optimal decisions through sequential interactions with an environment.
-At each discrete time step, the agent observes the environment's state, selects an action from an available set, and receives a numerical reward as feedback.
+At each discrete time step $t$, the agent observes the environment's state $\mathcal{S}$, selects an action from an available set $\mathcal{A}$, and receives a numerical reward $R$ as feedback.
 The agent's objective is to maximize the cumulative reward, or return, over time.
 This learning process is guided by a policy, denoted as $\pi$, which is a strategy that maps states to actions \cite{zhang_dive_2023}.
 Through a process of trial and error, the agent iteratively refines its policy to discover which actions yield the most reward in particular states.
-The fundamental agent-environment interaction loop is illustrated in \autoref{fig:mdp-diagram}.
+The agent-environment interaction loop is illustrated in \autoref{fig:mdp-diagram}.
 
 \subsection{Markov Decision Process (MDP) and Dynamic Programming (DP)}\label{sec:background-reinforcement_learning-mdp}
 A fundamental framework in the field of RL is the Markov Decision Process (MDP).
@@ -91,7 +90,7 @@ DP is a technique for solving complex models by dividing the problem into multip
 \begin{figure}
     \centering
     \includegraphics[width=.9\linewidth]{content/figures/Markov_diagram.png}
-    \caption{The Reinforcement Learning Agent-Environment Interaction Loop. This diagram illustrates the fundamental cycle of a Markov Decision Process (MDP). At each discrete time step $t$, the agent observes the environment's current state ($S_t$) and selects an action ($A_t$). In response, the environment transitions to a new state ($St+1$) and provides a numerical reward ($R_{t+1}$) to the agent. This feedback loop forms the basis of trial-and-error learning, as the agent's objective is to learn a policy that maximizes the cumulative reward over time \cite{sutton_reinforcement_2018}.}
+    \caption{The Reinforcement Learning Agent-Environment Interaction Loop. This diagram illustrates the fundamental cycle of a Markov Decision Process (MDP). At each discrete time step $t$, the agent observes the environment's current state ($\mathcal{S}_t$) and selects an action ($\mathcal{A}_t$). In response, the environment transitions to a new state ($\mathcal{S}_{t+1}$) and provides a numerical reward ($R_{t+1}$) to the agent. This feedback loop forms the basis of trial-and-error learning, as the agent's objective is to learn a policy that maximizes the cumulative reward over time \cite{sutton_reinforcement_2018}.}
     \label{fig:mdp-diagram}
 \end{figure}
 
@@ -103,7 +102,7 @@ This assumption significantly simplifies the modeling process by ensuring that t
 Key functions for solving MDPs are the state-value function presented in equation \ref{eq:state-value-function} and the action-value function presented in equation \ref{eq:action-value-function} \cite{zhang_dive_2023}.
 
 The state-value function represents the expected reward of being in state $s$ and following the policy $\pi$.
-The action-value function, on the other hand, represents the expected reward of being in state $s$ doing the action $a$ and then acting to follow the policy $\pi$ \cite{zhang_dive_2023}.
+The action-value function, on the other hand, represents the expected reward of being in state $s$ performing the action $a$ and then acting to follow the policy $\pi$ \cite{zhang_dive_2023}.
 
 \begin{equation}\label{eq:state-value-function}
 v_\pi(s) = \mathbb{E}_\pi\left[\sum_{k=0}^{\infty} \gamma^k R_{t+k+1} \,\middle|\, S_t = s \right]
@@ -118,7 +117,7 @@ Here, $\gamma \in [0, 1]$ is the discount factor, which balances the importance 
 \subsubsection{Bellman Equations}
 The previously defined state-value and action-value functions accurately describe the rewards associated with a given state, policy, and action.
 However, solving these equations directly is computationally complex and requires a complete model of the environment's dynamics ($\mathcal{P}$ and $\mathcal{R}$), which is often unavailable.
-Therefore, the Bellman equations describe an iterative approach for calculating the state-value function (see equation \ref{eq:bellman-state-value-function}) and the action-value function(see equation \ref{eq:bellman-action-value-function}) \cite{zhang_dive_2023}.
+Therefore, the Bellman equations describe an iterative approach for calculating the state-value function (see equation \ref{eq:bellman-state-value-function}) and the action-value function (see equation \ref{eq:bellman-action-value-function}) \cite{zhang_dive_2023}.
 They decompose the value of a state or state-action pair into the sum of the immediate reward and the discounted value of the successor states.
 This recursive property is fundamental to many RL algorithms \cite{zhang_dive_2023}.
 
@@ -134,7 +133,8 @@ q_\pi(s, a) = \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \ga
 Dynamic Programming employs two main algorithms to solve MDPs: policy iteration and value iteration.
 They utilize the previously defined Bellman Equations and their recursive approach.
 Policy Iteration alternates between the two steps: Policy Evaluation and Policy Improvement \cite{zhang_dive_2023}.
-Policy Evaluation estimates how good the policy is in every state; therefore, the State-Value function (see equation \ref{eq:bellman-state-value-function}) is calculated for the current policy $\pi$ for every state.
+Policy Evaluation estimates the effectiveness of the policy in every state.
+Therefore, the State-Value function (see equation \ref{eq:bellman-state-value-function}) is calculated for the current policy $\pi$ for every state.
 After evaluating the current policy, the next step is to improve it, which is done by solving the equation \ref{eq:policy-improvement}.
 
 \begin{equation}\label{eq:policy-improvement}
@@ -177,7 +177,7 @@ Numerous algorithms have been developed for MAB agents to balance exploration an
 The $\varepsilon$-greedy algorithm is a relatively straightforward approach to strike a balance between exploration and exploitation.
 The agent chooses a random arm with the probability of $\varepsilon$.
 In the other cases, e.g., $1-\varepsilon$, the agent exploits the current best arm, which has the highest estimated reward.
-The algorithm is presented in equation \ref{eq:epsilon-greedy} \cite{sutton_reinforcement_2018}.
+The algorithm is presented in equation \ref{eq:epsilon-greedy} \cite{sutton_reinforcement_2018}, where $c$ controls the trade-off between exploration and exploitation.
 
 \begin{equation}\label{eq:epsilon-greedy}
 A_t =
@@ -227,7 +227,7 @@ This second network, the target network, can compute Q-learning target values.
 These targets are computed after several iterations, which reduces fluctuations in these targets and stabilizes training \cite{hasselt_deep_2016}.
 
 \subsection{Policy Gradient Methods}\label{sec:background-reinforcement_learning-pgm}
-In contrast to Value-based methods, such as Q-Learning, which estimate the optimal value function and derive it from their policy, policy gradient methods directly optimize the policy.
+In contrast to value-based methods, such as Q-Learning, which estimate the optimal value function and derive it from their policy, policy gradient methods directly optimize the policy.
 Therefore, these methods utilize a parameterized policy whose parameters, $\theta$, are iteratively updated to maximize rewards.
 A performance measure is introduced to update these policy parameters, representing the actual value function for the policy $\pi_\theta$.
 This performance function $J(\theta)$ is then differentiated by the policy parameters $\theta$ and can be used to update the policy in such a way as to optimize the value function and maximize rewards.
@@ -251,8 +251,8 @@ Therefore, actor-critic methods were introduced to address these issues of stand
 Actor-critic methods utilize two components: the \textit{actor} learns the policy, and the \textit{critic} learns to estimate the value function for the given policy.
 In every step, both the \textit{actor} and the \textit{critic} receive the new state, and only the \textit{critic} receives the reward.
 The \textit{critic} estimates the state-value function based on the reward and the state.
-Then, the \textit{actor} updates its policy based on the TD-Error between the \textit{critic's} estimate and the reward.
-The \textit{critic} also updates its state value approximation based on this TD-Error.
+Then, the \textit{actor} updates its policy based on the Temporal Difference Error (TD-Error) between the \textit{critic's} estimate and the reward.
+The \textit{critic} also updates its state-value approximation based on this TD-Error.
 A widespread approach for actor-critic methods is to use the advantage $A(s, a)=q(s, a) - v(s)$ as the feedback to the \textit{actor}, which results in lower variance and even more stable training \cite{sewak_policy-approximation_2022}.
 
 \subsubsection{Proximal Policy Optimization (PPO)}
@@ -264,10 +264,9 @@ This avoids destructively large policy updates, making PPO more robust and easie
 \subsection{Multi-Agent Reinforcement Learning (MARL)}
 The previously discussed RL algorithms involve only one agent learning through interaction with the environment.
 Multi-Agent Reinforcement Learning (MARL) extends this by introducing a setting involving multiple agents that interact or compete against each other.
-This multi-agent approach enhances the applicability of RL to many real-world problems that involve multiple agents.
 MARL involves a much more complex setting through the interaction of multiple agents.
 Therefore, the state is not only influenced by the actions of one agent, but the agents need to account for changes in the state due to the actions of the other agents.
-In competitive settings, the agents need a channel for communication.
+Often, a channel for communication is established between the agents.
 This communication can be implicit through observation or explicit as part of the agent's actions \cite{busoniu_multi-agent_2008}.
 
 An MDP cannot formalize MARL due to the lack of support for multiple agents.
@@ -284,7 +283,7 @@ For a cooperative task, a shared reward is often recommended \cite{busoniu_multi
 Hierarchical Reinforcement Learning (HRL) addresses the challenges of solving complex, long-horizon tasks by decomposing them into a hierarchy of simpler sub-problems.
 Instead of learning a single, monolithic policy to map high-level states to low-level actions, HRL introduces multiple levels of control.
 The most common structure is a two-level hierarchy consisting of a high-level policy (often called a manager or meta-controller) and one or more low-level policies (often called workers or controllers).
-The high-level policy operates at a coarse temporal scale, observing the environment's state and selecting a "goal" or sub-task for the low-level policy to accomplish.
+The high-level policy operates at a coarse temporal scale, observing the environment's state and selecting a \textit{goal} or sub-task for the low-level policy to accomplish.
 The low-level policy then operates at a finer temporal scale, taking primitive actions in the environment to achieve the specified goal, after which control returns to the high-level policy.
 This division of labor allows the framework to learn policies at different levels of abstraction simultaneously \cite{pateria_hierarchical_2021}.
 
@@ -295,11 +294,12 @@ This also leads to more efficient exploration; the low-level policy can learn me
 This structured exploration is often more effective and leads to faster convergence.
 While powerful, the design of HRL frameworks introduces its own set of challenges \cite{pateria_hierarchical_2021}.
 
-A foundational approach to formalizing this hierarchy is the options framework introduced by Sutton et al. \cite{sutton_between_1999}, where multi-step actions, or "options," are learned as temporally extended sub-policies.
+A foundational approach to formalizing this hierarchy is the options framework introduced by Sutton et al. \cite{sutton_between_1999}, where multi-step actions, or \textit{options,} are learned as temporally extended sub-policies.
 However, a key challenge in HRL is defining these subtasks or goals.
 In many cases, they must be predefined by a human expert with significant domain knowledge.
 While research into automatic goal discovery exists, it remains an open problem.
-Furthermore, designing the reward structure for both levels of the hierarchy is non-trivial; the low-level policy requires intrinsic motivation (rewards for achieving goals), whereas extrinsic rewards from the environment drive the high-level policy.
+Furthermore, designing the reward structure for both levels of the hierarchy is a non-trivial task.
+The low-level policy requires intrinsic motivation (rewards for achieving goals), whereas extrinsic rewards from the environment drive the high-level policy.
 Despite these challenges, HRL provides a powerful paradigm for tackling problems with a clear hierarchical structure, such as the strategic and operational decisions involved in fleet optimization.
 
 \subsection{Summary}
@@ -317,28 +317,29 @@ Finally, HRL further decomposes complex tasks into hierarchical subtasks through
 However, designing an effective hierarchy often requires additional human intervention and extensive optimization.
 
 In summary, the various reinforcement learning approaches discussed in this section provide a comprehensive foundation for optimizing shared micromobility fleets.
-These approaches strike a balance between ease of use and the scalability and complexity required to effectively handle the complex and dynamic environment found in shared micromobility systems.
+These approaches strike a balance between ease of use and the scalability and complexity necessary for effectively handling the complex, dynamic environments of shared micromobility systems.
 
 
 \section{Heuristics}\label{sec:background-heuristics}
-A heuristic is a problem-solving approach, similar to a rule of thumb, that attempts to find a satisfactory solution quickly.
+A heuristic is a problem-solving approach, similar to a rule of thumb, that attempts to find a satisfactory solution fast.
 This is particularly relevant for complex problems, where finding an exact optimal solution is computationally impossible or too time-consuming.
 While heuristics offer such a significant computational performance advantage, they do not guarantee global optimality. 
 
 The most common heuristic is the greedy heuristic, which operates by making the locally optimal choice at each step, i.e., greedily choosing the action with the most significant immediate reward.
-Greedy treats every choice individually, without regarding future or previous decisions.
+Greedy treats every choice individually, without considering future or previous decisions.
 This simple approach makes the greedy heuristic computationally efficient.
 However, it lacks complexity, resulting in globally suboptimal solutions.
-Greed-and-match enhances this by incorporating a matching strategy, which considers relationships between multiple elements simultaneously, e.g., matching a set of supply locations to a set of demand locations.
+Greed-and-match enhances this by incorporating a matching strategy, which considers relationships between multiple elements simultaneously.
+For example, matching a set of supply locations to a set of demand locations.
 This allows for more informed local choices, which often yield better overall solutions than a simple greedy algorithm but come at the cost of increased computational complexity \cite{wu_challenges_2020}.
 
 \subsection{Metaheuristic Optimization}
-Metaheuristics are frameworks that aim to enhance heuristics by guiding their actions to improve the search space and discover more optimal solutions than can be found solely with the heuristics themselves.
+Metaheuristics are a class of optimization techniques that aim to enhance heuristics by guiding their actions to improve the search space and discover more optimal solutions than can be found solely with the heuristics themselves.
 Metaheuristics manage the trade-off between exploration and exploitation to overcome local optima and discover more optimal solutions.
 These methods are often inspired by natural processes, such as evolution or swarm intelligence, and typically operate on a population of candidate solutions.
 
 \subsubsection{Genetic Algorithms (GAs)}
-Genetic algorithms (GAs) are a class of metaheuristics inspired by the principles of biological evolution.
+Genetic Algorithms (GAs) are a class of metaheuristics inspired by the principles of biological evolution.
 GAs improve a population of candidate solutions iteratively to identify a near-optimal solution.
 Each candidate is evaluated by a fitness function, which quantifies its suitability relative to the optimization objective. 
 The algorithm generates a new population in each generation through three primary operators: 
@@ -352,7 +353,7 @@ The algorithm generates a new population in each generation through three primar
 This iterative process, involving the selection, crossover, and mutation operators, is repeated across multiple generations until the fitness function converges to a stable optimum or a predefined termination criterion is met \cite{holland_adaptation_1992}.
 
 \subsubsection{Ant Colony Optimization (ACO)}
-Ant colony optimization (ACO) is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants.
+Ant Colony Optimization (ACO) is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants.
 The optimization problem is modeled as a graph, where the nodes represent the problem's components and the edges represent possible connections or choices.
 Artificial \textit{ants} then traverse this graph to construct candidate solutions.
 As the ants build these solutions, they deposit artificial pheromones along their chosen paths.
@@ -368,7 +369,6 @@ Simple heuristics, such as the greedy heuristic, operate by making a locally opt
 However, this results in suboptimal global performance.
 Greed-and-match heuristics improve upon this by incorporating matching strategies, which help enhance overall solution quality.
 However, they also introduce additional computational overhead and complexity compared to simple heuristics.
-In contrast, GAs simulate the process of natural selection by evolving a population of candidate solutions.
 
 In contrast, metaheuristics such as GAs and ACO offer more robust frameworks for navigating complex search spaces.
 GAs leverage evolutionary principles to evolve a population of solutions.
@@ -380,11 +380,11 @@ Conversely, GAs and ACO provide more robust frameworks that are better equipped 
 
 \section{Mathematical Optimization}\label{sec:background-mathematical_optimization}
 Mathematical optimization uses a fundamentally different approach than RL and heuristics.
-Mathematical optimization approaches decision problems by formulating them as mathematical expressions consisting of objective functions and constraints that can be solved mathematically.
-This approach contrasts the previously discussed RL and heuristic methods with a trial-and-error approach combined with simulation environments.
+Mathematical optimization approaches problems by formulating them as mathematical expressions consisting of objective functions and constraints that can be solved mathematically.
+This approach contrasts with the previously discussed RL and heuristic methods, employing a trial-and-error approach.
 Formulating a mathematical expression based on real-world problems comes with some challenges and limitations.
 A simplified model of the environment is often formulated due to the high complexity of real-world scenarios, which cannot be formulated as a mathematical expression in a feasible amount of time.
-Linear Programming (LP) and Mixed Integer Linear Programming (MILP) are the most common approaches for problem formulation in the field of mathematical optimization.
+Linear Programming (LP) and Mixed Integer Linear Programming (MILP) are the most common approaches for formulating problems in the field of mathematical optimization.
 
 \subsection{Linear Programming (LP)}
 Linear programming (LP) is an optimization technique that is used to solve mathematical expressions for decision-making problems.
@@ -396,10 +396,10 @@ A variety of algorithms exist to solve LPs for optimal solutions, but the most c
     \item The simplex algorithm utilizes a convex-shaped polytope, defined by the intersections of the LP constraints.
     The algorithm starts with a base solution located at one of the vertices of the polytope.
     Thereafter, the algorithm systematically moves from one vertex to the adjacent vertex, which provides the most significant improvement in terms of the objective function.
-    This iterative process continues until no neighboring vertex improves the objective function value, at which point the algorithm achieves optimality.
+    This iterative process continues until no neighboring vertex improves the objective function value, at which point the algorithm achieves optimality \cite{boyd_convex_2004}.
     \item The interior-point method takes a different path, traversing through the interior of the feasible region.
     It uses barrier functions to ensure it remains within the constraint boundaries and calculates a gradient to determine the direction of traversal.
-    As the algorithm progresses, the influence of the barriers is reduced, allowing convergence to an optimal solution.
+    As the algorithm progresses, the influence of the barriers is reduced, allowing convergence to an optimal solution \cite{boyd_convex_2004}.
 \end{itemize}
 
 While the simplex algorithm is efficient in practice for many problems, its worst-case time complexity can be exponential. In contrast, interior-point methods have polynomial-time complexity, making them more robust for very large-scale LPs.
