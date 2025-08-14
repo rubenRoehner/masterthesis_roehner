@@ -1,6 +1,67 @@
 \appendix
 
 \chapter{Appendix}\label{sec:appendix}
+
+\begin{xltabular}{\textwidth}{lX}
+        \toprule
+        \textbf{Parameter}                  & \textbf{Description} \\
+        \midrule
+        \texttt{RDC\_gamma}                 & The discount factor ($\gamma$) that determines the present value of future rewards, balancing immediate and long-term gains in the Bellman equation. \\
+        \texttt{RDC\_tau}                   & The interpolation factor ($\tau$) for the soft update of the target network, controlling how quickly the target network tracks the policy network. \\
+        \midrule
+        \texttt{RDC\_state\_dim}            & The dimensionality of the input state vector, determined by the number of geographic zones and the features used to describe each zone. \\
+        \texttt{RDC\_hidden\_size}          & The number of neurons in each hidden layer of the Multi-Head Deep Q-Network, defining the model's learning capacity. \\
+        \midrule
+        \texttt{RDC\_lr}                    & The initial learning rate ($\alpha_{lr}$) for the Adam optimizer, controlling the step size of gradient descent updates. \\
+        \texttt{RDC\_lr\_step\_size}        & The number of training steps after which the learning rate is multiplicatively decayed. \\
+        \texttt{RDC\_lr\_gamma}             & The multiplicative factor ($\gamma_{lr}$) by which the learning rate is decayed. \\
+        \midrule
+        \texttt{RDC\_rb\_capacity}          & The maximum number of transition experiences stored in the replay buffer. \\
+        \texttt{RDC\_batch\_size}           & The number of experiences sampled from the replay buffer for each training step. \\
+        \texttt{RDC\_per\_alpha}            & The prioritization exponent ($\alpha_{PER}$), controlling how aggressively priorities are used for sampling (0 = uniform sampling, 1 = full prioritization). \\
+        \texttt{RDC\_per\_beta\_start}      & The initial value of the importance-sampling exponent ($\beta_{PER}$), which is annealed to 1.0 to correct for the bias introduced by prioritized sampling. \\
+        \texttt{RDC\_per\_beta\_frames}     & The number of training frames over which the PER exponent $\beta$ is annealed to 1.0. \\
+        \midrule
+        \texttt{RDC\_epsilon\_start}        & The initial probability ($\epsilon_{start}$) of selecting a random action to encourage exploration. \\
+        \texttt{RDC\_epsilon\_end}          & The minimum final probability ($\epsilon_{min}$) of selecting a random action, ensuring some exploration persists. \\
+        \texttt{RDC\_epsilon\_decay}        & The multiplicative factor ($\delta_{\epsilon}$) used to gradually decrease the exploration rate from its initial value to its final value. \\
+        \midrule
+        \texttt{RDC\_weight\_demand}        & The weighting coefficient for the satisfied demand component ($w_{demand}^{RDC}$) in the composite reward function. \\
+        \texttt{RDC\_weight\_cost}          & The weighting coefficient for the rebalancing cost penalty component ($w_{cost}^{RDC}$) in the composite reward function. \\
+        \texttt{RDC\_weight\_gini}          & The weighting coefficient for the Gini index component ($w_{gini}^{RDC}$) in the composite reward function. \\
+        \bottomrule
+    \caption{Configurable Hyperparameters for the Regional Distribution Coordinator (RDC) Agent. This table lists and describes the complete set of 17 hyperparameters that define the behavior and architecture of the RDC agent. These parameters govern aspects of the learning algorithm, network architecture, prioritized experience replay buffer, exploration strategy, and reward weights. The systematic optimization of these hyperparameters, except the reward weights, was crucial for achieving peak performance and is detailed in \autoref{sec:evaluation-ho-rdc}.}
+    \label{tab:rdc_hyperparameters_detailed}
+\end{xltabular}
+
+\begin{xltabular}{\textwidth}{lX}
+        \toprule
+        Parameter & Description \\
+        \midrule
+        \texttt{UIC\_lr}                & The learning rate for the Adam optimizer, which controls the step size of the gradient-based updates to the policy and value function networks. \\
+        \texttt{UIC\_n\_steps}          & The number of simulation steps collected from the environment during each rollout phase before a policy update is performed. \\
+        \texttt{UIC\_batch\_size}       & The number of training samples used in one minibatch for a single gradient descent step. \\
+        \texttt{UIC\_clip\_range}       & The clipping parameter for PPO's surrogate objective function. It defines a small, acceptable range for the policy ratio, preventing excessively large policy updates and ensuring training stability. \\
+        \texttt{UIC\_ent\_coeff}        & The coefficient for the entropy bonus term in the loss function. A positive coefficient encourages exploration by penalizing policies that become too deterministic. \\
+        \texttt{UIC\_vf\_coeff}         & The coefficient for the value function loss term in the total loss calculation. It balances the updates between the policy (actor) and the value function (critic). \\
+        \midrule
+        \texttt{UIC\_gamma}             & The discount factor applied to future rewards. It determines the present value of future rewards, influencing how far-sighted the agent's planning horizon is. \\
+        \texttt{UIC\_gae\_lambda}       & The lambda parameter for Generalized Advantage Estimation (GAE). It provides a trade-off between bias (low lambda) and variance (high lambda) in the advantage function estimates. \\
+        \texttt{UIC\_target\_kl}        & If the Kullback-Leibler (KL) divergence between the new and old policies exceeds this target, updates for the current iteration are stopped. \\
+        \midrule
+        \texttt{UIC\_num\_layers}       & The number of hidden layers used in the neural network architecture for both the policy (actor) and value (critic) networks. \\
+        \texttt{UIC\_hidden\_size}      & The number of neurons within each hidden layer of the policy and value networks. \\
+        \texttt{UIC\_activation\_fn}    & The non-linear activation function applied to the output of neurons in the hidden layers. \\
+        \midrule
+        \texttt{UIC\_weight\_demand}    & The weighting coefficient for the satisfied demand component ($w_{demand}^{UIC}$) in the composite reward function. \\
+        \texttt{UIC\_weight\_cost}      & The weighting coefficient for the rebalancing cost penalty component ($w_{cost}^{UIC}$) in the composite reward function. \\
+        \texttt{UIC\_weight\_gini}      & The weighting coefficient for the Gini index component ($w_{gini}^{UIC}$) in the composite reward function. \\
+        \bottomrule
+    \caption{Configurable Hyperparameters for the User-Incentive Coordinator (UIC) Agent. This table presents the 15 configurable hyperparameters for the PPO-based UIC agent. The parameters control the core PPO algorithm, network architecture, stability mechanisms, and reward weights. These values, except the reward weights, were systematically tuned to optimize the agent's ability to learn an effective local incentive policy (see \autoref{sec:evaluation-ho-uic}).}
+    \label{tab:uic_hyperparameters_detailed}
+\end{xltabular}
+
+
 \begin{table}[!htb]
     \centering
     \begin{tabular}{lll}
