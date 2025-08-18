@@ -223,10 +223,10 @@ Evaluating the models under these varied conditions ensures a more comprehensive
 To quantitatively compare the performance of the different rebalancing strategies developed by the HRL framework and the baselines, the following metrics are used:
 
 \begin{itemize}
-    \item \textbf{Satisfied Demand Ratio:} 
+    \item \textbf{Satisfied Demand Ratio (SDR):} 
         The primary metric for evaluating the service quality and user satisfaction.
         This ratio is defined as the percentage of total user trip requests that were successfully served, as formulated in \autoref{eq:problem-definition-satisfied-demand-ratio}.
-        A higher Satisfied Demand Ratio indicates a more effective rebalancing strategy.
+        A higher SDR indicates a more effective rebalancing strategy.
     \item \textbf{Manual Rebalancing Costs:}
         This metric quantifies the operational cost of manual rebalancing actions.
         It is calculated as the total number of vehicles rebalanced by service workers in the whole evaluation period.
@@ -271,7 +271,7 @@ The third baseline is a greedy heuristic designed to test whether the HRL approa
         If the ratio exceeds the threshold or no demand is expected, no incentive is offered.
 \end{itemize}
 
-\section{Results and Analysis}
+\section{Results}
 This section presents the performance evaluation of the proposed Hierarchical Reinforcement Learning (HRL) framework.
 The results are analyzed to validate the design choices of the hierarchical architecture and to understand the trade-offs between satisfying user demand, the associated costs of rebalancing, and fleet equity.
 
@@ -284,35 +284,35 @@ Performance is assessed using the four evaluation metrics defined in \autoref{se
 A comprehensive summary of the evaluation results across all scenarios and models is presented in \autoref{tab:full_results_summary}.
 Best values for each metric and fleet size scenario are highlighted in bold in the table.
 
-\begin{table}[!htb]
+\begin{table}
     \centering
     \begin{tabularx}{\textwidth}{lXXXX}
     \toprule
     \textbf{Configuration} & \textbf{Satisfied Demand Ratio} & \textbf{Manual Rebal Cost} & \textbf{Incentive Rebal Cost} & \textbf{Gini Coefficient} \\
     \midrule
     \multicolumn{5}{l}{\textit{Fleet Size: 600 (67\%)}} \\
-    HRL Both Enabled & [0.4774] & [4.749] & [19.75] & [0.5854] \\
+    HRL Both Enabled & [0.7322] & [8.1] & [10.9] & [0.3073] \\
     HRL Manual Only & [\textbf{0.7477}] & [6.765] & [\textbf{0}] & [\textbf{0.2814}] \\
-    HRL Incentive Only & [0.4784] & [\textbf{0}] & [19.2] & [0.5583] \\
+    HRL Incentive Only & [0.583] & [\textbf{0}] & [10.63] & [0.4478] \\
     No Rebalancing & [0.6956] & [\textbf{0}] & [\textbf{0}] & [0.4701] \\
     Greedy Heuristic & [0.6849] & [0.2457] & [46.28] & [0.4346] \\
     \midrule
     \multicolumn{5}{l}{\textit{Fleet Size: 900 (100\%)}} \\
-    HRL Both Enabled & [0.6389] & [5.096] & [19.65] & [0.4677] \\
+    HRL Both Enabled & [0.7979] & [7.625] & [10.92] & [0.2649] \\
     HRL Manual Only & [\textbf{0.8438}] & [6.865] & [\textbf{0}] & [\textbf{0.241}] \\
-    HRL Incentive Only & [0.532] & [\textbf{0}] & [19.24] & [0.5483] \\
+    HRL Incentive Only & [0.6469] & [\textbf{0}] & [10.61] & [0.4414] \\
     No Rebalancing & [0.7972] & [\textbf{0}] & [\textbf{0}] & [0.4059] \\
     Greedy Heuristic & [0.7876] & [0.02] & [35.76] & [0.3807] \\
     \midrule
     \multicolumn{5}{l}{\textit{Fleet Size: 1200 (133\%)}} \\
-    HRL Both Enabled & [0.7198] & [6.58] & [19.65] & [0.4592] \\
+    HRL Both Enabled & [0.835] & [6.952] & [10.93] & [0.2814] \\
     HRL Manual Only & [\textbf{0.903}] & [7.82] & [\textbf{0}] & [\textbf{0.2038}] \\
-    HRL Incentive Only & [0.5641] & [\textbf{0}] & [19.26] & [0.5411] \\
+    HRL Incentive Only & [0.687] & [\textbf{0}] & [10.66] & [0.4305] \\
     No Rebalancing & [0.8611] & [\textbf{0}] & [\textbf{0}] & [0.3632] \\
     Greedy Heuristic & [0.8548] & [\textbf{0}] & [27.16] & [0.3478] \\
     \bottomrule
     \end{tabularx}
-    \caption{Summary of Evaluation Results Across All Models and Fleet Size Scenarios. This table presents the comprehensive performance comparison of the full HRL framework and the four baselines across three distinct fleet size scenarios: balanced (100\%), undersupply (67\%), and oversupply (133\%). Performance is measured using four key metrics: Satisfied Demand Ratio, Manual Rebalancing Cost, Incentive Rebalancing Cost, and the Gini Coefficient. These results provide a quantitative basis for analyzing the efficacy, cost-effectiveness, and robustness of the proposed hierarchical approach compared to simpler strategies.}
+    \caption{Summary of Evaluation Results Across All Models and Fleet Size Scenarios. This table presents the comprehensive performance comparison of the full HRL framework and the four baselines across three distinct fleet size scenarios: balanced (100\%), undersupply (67\%), and oversupply (133\%). Performance is measured using four key metrics: Satisfied Demand Ratio (SDR), Manual Rebalancing Cost, Incentive Rebalancing Cost, and the Gini Coefficient. These results provide a quantitative basis for analyzing the efficacy, cost-effectiveness, and robustness of the proposed hierarchical approach compared to simpler strategies.}
     \label{tab:full_results_summary}
 \end{table}
 
@@ -321,73 +321,139 @@ Each evaluation metric is examined individually before considering cross-metric 
 
 
 \subsubsection{Satisfied Demand Ratio}
+The performance of the proposed HRL framework and its baselines in terms of service quality is presented in \autoref{fig:eval-bars-sdr}, which illustrates the Satisfied Demand Ratio (SDR) across different fleet sizes.
+The results show that the proposed HRL models significantly improve service quality.
+The \texttt{HRL Manual Only} model, representing the strategic RDC agent acting alone, consistently achieves the highest SDR across all scenarios, satisfying approximately 84\% of user demand in the balanced 900-vehicle scenario.
+The fully integrated \texttt{HRL Both Enabled} framework demonstrates strong performance, achieving the second-highest SDR of approximately 80\% in the same scenario and consistently outperforming the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines.
+This performance degradation suggests a negative interaction between the two hierarchical levels.
+Rather than creating synergy, the tactical actions of the low-level UIC agents appear to interfere with the globally effective strategy of the high-level RDC.
+Especially, in the oversupply scenario, the addition of the UIC agents even results in poorer results than the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines.
+The \texttt{HRL Incentive Only} model underperforms relative to other strategies, suggesting that user-based incentives are most effective when operating within a system already balanced at a higher level.
+
+The performance ranking of the models remains robust across the different fleet sizes.
+The error bars confirm that both the \texttt{HRL Both Enabled} and \texttt{HRL Manual Only} models provide a statistically significant improvement over the \texttt{No Rebalancing} baseline, particularly in the undersupply scenario.
+Ultimately, these results highlight that the hierarchical framework is successful.
+The combination of a high-level agent for strategic relocations and low-level agents for tactical incentives provides an effective solution to the complex problem of fleet rebalancing.
+
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-bars-sdr.png}
-    \caption{}
+    \caption{Satisfied Demand Ratio by Rebalancing Strategy and Fleet Size. This bar chart compares the mean Satisfied Demand Ratio (SDR) achieved by the full HRL framework (HRL Both Enabled) and four baseline models across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
     \label{fig:eval-bars-sdr}
 \end{figure}
 
 \subsubsection{Gini Coefficient}
+An analysis of the Gini coefficient, which measures fleet distribution equity, reinforces the theme of hierarchical interference, as shown in \autoref{fig:eval-bars-gini}.
+The figure illustrates the impact of each rebalancing strategy on the Gini coefficient, where lower values indicate a more equitable distribution.
+The HRL-based models outperform the baselines, except the \texttt{HRL Incentive Only} model.
+\texttt{HRL Manual Only} achieves the best equity overall.
+In the 900-vehicle scenario, the \texttt{HRL Manual Only} model reduces the Gini coefficient to approximately 0.24, a 40\% improvement over the \texttt{No Rebalancing} baseline (~0.40), demonstrating its effectiveness in creating a globally balanced fleet.
+
+Notably, the fully integrated \texttt{HRL Both Enabled} framework performs nearly as well, with a Gini coefficient of just 0.26 in the same scenario.
+This suggests that incorporating localized, user-based incentives from the UIC agents results in only a marginal increase in imbalance.
+In contrast, the \texttt{HRL Incentive Only} model is significantly less effective than the integrated approach, underperforming the \texttt{No Rebalancing} baseline in the fleet size scenarios of 900 and 1200 vehicles.
+It suggests that while the RDC establishes a highly equitable foundation, the localized incentives offered by the UICs introduce minor disruptions that slightly degrade this overall balance.
+The goal of fine-tuning local supply appears to come at a small but consistent cost to global equity.
+The performance rankings remain consistent across all fleet sizes, confirming the robustness of this collaborative behavior.
+
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-bars-gini.png}
-    \caption{}
+    \caption{Gini coefficient by Rebalancing Strategy and Fleet Size. This bar chart compares the mean Gini coefficient achieved by the full HRL framework (HRL Both Enabled) and four baseline models across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs. This metric quantifies the equity of the vehicle distribution.}
     \label{fig:eval-bars-gini}
 \end{figure}
 
 \subsubsection{Manual Rebalancing Costs}
+\autoref{fig:eval-bars-manual} illustrates the Manual Rebalancing Cost, measured as the mean number of vehicles relocated per hour by service workers.
+In the balanced scenario with 900 vehicles, the fully integrated \texttt{HRL Both Enabled} model demonstrates the highest level of rebalancing, averaging around 7.6 vehicle relocations per hour.
+When viewed alongside its suboptimal SDR and Gini performance, this high operational cost suggests inefficiency.
+A plausible hypothesis is that the RDC is not supporting the UICs, but rather working harder to correct localized imbalances introduced by their incentive policies.
+The cost profiles for the HRL models show differing trends: the rate for the \texttt{HRL Manual Only} model increases with fleet size, whereas the rate for the more active \texttt{HRL Both Enabled} model slightly decreases.
+In contrast, the \texttt{Greedy Heuristic} baseline averages nearly zero rebalanced vehicles per hour, which suggests that operational constraints heavily restrict its simple rule-based logic.
+Overall, the figure clearly shows the trade-off between rebalancing rate and system performance.
+
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-bars-manual.png}
-    \caption{}
+    \caption{Manual Rebalancing Cost by Rebalancing Strategy and Fleet Size. This bar chart compares the mean Manual Rebalancing Cost, measured as the average number of vehicle relocations per hour, for the full HRL framework and four baseline models. The comparison is shown across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
     \label{fig:eval-bars-manual}
 \end{figure}
 
 \subsubsection{Incentive Rebalancing Costs}
+\autoref{fig:eval-bars-incentive} presents the operational costs associated with user-based rebalancing, measured as the mean number of vehicles relocated per hour via incentives.
+The results demonstrate the cost-effectiveness of the HRL-driven user-incentive strategies.
+The HRL frameworks, which included the low-level UIC agents (HRL Both Enabled and HRL Incentive Only), consistently induced approximately 11 rebalancing moves per hour.
+This static rate, which remained insensitive to variations in fleet size, indicates that the PPO agents learned a disciplined policy that achieves its objectives with minimal intervention.
+However, the value generated by this expenditure is doubtful.
+The Greedy Heuristic incurs far higher costs for mediocre results, but the HRL models' spending is also inefficient.
+For the HRL Both Enabled model, the cost of ~11 incentivized trips is incurred while simultaneously achieving a lower SDR and higher Gini coefficient than the HRL Manual Only model, which has zero incentive cost.
+This is a clear illustration of inefficient resource allocation.
+The results suggest that while the UIC agents learned to spend their budget consistently, the rebalancing actions they promoted did not produce a net benefit for the system, failing to justify their operational cost when integrated into the full hierarchy.
+
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-bars-incentives.png}
-    \caption{}
+    \caption{User-based Rebalancing Cost by Rebalancing Strategy and Fleet Size. This bar chart compares the mean Rebalancing Cost by incentives, measured as the average number of vehicle relocations through users per hour, for the full HRL framework and four baseline models. The comparison is shown across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
     \label{fig:eval-bars-incentive}
 \end{figure}
 
 
 \subsection{Metric Trade-offs}
-Cross-metric relationships are examined to assess efficiency and fairness trade-offs.
+By visualizing the relationships between metrics, the trade-offs and overall efficiency of each strategy can be analyzed more deeply. The following scatter plots move beyond single-metric performance to reveal how the models balance competing objectives.\\
+
+\autoref{fig:eval-scatter-sdr-gini} plots the Satisfied Demand Ratio against the Gini Coefficient, illustrating the trade-off between service quality and fleet equity.
+The positioning of the HRL Manual Only model in the top-left region of the plot establishes it as the most balanced and effective strategy.
+Across all fleet sizes, it consistently delivers a superior combination of high service quality (SDR) and high fleet equity (low Gini) compared to all other models.
+In contrast, the UIC-based models (HRL Both Enabled and HRL Incentive Only) are shown to be less effective.
+Their placement demonstrates inferior performance on both axes relative to the HRL Manual Only model, providing a clear visualization that the addition of the low-level agents degrades overall performance.
+Additionally, the plot illustrates a consistent trend for all models as fleet size increases, with performance moving toward the optimal top-left corner.
+
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-scatter-sdr-gini.png}
-    \caption{}
+    \caption{Satisfied Demand Ratio vs. Gini Coefficient. The plot shows the trade-off between service quality (y-axis) and fleet distribution equity (x-axis), where the top-left corner is optimal. Each point represents the mean of 20 evaluation runs.}
     \label{fig:eval-scatter-sdr-gini}
 \end{figure}
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=\linewidth]{content/figures/eval-scatter-sdr-manual.png}
-    \caption{}
-    \label{fig:eval-scatter-sdr-manual}
-\end{figure}
 
-\subsection{Fleet Size Robustness}
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=\linewidth]{content/figures/eval-lines-sdr.png}
-    \caption{}
-    \label{fig:eval-lines-sdr}
-\end{figure}
+The scatter plots in \autoref{fig:eval-scatter-sdr-manual} and \autoref{fig:eval-scatter-sdr-incentives} offer a direct cost-benefit analysis by plotting the SDR achieved against the operational costs of manual and incentive-based rebalancing, respectively.
+Together, they reveal a fundamental difference in the efficiency of the two rebalancing modes as implemented in the HRL framework.
+
+As shown in \autoref{fig:eval-scatter-sdr-manual}, the HRL Manual Only model's top performance requires the highest operational cost.
+This position, located in the top-right of the plot, quantifies the successful strategy learned by the RDC agent, where significant operational effort is effectively converted into optimal system performance.
+The inefficiency of the fully integrated framework is also starkly visible, with the HRL Both Enabled model paying a similarly high cost but for a lower return in SDR.
 
 \begin{figure}[!htb]
-    \centering
-    \includegraphics[width=\linewidth]{content/figures/eval-box-sdr.png}
-    \caption{}
-    \label{fig:eval-box-sdr}
+\centering
+\includegraphics[width=\linewidth]{content/figures/eval-scatter-sdr-manual.png}
+\caption{Satisfied Demand Ratio vs. Rebalanced Vehicles (Manual). This plot provides a direct cost-benefit analysis, with service quality on the y-axis and operational cost on the x-axis. The top-left corner represents maximum efficiency.}
+\label{fig:eval-scatter-sdr-manual}
 \end{figure}
 
+Conversely, \autoref{fig:eval-scatter-sdr-incentives} visualizes the limited effectiveness of the user-based incentive strategies.
+The HRL Incentive Only model consistently underperforms the zero-cost baselines; for a substantial incentive cost, it achieves a lower SDR than what HRL Manual Only provides for no incentive cost.
+The HRL Both Enabled model shows only situational benefits, outperforming the baselines in the 600 and 900-vehicle scenarios but failing to do so in the oversupply scenario, and never matching the performance of the HRL Manual Only model.
 
-\subsection{Key Findings}
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=\linewidth]{content/figures/eval-scatter-sdr-incentives.png}
+\caption{Satisfied Demand Ratio vs. Rebalanced Vehicles (Incentives). This plot illustrates the cost-benefit of user-based rebalancing, showing the trade-off between SDR (y-axis) and the volume of incentivized trips (x-axis).}
+\label{fig:eval-scatter-sdr-incentives}
+\end{figure}
 
-Minimizing the costs for rebalancing and increasing the weight for satisfied demand resulted in positive results. With only a few rebalancing operations the satisfied demand resulted in much better performance.
-\todo{Training UICs with active RDC operating in the simulation resulted in drastically better performance}
-New training setup was a breakthrough with almost 10\% increase in satisfied demand by accounting for the RDC actions.
+Taken together, these plots lead to a clear conclusion regarding operational efficiency.
+The strategic, operator-based rebalancing of the RDC represents an effective use of resources, converting cost into measurable gains.
+The tactical, user-based incentives of the UICs, however, appear to be largely inefficient, and their integration with the RDC fails to produce a synergistic effect, instead degrading the otherwise optimal performance of the framework.
 
-\todo{Updated rebalancing logic for RDC to distribute the vehicles more evenly resulted in better performance}
+\section{Discussion}
+The evaluation of the proposed Hierarchical Reinforcement Learning (HRL) framework reveals a complex and counterintuitive dynamic between its constituent levels, yielding critical insights for the design of future multi-agent rebalancing systems.
+The primary finding from the experimental evaluation is that the fully integrated HRL framework did not outperform the HRL Manual Only baseline.
+In fact, across the key metrics of Satisfied Demand Ratio (SDR) and fleet equity (Gini Coefficient), the high-level Regional Distribution Coordinator (RDC) operating in isolation demonstrated more effective performance.
+This outcome indicates that the current two-tier structure reveals harmful interference rather than the intended synergy.
+The performance degradation appears to stem from a misalignment between the RDC's global strategy and the UIC's localized optimizations.
+Evidence from the evaluation suggests that the low-level UICs, while pursuing their local objectives, introduce inefficiencies that the high-level RDC must then work to counteract.
+For instance, in the balanced 900-vehicle scenario, the HRL Both Enabled model incurred a higher manual rebalancing cost (7.62 relocations/hour) for a lower SDR (79.8\%) compared to the HRL Manual Only model (6.87 relocations/hour for 84.4\% SDR).
+This suggests the RDC was expending more effort to correct for imbalances at least partially induced by the UICs' actions.
+The core issue, therefore, is not a failure of the agents to learn, but a structural limitation in how their learned policies are integrated.
+Crucially, a key insight from the development process confirms that the agents are capable of adaptation.
+It was observed that training the UICs in a simulation environment where the RDC was already active resulted in significantly better UIC performance compared to training them in isolation.
+This demonstrates that the low-level agents successfully learned to adapt their policies to the dynamic conditions created by the RDC’s strategic vehicle relocations.

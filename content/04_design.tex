@@ -1,11 +1,11 @@
 \chapter{Design}\label{sec:design} % approx. 21 pages
-This chapter details the design of the proposed rebalancing solution.
+This chapter details the design of the proposed rebalancing framework.
 \autoref{sec:design-data} describes the data acquisition and preprocessing, \autoref{sec:design-problem_definition} formally defines the rebalancing problem, and \autoref{sec:design-rl_framework} presents the HRL framework.
 
 \section{Data}\label{sec:design-data}
 The data underlying this thesis was collected from a General Bikeshare Feed Specification (GBFS)  \cite{mobilitydata_specification_2024} feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{mobidata_bw_gebundelte_2022}.
 These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations.
-This section details the collection, preprocessing, and exploratory analysis of this GBFS data used to develop such a strategy.
+This section details the collection, preprocessing, and exploratory analysis of the GBFS data used to develop this HRL framework. 
 
 
 \subsection{Data Collection}
@@ -44,7 +44,7 @@ A complete list of the data fields extracted from the feed is presented in \auto
         \texttt{pricing\_plan\_id}     & Identifier for the pricing plan applicable to this rental. \\
         \bottomrule
     \end{tabularx}
-    \caption{Data Fields from the General Bikeshare Feed Specification (GBFS) \cite{mobilitydata_specification_2024}. This table lists and describes the data fields extracted from the raw GBFS JSON snapshots for each available e-scooter. Key attributes include the vehicle's GPS coordinates (\texttt{lat}, \texttt{lon}), its availability status (\texttt{is\_reserved}, \texttt{is\_disabled}), and its battery level (\texttt{current\_fuel\_percent}). This raw, time-series location data forms the foundation from which all pick-up and drop-off events were inferred for this study.}
+    \caption{Data Fields from the General Bikeshare Feed Specification (GBFS) \cite{mobilitydata_specification_2024}. This table lists and describes the data fields extracted from the raw GBFS JSON snapshots for each available e-scooter. Key attributes include the vehicle's GPS coordinates (\texttt{lat}, \texttt{lon}), its availability status (\url{is\_reserved}, \url{is\_disabled}), and its battery level (\url{current\_fuel\_percent}). This raw, time-series location data forms the foundation from which all pick-up and drop-off events were inferred for this study.}
     \label{tab:gbfs_fields}
 \end{table}
 
@@ -60,7 +60,6 @@ This event inference process yielded a total of 2,168,331 combined pick-up and d
 Subsequently, the dataset was filtered to remove geographical outliers by defining a boundary corresponding to the city of Stuttgart and excluding events in outlying regions (e.g., Böblingen).
 This filtering had a notable effect on the Voi dataset, reducing it by 59.6\% to 876,511 events.
 In contrast, the Bolt dataset was largely unaffected, retaining 96.4\% of its data with 656,082 events remaining.
-This disparity suggests a differing operational focus between the two providers, with Voi maintaining a much larger service presence in the suburbs surrounding Stuttgart.
 \autoref{fig:demand_map_reduction} presents this filtering process by comparing the data displayed on a map before and after filtering.
 
 \begin{figure}[!htb]
@@ -75,14 +74,14 @@ This disparity suggests a differing operational focus between the two providers,
         \caption{Bolt}
         \label{fig:demand_map_bolt}
         \end{subfigure}
-    \caption{Geographical Filtering of Raw E-Scooter Event Data. The maps illustrate the spatial distribution of inferred e-scooter events before and after applying a geographical bounding box for the city of Stuttgart. Panel (a) shows the initial, unfiltered data for the provider Voi, revealing significant activity in surrounding suburban areas. Panel (b) shows the Bolt provider data, which is more concentrated within the city limits. This filtering step was crucial for isolating the analysis to the urban core.}
+    \caption{Geographical Filtering of Raw E-Scooter Event Data. The maps illustrate the spatial distribution of inferred e-scooter events before and after applying a geographical bounding box for the city of Stuttgart. Panel (a) shows the initial, unfiltered data for the provider Voi. Panel (b) shows the Bolt provider data. This filtering step was crucial for isolating the analysis to the urban core of Stuttgart.}
     \label{fig:demand_map_reduction}
 \end{figure}
 
 
 Finally, the cleaned event data was aggregated to create a structured dataset for model training.
 For spatial aggregation, a two-layer hierarchical approach was implemented using the H3 hexagonal grid system \cite{uber_h3_2018}.
-The finest spatial unit, a \textit{zone}, was defined using H3 resolution 8, resulting in 291 distinct zones across the study area.
+The finest spatial unit, a \textit{zone}, was defined using H3 resolution 8, resulting in 291 distinct zones across the operating area.
 These zones were then grouped into larger \textit{communities} at H3 resolution 6, producing a total of 9 communities.
 This hierarchical structure allows for analysis at both a granular and a regional level.
 Temporally, events within each zone were aggregated into one-hour time bins.
@@ -91,7 +90,7 @@ This H3 system was chosen for three key reasons.
 First, its hierarchical structure facilitates seamless aggregation at different spatial resolutions, which is ideal for the community-zone model used in this thesis.
 Second, hexagons provide uniform distances to all six neighbors, ensuring greater consistency in spatial analysis compared to square grids.
 Third, as a global standard, H3 ensures that the grid is predefined worldwide, simplifying the potential application of this methodology to other cities.
-\autoref{fig:data_grid_community_structure} illustrates the resulting grid structure imposed on the study area.
+\autoref{fig:data_grid_community_structure} illustrates the resulting grid structure imposed on the operating area.
 
 \begin{figure}[!htb]
     \centering
@@ -126,7 +125,7 @@ A summary of the dataset's key statistics is provided in \autoref{tab:general_st
         Busiest Hour                                    & 15:00 \\
         \bottomrule
     \end{tabularx}
-    \caption{Summary Statistics of the Processed E-Scooter Event Dataset. This table presents aggregated statistics for the final, preprocessed dataset used in this thesis after filtering and event inference. It includes the total number of pick-ups and drop-offs, the analysis period, the average daily event volume, and the busiest hour of the day. These metrics collectively illustrate the scale and temporal characteristics of the demand data used to train and evaluate the rebalancing agents.}
+    \caption{Summary Statistics of the Processed E-Scooter Event Dataset. This table presents aggregated statistics for the final, preprocessed dataset used in this thesis after filtering and event inference. It includes the total number of pick-ups and drop-offs, the analysis period, the average daily event volume, and the busiest hour of the day.}
     \label{tab:general_statistics}
 \end{table}
 
@@ -148,7 +147,7 @@ In the afternoon and evening, a clear vehicle deficit occurs as pick-ups consist
     \caption{15:00–20:00 net imbalance}
   \label{fig:demand_net_imbalance_map_evening}
   \end{subfigure}
-  \caption{Spatial Distribution of Net E-Scooter Imbalance During Peak Periods. These maps visualize the spatial patterns of vehicle imbalance during the morning (a) and evening (b) peak hours. Red zones indicate a net deficit of scooters (more pick-ups than drop-offs), while blue zones indicate a net surplus. The patterns show a precise commuter flow, with vehicles accumulating in the city center during the morning and dispersing to residential areas in the evening, highlighting the predictable yet severe spatial imbalances the framework must address.}
+  \caption{Spatial Distribution of Net E-Scooter Imbalance During Peak Periods. These maps visualize the spatial patterns of vehicle imbalance during the morning (a) and evening (b) peak hours. Red zones indicate a net deficit of scooters (more pick-ups than drop-offs), while blue zones indicate a net surplus. The patterns reveal a precise commuter flow, with vehicles accumulating in the city center during the morning and dispersing to residential areas in the evening, highlighting the severe spatial imbalances that the framework must address.}
   \label{fig:demand_net_imbalance_map}
 \end{figure}
 
@@ -161,18 +160,18 @@ These observed imbalances, detailed in \autoref{fig:demand_net_imbalance_map}, u
 This section formalizes the fleet rebalancing problem of a free-floating e-scooter sharing system.
 The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, performed by users guided by incentives.
 The rebalancing mechanisms addressed are operator-based relocations between communities and user-based relocations within communities, which are achieved through incentives.
-The routing problem of service vehicles performing operator-based rebalancing is not addressed in this work, as the focus is on developing a framework for strategic decision-making rather than the operational vehicle routing problem (VRP).
+The routing problem of service vehicles performing operator-based rebalancing is not addressed in this work, as the focus is on developing a framework for strategic decision-making rather than the operational Vehicle Routing Problem (VRP).
 The VRP for rebalancing is a well-studied field \cite{lee_battery_2024, emami_integrated_2024, jimenez-merono_optimization_2024, paparella_optimization-based_2023, sanchez_simulation_2022}.
 It is assumed that an existing VRP solver can be used to implement the strategic decisions made by our framework.
 
-The state of charge (SOC) of the vehicles is also not modeled in the simulation.
+The State of Charge (SOC) of the vehicles is also not modeled in the simulation.
 This simplification is due to limited data availability, and is a common approach in recent literature \cite{cederle_fairness-oriented_2025, villa-zapata_incorporating_2024, schofield_handling_2021, pan_deep_2019}.
 As detailed in \autoref{sec:design-data}, only the trip start and endpoints are available, and no full trip data.
 Therefore, modeling whole trips in the simulation, which is necessary to update the SOC accordingly, isn't directly possible with the available data.
 In \autoref{sec:conclusion-future_work}, possible solutions for incorporating the SOC into the simulation despite these data limitations are discussed.
 
-\subsection{Scope and Notation}
-The service area is partitioned into a set of zones($\mathcal{Z}$), which are grouped into communities ($\mathcal{C}$), as displayed in \autoref{fig:data_grid_community_structure}.
+\subsection{Scope and Notation}\label{sec:design-problem_definition-notation}
+The service area is partitioned into a set of zones ($\mathcal{Z}$), which are grouped into communities ($\mathcal{C}$), as displayed in \autoref{fig:data_grid_community_structure}.
 The time is discretized into hourly intervals ($\mathcal{T}$) in which all pick-up, drop-off, and rebalancing events occur.
 The fleet size ($\mathcal{N}$) remains constant over all timesteps $t$.
 \autoref{tab:problem_notation} summarizes all notation used for the problem formulation, including all sets, parameters, and rebalancing outcomes.
@@ -188,11 +187,10 @@ The subset of zones for a given community $c$ is defined as:
         Symbol &  Description \\
         \midrule
         $\mathcal{C}$   & The set of communities \\
-        $\mathcal{Z}$   & The set of zones or grid cells. \\
+        $\mathcal{Z}$   & The set of zones. \\
         $\mathcal{N}$   & Fleet size, i.e., total number of e-scooters available to the service. \\
         $\mathcal{T}$   & The set of time steps. \\
         $\mathcal{Z}_c$ & The subset of zones corresponding to community $c$ \\
-        $\kappa(z)$     & Community assignment function returns the community given a zone.\\
         \midrule
         $n_z(t)$        & The number of e-scooters available in zone $z$ at time $t$. \\
         $P_z(t)$        & The actual pick-up demand at zone $z$ at time $t$. \\
@@ -206,25 +204,28 @@ The subset of zones for a given community $c$ is defined as:
         $Y_{z\rightarrow z'}(t)$ 
             & Number of e-scooters repositioned by users from zone $z$ to zone $z'$ at time step $t$ through incentives. \\
         \midrule
+        $\kappa(z)$     & Community assignment function returns the community given a zone.\\
         $A_{ij}$
             & Binary adjacency: 1 if zone $j$ is a designated neighbor of zone $i$, 0 otherwise\\
+        $\Delta_{op}(t)_z$ & A function representing the net change in vehicle counts for zone $z$ due to operator-based rebalancing. It processes the rebalancing outcomes, $\{X_{c\rightarrow c'}(t)\}$, and applies the heuristic based on current vehicle counts, $n_z(t)$ \\
         \bottomrule
     \end{tabularx}
-    \caption{Notation for the Fleet Rebalancing Problem Formulation. This table defines the sets, parameters, and rebalancing outcomes used to formally model the e-scooter rebalancing problem. The notation provides a formal language for describing the system's state (e.g., $n_z(t)$  for vehicle counts), demand (e.g., $P_z(t)$ for pick-ups), and rebalancing outcomes (e.g., $X_{c\rightarrow c'}(t)$ for operator moves). This formalization is essential for structuring the problem within the Markov Decision Process framework.}
+    \caption{Notation for the Fleet Rebalancing Problem Formulation. This table defines the sets, parameters, and rebalancing outcomes used to formally model the e-scooter rebalancing problem. The notation provides a formal language for describing the system's state (e.g., $n_z(t)$  for vehicle counts), demand (e.g., $P_z(t)$ for pick-ups), and rebalancing outcomes (e.g., $X_{c\rightarrow c'}(t)$ for operator moves).}
     \label{tab:problem_notation}
 \end{table}
 
-\subsection{State Variables}
+\subsection{State Variables}\label{sec:design-problem_definition-states}
 The formulated rebalancing problem distinguishes between forecasted demand ($\hat P_z(t)$, $\hat D_z(t)$), which forms part of the state representation used for decision-making, and actual demand ($P_z(t)$, $P_z(t)$), which drives the simulation used for training and evaluation.
 All performance metrics, such as the satisfied demand, are computed against the actual demand values.
 
-\subsection{Rebalancing actions}
+\subsection{Rebalancing actions}\label{sec:design-problem_definition-actions}
 The framework considers both operator-based and user-based rebalancing, which is why the problem definition includes rebalancing outcomes for both approaches.
 They do not directly correspond to the action spaces of the reinforcement learning agents, which are detailed in \autoref{sec:design-rl_framework}.
 
 \subsubsection{Operator-based rebalancing}
 Operator-based rebalancing is performed to relocate e-scooters between communities.
 Service workers move e-scooters between communities, which is represented by $X_{c\rightarrow c'}(t)$, describing the number of vehicles relocated from community $c$ to community $c'$ at time step $t$.
+The rebalancing outcomes on the community-level are mapped to the zone-level using the $\Delta_{op}(t)_z$ function, which is described in more detail in \autoref{sec:design-problem_definition-dynamics}.
 
 \subsubsection{User-based rebalancing}
 User-based rebalancing is performed between zones inside a community.
@@ -240,7 +241,7 @@ Y_{z\to z'}(t) \;=\; 0
 \bigl(A_{z,z'}=0\bigr)\;\lor\;\bigl(\kappa(z)\neq\kappa(z')\bigr).
 \end{equation}
 
-\subsection{System Dynamics}
+\subsection{System Dynamics}\label{sec:design-problem_definition-dynamics}
  
 \autoref{eq:rp-fleet-conservation} formulates the global fleet conservation.
 This constraint ensures that the total number of e-scooters across all zones remains constant at every time period $t$.
@@ -254,22 +255,25 @@ This constraint ensures that the total number of e-scooters across all zones rem
 This demand flow enables a step-wise calculation of available scooters at every timestep $t$.
 The demand flow considers both pick-up demand $P_z(t)$ and drop-off demand $D_z(t)$.
 Additionally, rebalancing operations are considered by the rebalancing outcomes $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$.
-The formulation assumes that vehicles moved by operators to a community $c'$ are distributed uniformly among all zones $\mathcal{Z}_{\kappa(z)}$ within that community.
+Operator-based rebalancing is incorporated through the $\Delta_{op}(t)_z$ function, which represents the net change in vehicles for zone $z$.
+This function takes the set of all community-level rebalancing outcomes, $X_{c\rightarrow c'}(t)$, and the current vehicle counts, ${n}(t)$, as its parameters.
+Based on these inputs, it implements a priority-based heuristic, where incoming vehicles are allocated to the zones with the lowest e-scooter counts.
+Accordingly, outgoing vehicles are taken from the zones with the highest counts.
 This simplified assumption is made within the defined scope of how operator-based rebalancing should be utilized in this framework.
 Operator-based rebalancing should focus on strategic rebalancing between communities, and therefore does not specify fine-grained zone-level drop-off locations.
 
 \begin{equation}\label{eq:pb-demand-flow}
     \begin{aligned}
         n_z(t+1) =\;&\ n_z(t) - P_z(t) + D_z(t) \\
-        &+  \sum_{c' \in \mathcal{C}} \frac{1}{|\mathcal{Z}_{\kappa(z)}|} X_{c'\rightarrow \kappa(z)}(t) - \sum_{c' \in \mathcal{C}} \frac{1}{|\mathcal{Z}_{\kappa(z)}|} X_{\kappa(z)\rightarrow c'}(t) \\
+        &+ \Delta_{op}(t)_z \\
         &+ \sum_{z' \in \mathcal{Z}} Y_{z'\rightarrow z}(t) - \sum_{z' \in \mathcal{Z}} Y_{z\rightarrow z'}(t)
     \end{aligned}
 \end{equation}
 
-\subsection{Objective}
+\subsection{Objective}\label{sec:design-problem_definition-objective}
 
-\autoref{eq:problem-definition-satisfied-demand} defines the satisfied demand, which is the demand that the service could satisfy with enough vehicles to serve the wanted pick-up demand.
-This satisfied demand is used to calculate the ratio of satisfied demand, which defines the percentage of the asked demand to the amount of demand that could be satisfied by the system (see \autoref{eq:problem-definition-satisfied-demand-ratio}).
+\autoref{eq:problem-definition-satisfied-demand} defines the satisfied demand, which is the demand that the service could satisfy with enough vehicles.
+This satisfied demand is used to calculate the Satisfied Demand Ratio (SDR), which defines the percentage of the requested demand to the amount of demand that could be satisfied by the system (see \autoref{eq:problem-definition-satisfied-demand-ratio}).
 
 \begin{subequations}
     \begin{equation}\label{eq:problem-definition-satisfied-demand}
@@ -288,7 +292,7 @@ To quantify the spatial imbalance of the fleet, the Gini coefficient is utilized
 A Gini coefficient of 0 represents a perfectly uniform distribution, with an equal number of scooters in every zone.
 A value of 1 indicates maximum imbalance, where all vehicles are concentrated in one zone.
 Minimizing this value helps prevent service dead zones and improves overall accessibility.
-We measure this imbalance at two scales: globally across the entire service area, and locally within each community.
+This imbalance is measured at two scales: globally across the entire service area, and locally within each community.
 The Gini coefficient for the entire service area, $G(t)$, is defined as:
 
 \begin{equation}\label{eq:pb-objective-gini}
@@ -311,12 +315,12 @@ G_c(t) \;=\;
 \end{equation}
 
 \autoref{eq:pb-objective} defines the objective of the rebalancing problem.
-Its primary goal is to maximize the satisfied demand ratio while reducing the costs associated with operator- and user-based rebalancing.
+Its primary goal is to maximize the SDR while reducing the costs associated with operator- and user-based rebalancing.
 Additionally, an imbalance penalty based on the Gini coefficient is included to promote service equity.
 The objective is calculated over the whole simulation horizon, e.g., over all time steps $t$.
 This equation serves as a high-level, conceptual formulation of the overall system's goals.
 It is intentionally presented as a simplified, unweighted sum to provide a clear and concise problem statement.
-This structure acts as an abstraction of the more detailed, operational reward functions that guide the individual reinforcement learning agents, which are discussed in the following sections.
+This structure acts as an abstraction of the more detailed, operational reward functions that guide the individual RL agents, which are described in the following sections.
 
 \begin{equation}\label{eq:pb-objective}
 \max\;\sum_{t\in \mathcal{T}}\Biggl[

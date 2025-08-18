@@ -228,7 +228,7 @@ Xie et al. \cite{xie_censored_2023} used a different approach than the previousl
 They proposed a censored semi-bandit model for allocating bikes from a docked bike-sharing system to other zones. 
 The operating area is divided into 12 different zones. 
 The authors formulate a censored semi-bandit problem where each arm corresponds to one of the zones. 
-The semi-bandit formulation, unlike a standard Multi-Armed Bandit (MAB), enables the model to select multiple arms (or zones) in each round.
+The semi-bandit formulation, unlike a standard Multi-Armed Bandit (MAB), enables the model to select multiple arms (zones) in each round.
 In each decision round, which is done once a day, the model allocates bikes to each zone. 
 The primary objective is to maximize the cumulated number of successful bike pick-ups.
 This model employs an Upper Confidence Bound (UCB)- based policy, which adds an exploration bonus to zones where demand is uncertain. 
@@ -260,7 +260,7 @@ Each cluster is then treated independently to reduce complexity.
 The second stage incorporates predictive modeling through two components: an O-model, which uses a similarity-based k-nearest neighbor approach to forecast pick-up demand, and an I-model, which predicts drop-off demand by probabilistically tracking bike transitions across regions. 
 A central element of their approach is a deep Q-learning-based framework, in which individual service vehicles, modeled as agents, utilize historical observations and real-time predictive insights to determine optimal repositioning actions.
 This implicitly coordinates their actions by considering each other's states and planned moves. 
-Evaluations demonstrate the effectiveness of this approach, which significantly reduces unmet demand compared to heuristic repositioning strategies. 
+Evaluation results demonstrate the effectiveness of this approach, which significantly reduces unmet demand compared to heuristic repositioning strategies. 
 However, the proposed model also reveals limitations. 
 While the authors implement spatio-temporal pruning heuristics to reduce computational complexity, scalability remains constrained by the exponential growth of state-action spaces as system size increases. 
 Sensitivity to prediction accuracy for demand forecasts and potential inefficiencies resulting from asynchronous decision-making among multiple agents can impact the effectiveness of the framework.
@@ -300,9 +300,11 @@ Sensitivity to prediction accuracy for demand forecasts and potential inefficien
     \label{tab:related-works_reinforcement-learning}
 \end{table}
 
-In summary, existing literature on reinforcement learning (RL)-based rebalancing algorithms predominantly emphasizes user-based strategies, seeking optimal incentives for users to pick-up and drop-off vehicles at alternative locations.
+In summary, existing literature on RL-based rebalancing algorithms predominantly emphasizes user-based strategies, seeking optimal incentives for users to pick-up and drop-off vehicles at alternative locations.
 Conversely, research explicitly targeting operator-based rebalancing remains limited, with even fewer studies investigating hybrid approaches combining both user and operator rebalancing.
-Value-based algorithms, such as Deep Q-Networks (DQN) and Q-learning, and policy-gradient methods, including Proximal Policy Optimization (PPO), Trust Region Policy Optimization (TRPO), and Actor-Critic using Kronecker-Factored Trust Region (ACKTR), form the most frequently applied methodologies.
+The most frequently applied methodologies fall into two primary categories.
+The first is value-based algorithms, such as Deep Q-Networks (DQN) and Q-learning.
+The second is policy-gradient methods, including Proximal Policy Optimization (PPO), Trust Region Policy Optimization (TRPO), and Actor-Critic using Kronecker-Factored Trust Region (ACKTR).
 Recent studies have explored Hierarchical Reinforcement Learning (HRL) and Multi-Agent Reinforcement Learning (MARL) frameworks to decompose complex rebalancing tasks into manageable subtasks addressed by multiple agents.
 The choice between factorizing the problem into independent single-agent tasks and employing a fully multi-agent framework represents a fundamental design trade-off between computational scalability and the ability to capture complex inter-agent dynamics.
 Such hierarchical and multi-agent approaches have demonstrated enhanced scalability and effectiveness in managing large-scale shared mobility services \cite{pan_deep_2019, li_dynamic_2018}.
@@ -312,7 +314,7 @@ However, comparative evaluations remain limited, restricted to only a few publis
 Furthermore, fairness considerations in fleet distribution have been almost never addressed, with Cederle et al. \cite{cederle_fairness-oriented_2025} presenting the only framework that incorporates fairness metrics to improve fleet distribution.
 Comprehensive analyses balancing operational costs against fairness considerations are notably absent in current research.
 Additionally, existing approaches predominantly utilize historical demand data or coarse-grained forecasts, resulting in limited responsiveness to real-time demand fluctuations.
-Consequently, future research should prioritize the development of dynamic demand forecasting methods, thereby enhancing the adaptability and responsiveness of rebalancing algorithms to shifting demand conditions.
+Consequently, future research should prioritize the development of dynamic demand forecasting methods, thereby enhancing the adaptability of rebalancing algorithms to shifting demand conditions.
 \\
 
 \section{Simulation Environments}\label{sec:related-work_simulator}
@@ -361,6 +363,9 @@ The implementation of custom rebalancing frameworks is more complex for MATSim s
 A notable trend in recent studies is the increasing use of custom simulation environments, particularly for RL approaches.
 This is often necessary because integrating complex rebalancing algorithms into existing open-source simulators can be hindered by steep learning curves, insufficient documentation, and performance limitations, rendering them unsuitable for the iterative demands of RL training.
 Especially, the increased computational overhead often makes it infeasible to implement such detailed simulations into the training process of rebalancing algorithms.
+To mitigate the developmental and maintenance overhead of a separate high-fidelity environment, many studies consequently rely on a single, simplified simulator for both agent training and final validation.
+Therefore, a notable research gap exists for a unified, high-fidelity simulation framework with a consistent interface.
+Such a simulation environment could operate in a simplified mode for efficient training and a full-fidelity mode for accurate validation, thereby providing the benefits of realistic evaluation without the overhead of maintaining two distinct systems.
 \\
 
 
