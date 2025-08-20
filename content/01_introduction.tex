@@ -33,10 +33,10 @@ Furthermore, many RL rebalancing strategies focus on either city-wide or local n
 This thesis addresses these identified research gaps by proposing an integrated system that combines both rebalancing modes.
 The primary objectives of this work are:
 \begin{goal}\label{goal:design}
-    Design a Hierarchical Reinforcement Learning (HRL) framework that integrates operator- and user-based rebalancing by decomposing the problem into spatially and functionally distinct sub-problems.
+    Design a \glsfirst{hrl} framework that integrates operator- and user-based rebalancing by decomposing the problem into spatially and functionally distinct sub-problems.
 \end{goal}
 \begin{goal}\label{goal:implementation}
-    Implement the designed HRL framework by developing agents with specific RL algorithms and creating a custom simulation environment driven by real-world demand data.
+    Implement the designed \gls{hrl} framework by developing agents with specific RL algorithms and creating a custom simulation environment driven by real-world demand data.
 \end{goal}
 \begin{goal}\label{goal:evaluation}
     Evaluate the framework's effectiveness by systematically benchmarking its performance against multiple baselines, using metrics for service quality, operational cost, and fleet distribution.
@@ -48,7 +48,7 @@ The primary objectives of this work are:
 The remainder of this thesis is structured as follows:
 \autoref{sec:background} introduces the key foundations for fleet optimization in a dynamic context.
 \autoref{sec:related-work} surveys related work on optimizing shared micromobility services through rebalancing algorithms.
-\autoref{sec:design} describes the available data for this study, defines the rebalancing problem for a combined user- and operator-based rebalancing system, and details the design choices of the proposed HRL framework.
+\autoref{sec:design} describes the available data for this study, defines the rebalancing problem for a combined user- and operator-based rebalancing system, and details the design choices of the proposed \gls{hrl} framework.
 \autoref{sec:implementation} focuses on the implementation details of the core components of the proposed rebalancing framework.
-\autoref{sec:evaluation} details the hyperparameter optimization conducted for the RL agents and presents and discusses the results of evaluating the HRL framework against multiple baselines.
+\autoref{sec:evaluation} details the hyperparameter optimization conducted for the RL agents and presents and discusses the results of evaluating the \gls{hrl} framework against multiple baselines.
 Lastly, \autoref{sec:conclusion} summarizes the key findings of this thesis and provides recommendations for future work in this research area.

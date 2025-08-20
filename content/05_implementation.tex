@@ -1,16 +1,15 @@
 \chapter{Implementation}\label{sec:implementation} % approx. 9 pages
-The following chapter outlines the implementation of the core components from the proposed HRL framework, comprising the high-level RDC agent, the low-level UIC agents, and the Demand Forecasting Module, as specified in the previous chapter.
-All these components are implemented using Python in the version \texttt{v3.10.6}.
+The following chapter outlines the implementation of the core components from the proposed \gls{hrl} framework, comprising the high-level RDC agent, the low-level \gls{uic} agents, and the Demand Forecasting Module, as specified in the previous chapter.
 
 All computational tasks, including data preparation, training of the agents/models, hyperparameter optimization, and evaluation, were performed on a machine provided by the KEIM application centre, part of the University of Esslingen and the Fraunhofer IAO.
 This machine is powered by an Intel Core i7-6850K CPU (six cores, each at 3.60 GHz), four NVIDIA GeForce GTX 1080 Ti graphics cards (each with 12 GB of VRAM), and 64 GB of RAM.
 
 \section{Regional Distribution Coordinator}\label{sec:implementation_rdc}
-The Regional Distribution Coordinator (RDC) defines the RL agent as the first level of the proposed HRL framework (see \autoref{sec:design-rl_framework}).
+The Regional Distribution Coordinator (RDC) defines the RL agent of the first level of the proposed \gls{hrl} framework (see \autoref{sec:design-rl_framework}).
 The central component of the agent is the \texttt{RegionalDistributionCoordinator} class, which defines the agent itself.
-The agent utilizes a Multi-Head Deep Q Network, defined by the class \texttt{MultiHeadDQN}, to choose rebalancing quotas, thereby tackling inter-community imbalances in the system through manual rebalancing by service workers.
-To ensure efficient learning and effective use of training data, the agent employs a Prioritized Experience Replay (PER) buffer, which is implemented by the \texttt{ReplayBuffer} class.
-The experiences stored in this buffer are gained by interacting with the \texttt{EScooterRDCEnv}, which defines a custom environment based on the OpenAI Gym interface.
+The agent utilizes an MMH-DQN, defined by the class \texttt{MultiHeadDQN}, to choose rebalancing quotas, thereby tackling inter-community imbalances in the system through manual rebalancing by service workers.
+To ensure efficient learning and effective use of training data, the agent employs a PER buffer, which is implemented by the \texttt{ReplayBuffer} class.
+The experiences stored in this buffer are gained by interacting with the \texttt{EScooterRDCEnv}, which defines a custom environment based on the OpenAI Gym interface \cite{brockman_openai_2016}.
 
 The configurable hyperparameters that influence the agent's ability to learn an efficient rebalancing strategy are defined in \autoref{tab:rdc_hyperparameters_description}.
 
@@ -26,9 +25,9 @@ The architecture of this MH-DQN is defined as follows:
     \item \textbf{Shared Layers}:
         The normalized state tensor then gets processed by two fully connected layers with a size of \texttt{RDC\_hidden\_size}.
         Each of these fully connected shared layers (\texttt{torch.nn.Linear}) are followed by a non-linear \texttt{torch.nn.ReLU} activation function.
-        By processing the combined state of all communities, these layers learn to identify system-wide patterns and spatial-temporal interdependencies.
+        By processing the combined state of all communities, these layers learn to identify system-wide patterns and spatio-temporal interdependencies.
         This network of shared layers outputs a condensed, high-level feature representation of the entire system, which is then passed to the specialized heads.
-    \item \textbf{Head-Specific layer}:
+    \item \textbf{Head-Specific Layer}:
         The feature tensor outputted from the shared layers is then processed in $N_C$ heads, one head for each community.
         Each of these heads consists of two fully connected linear layers (\texttt{torch.nn.Linear}) and a \texttt{torch.nn.ReLU} activation function in between.
         The second of those layers outputs the Q-values for each discrete action per community.
@@ -73,7 +72,7 @@ This network is embedded within a custom simulation environment, which is descri
 
 \subsection{Environment (\texttt{EScooterRDCEnv} Class)}
 The \texttt{EScooterRDCEnv} class implements the simulation environment used for training the RDC agent.
-It follows the standard OpenAI Gym interface.
+It follows the standard OpenAI Gym interface \cite{brockman_openai_2016}.
 The \texttt{step()} function defines the core logic of the simulation, which is detailed in the following:
 
 \begin{enumerate}
@@ -90,9 +89,9 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
         After the vehicle counts are updated based on the rebalancing actions chosen by the agent, the user demand is simulated for the entire step (e.g., 60 minutes).
         Crucially, the demand simulated within the environment is drawn from raw historical data, not the forecasts provided to the agent.
         This introduces a natural degree of uncertainty and partial observability, testing the agent's robustness against the inevitable errors of the Demand Forecasting Module.
-    \item \textbf{Observation and Reward Calculation : }
+    \item \textbf{Observation and Reward Calculation:}
         After both rebalancing and demand are simulated, the reward for the time step is calculated.
-        As detailed in \autoref{sec:design-rl_framework-rdc}, the reward consists of the ratio between satisfied and unsatisfied demand, a penalty for the amount of vehicles rebalanced, and the Gini index to reward equally distributed vehicles.
+        As detailed in \autoref{sec:design-rl_framework-rdc}, the reward consists of the ratio between satisfied and unsatisfied demand, a penalty for the amount of vehicles rebalanced, and the Gini coefficient to reward equally distributed vehicles.
         Then, a new state observation $S_{t+1}^{RDC}$ is created based on the updated vehicle counts and newly forecasted demand.
         The method then returns the complete experience tuple \texttt{(state, action, reward, next\_state, done)}.
 \end{enumerate}
@@ -100,16 +99,16 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
 With the agent's architecture and the environment defined, the training procedure is used to enable the agent to learn an effective rebalancing policy, which is described in the following subsection.
 
 \subsection{Training procedure}
-The training procedure of the RDC agent is defined by the \texttt{train} method of the \texttt{RegionalDistributionCoordinator}.
+The training procedure of the RDC agent is defined by the \texttt{train} method of the \texttt{RegionalDistributionCoordinator} class.
 The following section describes the step-by-step implementation of this training procedure:
 
 The initial step of the training process starts with sampling experiences from the \texttt{ReplayBuffer}.
-As detailed in \autoref{sec:design-rl_framework-rdc}, this replay buffer implements Prioritized Experience Replay (PER) \cite{schaul_prioritized_2016}.
+As detailed in \autoref{sec:design-rl_framework-rdc}, this replay buffer implements PER \cite{schaul_prioritized_2016}.
 The sampling is biased towards experiences with high TD-error.
-This bias is controlled by the prioritization exponent \texttt{replay\_buffer\_alpha}.
+This bias is controlled by the prioritization exponent \texttt{RDC\_per\_alpha}.
 Importance Sampling (IS) weights are used to counteract this bias.
-These weights are computed using the \texttt{replay\_buffer\_beta} for controlling the impact of these.
-The \texttt{replay\_buffer\_beta} is annealed over the course of \texttt{replay\_buffer\_beta\_frames} training steps to a final value of 1.0.
+These weights are computed using the \texttt{RDC\_per\_beta} for controlling the impact of these.
+The \texttt{RDC\_per\_beta} is annealed over the course of \texttt{RDC\_per\_beta\_frames} training steps to a final value of 1.0.
 
 After sampling experiences from the replay buffer, the Q-values are estimated for each head of the MH-DQN.
 The policy network calculates the current Q-values based on the actions $a_c^{RDC}(t)$ taken in the observed state $S_t^{RDC}$.
@@ -123,17 +122,17 @@ The final loss is the average of these weighted per-sample losses.
 
 The Adam optimizer (\texttt{torch.optim.Adam}) updates the gradients.
 Before the optimizer steps, the gradients are clipped to a maximum value of 10 to stabilize the training process.
-A learning rate scheduler updates the learning rate linearly every \texttt{lr\_step\_size} by \texttt{lr\_gamma}.
+A learning rate scheduler updates the learning rate linearly every \texttt{RDC\_lr\_step\_size} by \texttt{RDC\_lr\_gamma}.
 
 Finally, the agent's parameters are updated accordingly.
-Using soft updates with the factor \texttt{tau}, the target network ($\theta^-$) and the policy network ($\theta$), new values for the target network are calculated as follows \cite{hasselt_deep_2016}:
+Using soft updates with the factor \texttt{RDC\_tau}, based on the current target network ($\theta_t^-$) and the current policy network ($\theta_t$), new values for the target network $\theta_{t+1}^-$ are calculated as follows \cite{hasselt_deep_2016}:
 $\theta_{t+1}^- = \tau \theta_{t} + (1-\tau)\theta_t^-$
 The \texttt{epsilon} value of the $\epsilon$-greedy strategy is annealed using the following formula:
 $\epsilon = \max(\epsilon_{min}, \epsilon_{start} \cdot (\delta_{\epsilon}^{n_{step}}))$
 , where $n_{step}$ is the current step count.
-Lastly, the priorities of the PER are updated using the newly calculated TD errors by the \texttt{update\_priorities} from the \texttt{ReplayBuffer}.
+Lastly, the priorities of the PER are updated using the newly calculated TD-errors by the \texttt{update\_priorities} from the \texttt{ReplayBuffer}.
 
-The learning progress of the RDC agent over the course of the final training run is visualized in \autoref{fig:rdc_training_curves}.
+The learning progress of the \gls{rdc} agent over the course of the final training run is visualized in \autoref{fig:rdc_training_curves}.
 The plot displays the episodic reward, which shows a clear upward trend before converging, indicating that the agent successfully learned a policy to maximize its objective function. 
 
 \begin{figure}[!htb]
@@ -144,8 +143,8 @@ The plot displays the episodic reward, which shows a clear upward trend before c
 \end{figure}
 
 \section{User-Incentive Coordinator}\label{sec:implementation_uic}
-The User-Incentive Coordinator (UIC), which constitutes the second tier of our HRL framework, is implemented in the \texttt{UserIncentiveCoordinator} class.
-It utilizes the Proximal Policy Optimization (PPO) algorithm from the \texttt{StableBaselines3} library \cite{raffin_stable-baselines3_2021}.
+The \glsfirst{uic}, which constitutes the second tier of our \gls{hrl} framework, is implemented in the \texttt{UserIncentiveCoordinator} class.
+It utilizes the \gls{ppo} algorithm from the \gls{sb3} library \cite{raffin_stable-baselines3_2021}.
 
 The behavior of the PPO agent is determined by a set of key hyperparameters governing the learning algorithm, the neural network architecture, and the reward function, as detailed in \autoref{tab:uic_hyperparameters_description}.
 
@@ -175,18 +174,18 @@ The behavior of the PPO agent is determined by a set of key hyperparameters gove
         \texttt{UIC\_weight\_gini}      & Reward weight: Gini coefficient ($w_{gini}^{UIC}$). \\
         \bottomrule
     \end{tabularx}
-    \caption{Configurable Hyperparameters for the User-Incentive Coordinator (UIC) Agent. This table presents the 15 configurable hyperparameters for the PPO-based UIC agent. The parameters control the core PPO algorithm, network architecture, stability mechanisms, and reward weights. Detailed descriptions are provided in \autoref{tab:rdc_hyperparameters_detailed}.}
+    \caption{Configurable Hyperparameters for the \glsfirst{uic} Agent. This table presents the 15 configurable hyperparameters for the PPO-based \gls{uic} agent. The parameters control the core PPO algorithm, network architecture, stability mechanisms, and reward weights. Detailed descriptions are provided in \autoref{tab:rdc_hyperparameters_detailed}.}
     \label{tab:uic_hyperparameters_description}
 \end{table}
 
 \subsection{Environment (\texttt{EScooterUICEnv} Class)}
-The \texttt{EScooterUICEnv} class implements the simulation environment used for training the UIC agents.
+The \texttt{EScooterUICEnv} class implements the simulation environment used for training the \gls{uic} agents.
 It follows the standard OpenAI Gym interface.
 The \texttt{step()} function defines the core logic of the simulation, which is detailed in the following:
 
 \begin{enumerate}
     \item \textbf{Action execution:}
-        The \texttt{step()} function gets invoked with the taken action from the UIC as its single parameter.
+        The \texttt{step()} function gets invoked with the taken action from the \gls{uic} as its single parameter.
         This action is a vector containing the incentive levels for each zone corresponding to the community.
     \item \textbf{Rebalancing Simulation:}
         The rebalancing actions are simulated first.
@@ -208,11 +207,11 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
         The demand is simulated sequentially, continuously updating the vehicle counts for the entire 60-minute step.
     \item \textbf{Observation and Reward Calculation:}
         Lastly, the reward is calculated based on the number of rebalanced vehicles, the satisfied demand, and the distribution of vehicles (see \autoref{sec:design-rl_framework-uic}).
-        Then, a new state observation is created, and the method returns the complete experience tuple ($S_t, A_t, R_t, S_{t+1}, done$).
+        Then, a new state observation is created, and the method returns the complete experience tuple ($S_t^{UIC}, A_t^{UIC}, R_t^{UIC}, S_{t+1}^{UIC}, done^{UIC}$).
 \end{enumerate}
 
 \subsection{Training procedure}
-The training of the User-Incentive Coordinator (UIC) agent is orchestrated by the \texttt{OnPolicyAlgorithm.learn()} function, a core component of the Proximal Policy Optimization (PPO) implementation within the Stable Baselines 3 (SB3) library \cite{raffin_stable-baselines3_2021}.
+The training of the \gls{uic} agent is orchestrated by the \texttt{OnPolicyAlgorithm.learn()} function, a core component of the \gls{ppo} implementation within the \gls{sb3} library \cite{raffin_stable-baselines3_2021}.
 This procedure unfolds in two primary phases: experience collection and policy optimization.\\
 
 Initially, during the experience collection phase, the agent interacts with the \texttt{EScooterUICEnv} environment to gather a batch of experiences.
@@ -249,34 +248,34 @@ The total loss integrates three weighted components: the policy loss ($L^{\text{
     \label{eq:uic_total_loss_revised}
 \end{equation}
 
-The policy loss, or clipped surrogate objective, is governed by the \texttt{UIC\_clip\_range} hyperparameter ($\epsilon^{\text{UIC}}$) and serves to stabilize policy updates.
+The policy loss, or clipped surrogate objective, is governed by the \texttt{UIC\_clip\_range} hyperparameter and serves to stabilize policy updates.
 The value function loss, scaled by the coefficient $c_{VF}$ (\texttt{UIC\_vf\_coeff}), is the mean squared error between the predicted state-values and the target returns $G_t$.
 The entropy bonus, scaled by $c_{ent}$ (\texttt{UIC\_ent\_coeff}), encourages exploration by maximizing the policy's randomness.
 The computed total loss is then backpropagated to determine the gradients.
 An Adam optimizer, configured with the \texttt{UIC\_lr} learning rate, executes a single optimization step, updating the parameters ($\theta$) of both the policy and value networks.
-Finally, a learning rate scheduler adjusts the learning rate according to a predefined schedule, completing the training cycle.
+Finally, a learning rate scheduler updates the learning rate according to a predefined schedule, completing the training cycle.
 
-The learning process of the UIC agents is demonstrated in \autoref{fig:uic_reward_curve}.
-The figure illustrates the episodic average reward of one of the nine UIC agents, which are employed for each of the nine communities part of the operational area, as a representative.
+The learning process of the \gls{uic} agents is demonstrated in \autoref{fig:uic_reward_curve}.
+The figure illustrates the episodic average reward for one representative \gls{uic} agent.
 The reward curve demonstrates a consistent upward trend that eventually plateaus, suggesting that the agents successfully learned to optimize their local incentive strategies.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\textwidth]{content/figures/uic_reward_plot.png}
-    \caption{Representative UIC Agent Training Progress. This plot illustrates the average episodic reward for a single, representative UIC agent over the course of its training. The x-axis tracks the training steps, and the y-axis shows the reward. Similar to the RDC, the consistent upward trend indicates that the agent has effectively learned to optimize its local incentive strategy.}
+    \caption{Representative \gls{uic} Agent Training Progress. This plot illustrates the average episodic reward for a single, representative \gls{uic} agent over the course of its training. The x-axis tracks the training steps, and the y-axis shows the reward. Similar to the RDC, the consistent upward trend indicates that the agent has effectively learned to optimize its local incentive strategy.}
     \label{fig:uic_reward_curve}
 \end{figure}
 
 \section{Demand Forecasting Module}\label{sec:implementation_demand-forecasting-module}
-A requirement for the effective operation of the Regional Distribution Coordinator (RDC) and User-Incentive Coordinators (UICs) is an accurate forecast of future demand.
+A requirement for the effective operation of the \glspl{rdc} and \glspl{uic} is an accurate forecast of future demand.
 This is provided by the Demand Forecasting Module, which is detailed in this section.
 This Demand Forecasting Module is built upon the implementation by Li et al. \cite{li_improving_2023}.
 For the scope of this thesis, the original hyperparameters from Li et al. \cite{li_improving_2023} were adopted under the assumption of reasonable transferability.
 A complete hyperparameter optimization for the forecasting module was considered out of scope, but is noted as a potential area for future improvement.
-The demand data was prepared for the model using the process detailed in the Jupyter Notebook \texttt{prepare\_demand\_forecasting\_data.ipynb}.
-The preprocessed trip data, e.g., hourly aggregated trip data per zone, was cleaned by adding any missing time steps, filling missing values with zero demand, and sorting the community IDs.
+To prepare the demand data, the preprocessed trip data was cleaned by adding missing time steps, filling null values with zero demand, and sorting community IDs.
 The final data structure for the model input was a tensor of shape $(|\mathcal{Z}|, T_{input}, 1)$, where $T_{input}$ is the number of historical timesteps and the third dimension represents the demand.
-A similarity matrix is needed, which defines the kernels for each grid zone.
+The full implementation of this process is detailed in the Jupyter Notebook \url{prepare_demand_forecasting_data.ipynb}.
+A similarity matrix is required to define the kernels for each zone.
 This similarity matrix is generated by calculating a similarity metric based on the Dynamic Time Warping (DTW) distance \cite{berndt_using_1994} between the demand of all zones, resulting in a matrix of size $(|\mathcal{Z}| \times |\mathcal{Z}|)$ \cite{li_improving_2023}.
 Based on this distance parameter (\texttt{dtw\_dist}), the similarity is calculated (see \autoref{eq:irconvlstm-similarity}).
 DTW was chosen instead of PCC due to its superior performance results \cite{li_improving_2023}.
@@ -291,5 +290,7 @@ For each zone, its convolutional kernel was constructed using itself and the six
 For training the agents and hyperparameter optimization, the forecasts have been pre-computed for the entire training set, which significantly improved computational performance and, therefore, resulted in faster training.
 
 \section{Code-Availability}\label{sec:implementation-code_availability}
-The entire code for the proposed HRL framework is published in the GitHub Repository under \url{https://github.com/rubenRoehner/masterthesis_rebalancing_framework}.
+The entire code for the proposed \gls{hrl} framework is published in the GitHub Repository under \url{https://github.com/rubenRoehner/masterthesis_rebalancing_framework}.
 The repository includes data processing notebooks, environment definitions, agent definitions, training loops, and evaluation scripts.
+All these components are implemented using Python in the version \texttt{v3.10.16}.
+To ensure full reproducibility, the specific versions of all other required libraries are documented in the \url{environment.yaml} file, which is part of the repository.

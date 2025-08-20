@@ -280,8 +280,8 @@ For a cooperative task, a shared reward is often recommended \cite{busoniu_multi
 
 
 \subsection{Hierarchical Reinforcement Learning (HRL)}
-Hierarchical Reinforcement Learning (HRL) addresses the challenges of solving complex, long-horizon tasks by decomposing them into a hierarchy of simpler sub-problems.
-Instead of learning a single, monolithic policy to map high-level states to low-level actions, HRL introduces multiple levels of control.
+\glsfirst{hrl} addresses the challenges of solving complex, long-horizon tasks by decomposing them into a hierarchy of simpler sub-problems.
+Instead of learning a single, monolithic policy to map high-level states to low-level actions, \gls{hrl} introduces multiple levels of control.
 The most common structure is a two-level hierarchy consisting of a high-level policy (often called a manager or meta-controller) and one or more low-level policies (often called workers or controllers).
 The high-level policy operates at a coarse temporal scale, observing the environment's state and selecting a \textit{goal} or sub-task for the low-level policy to accomplish.
 The low-level policy then operates at a finer temporal scale, taking primitive actions in the environment to achieve the specified goal, after which control returns to the high-level policy.
@@ -292,15 +292,15 @@ Temporal abstraction enables the high-level policy to make decisions over extend
 For instance, a high-level rebalancing agent might decide to "increase vehicle supply in region X," leaving the low-level policy to execute the sequence of actions required to achieve that goal.
 This also leads to more efficient exploration; the low-level policy can learn meaningful, short-term skills (e.g., "pick-up a scooter" or "travel to a specific location"), while the high-level policy explores more strategically in the space of sub-goals rather than in the vast space of primitive actions.
 This structured exploration is often more effective and leads to faster convergence.
-While powerful, the design of HRL frameworks introduces its own set of challenges \cite{pateria_hierarchical_2021}.
+While powerful, the design of \gls{hrl} frameworks introduces its own set of challenges \cite{pateria_hierarchical_2021}.
 
 A foundational approach to formalizing this hierarchy is the options framework introduced by Sutton et al. \cite{sutton_between_1999}, where multi-step actions, or \textit{options,} are learned as temporally extended sub-policies.
-However, a key challenge in HRL is defining these subtasks or goals.
+However, a key challenge in \gls{hrl} is defining these subtasks or goals.
 In many cases, they must be predefined by a human expert with significant domain knowledge.
 While research into automatic goal discovery exists, it remains an open problem.
 Furthermore, designing the reward structure for both levels of the hierarchy is a non-trivial task.
 The low-level policy requires intrinsic motivation (rewards for achieving goals), whereas extrinsic rewards from the environment drive the high-level policy.
-Despite these challenges, HRL provides a powerful paradigm for tackling problems with a clear hierarchical structure, such as the strategic and operational decisions involved in fleet optimization.
+Despite these challenges, \gls{hrl} provides a powerful paradigm for tackling problems with a clear hierarchical structure, such as the strategic and operational decisions involved in fleet optimization.
 
 \subsection{Summary}
 This section has provided an overview of Reinforcement Learning, from its theoretical foundations in Markov Decision Processes to advanced, practical algorithms.
@@ -313,7 +313,7 @@ In contrast, policy gradient methods optimize the policy directly and are partic
 Their ability to learn stochastic policies is essential for adapting to rapidly changing environments.
 
 MARL extends these methodologies to settings involving multiple interacting agents, though it introduces additional challenges such as non-stationarity and scalability problems.
-Finally, HRL further decomposes complex tasks into hierarchical subtasks through abstraction, allowing high-level policies to set sub-goals for lower-level controllers, thereby improving learning efficiency. 
+Finally, \gls{hrl} further decomposes complex tasks into hierarchical subtasks through abstraction, allowing high-level policies to set sub-goals for lower-level controllers, thereby improving learning efficiency. 
 However, designing an effective hierarchy often requires additional human intervention and extensive optimization.
 
 In summary, the various reinforcement learning approaches discussed in this section provide a comprehensive foundation for optimizing shared micromobility fleets.

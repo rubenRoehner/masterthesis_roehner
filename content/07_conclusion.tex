@@ -2,23 +2,24 @@
 This chapter summarizes the core findings of this thesis and gives an overview of areas for improvement.
 
 \section{Summary}\label{sec:conclusion-summary}
-This thesis addresses the critical challenge of fleet imbalance in shared micromobility services by designing, implementing, and evaluating a novel HRL framework.
+This thesis addresses the critical challenge of fleet imbalance in shared micromobility services by designing, implementing, and evaluating a novel \gls{hrl} framework.
 The primary finding indicates that a hierarchical approach that decouples strategic, operator-based rebalancing from tactical, user-based incentives demonstrates considerable potential.
 Specifically, the high-level RDC agent enhanced service quality relative to the baselines, operating independently.
-However, the evaluation revealed that low-level UIC agents underperformed. This finding suggests that integrating user-based rebalancing demands a refined design.
+However, the evaluation revealed that the low-level UIC agents underperformed.
+This finding suggests that integrating user-based rebalancing demands a refined design.
 
 In order to reach these findings, the thesis was structured around three primary objectives that were set in the introduction.
-First, a two-tier HRL framework was designed to integrate both operator- and user-based rebalancing (\hyperref[goal:design]{Goal 1}), as detailed in \autoref{sec:design}.
+First, a two-tier \gls{hrl} framework was designed to integrate both operator- and user-based rebalancing (\hyperref[goal:design]{Goal 1}), as detailed in \autoref{sec:design}.
 This architecture featured:
 \begin{enumerate}
-    \item A high-level Regional Distribution Coordinator (RDC), based on a Multi-head Deep Q-Network (MH-DQN), responsible for strategic, operator-based relocations between predefined communities.
-    \item A set of low-level User-Incentive Coordinators (UICs), based on Proximal Policy Optimization (PPO), are responsible for fine-grained, user-based rebalancing within each of the defined communities.
+    \item A high-level \glsfirst{rdc}, based on a \glsfirst{mh-dqn}, responsible for strategic, operator-based relocations between predefined communities.
+    \item A set of low-level \glsentryfullpl{uic}, based on \glsfirst{ppo}, are responsible for fine-grained, user-based rebalancing within each of the defined communities.
     To address the imbalances occurring inside the communities.
 \end{enumerate}
 
-Second, this framework was fully implemented in Python using a custom simulation environment driven by real-world data, fulfilling (\hyperref[goal:implementation]{Goal 2}) as described in \autoref{sec:implementation}.
+Second, this framework was fully implemented in Python using a custom simulation environment driven by real-world data, fulfilling \hyperref[goal:implementation]{Goal 2} as described in \autoref{sec:implementation}.
 Finally, the framework was evaluated against multiple baselines (\hyperref[goal:evaluation]{Goal 3}).
-This evaluation partially accomplished its objective by demonstrating the RDC's effectiveness while simultaneously highlighting the limitations of the current UIC strategy, thereby underscoring the need for further refinement of the user-incentive component.
+This evaluation partially accomplished its objective by demonstrating the RDC's effectiveness while simultaneously highlighting the limitations of the current \gls{uic} strategy, thereby underscoring the need for further refinement of the user-incentive component.
 
 \section{Future Work}\label{sec:conclusion-future_work}
 Based on the key finding that the user-incentive strategy underperformed, the most critical avenues for future work involve improving the algorithmic framework and enhancing the simulation's realism to better capture user behavior.
@@ -28,23 +29,27 @@ The following points outline promising directions to build upon the findings of 
 The most immediate need is to address the performance limitations of the low-level UIC agents.
 
 \begin{itemize}
-    \item \textbf{Alternative RL Algorithms:}
-        To directly address the UICs' policy limitations, exploring alternative RL algorithms is a promising path. 
-        The UIC agents currently implemented as PPO could be tested using DDPG or a multi-agent PPO (MAPPO), which uses a shared critic and multiple agents.
-        MAPPO demonstrated promising performances in the past \cite{yu_surprising_2022}.
     \item \textbf{Inter-Agent Communication:}
-        The current implementation of the proposed HRL framework relies only on implicit communication between the two tiers.
-        The performance of the framework could benefit from incorporating explicit communication between the two tiers and between the UIC agents.
+        The current implementation of the proposed \gls{hrl} framework relies only on implicit communication between the two tiers.
+        The performance of the framework could benefit from incorporating explicit communication between the two tiers and between the \gls{uic} agents.
         By doing so, the agents could coordinate rebalancing tasks to work together more effectively and minimize actions that work against each other.
-        Implementing Inter-Agent Communication in any MARL or HRL can cause significant problems and needs to be consciously designed and evaluated.
-    \item \textbf{Incorporation of External-Data:}
-        Both the HRL agents and the demand forecasting module could be enhanced by integrating external data sources that influence mobility patterns.
-        Typical external data sources include real-time weather data, public transport schedules, information about public events, Point of Interest (POI) data, and land use data.
-        These external data sources can cause significant demand fluctuations, which could be anticipated by the models if included.
-    \item \textbf{Improving the HRL Framework:}
+        Implementing Inter-Agent Communication in any MARL or \gls{hrl} can cause significant problems and needs to be consciously designed and evaluated.
+    \item \textbf{Alternative RL Algorithms:}
+        To directly address the \glspl{uic}' policy limitations, exploring alternative RL algorithms is a promising path. 
+        The \gls{uic} agents currently implemented as PPO could be tested using DDPG or a multi-agent PPO (MAPPO), which uses a shared critic and multiple agents.
+        MAPPO demonstrated promising performances in the past \cite{yu_surprising_2022}.
+    \item \textbf{Improving the \gls{hrl} Framework:}
         This work proposed a two-level hierarchy based on communities and zones.
         Future work could investigate alternative hierarchical structures.
-        This might include adding a third, higher-level agent responsible for meta-strategies across the entire service area or testing different spatial aggregation methods to define the boundaries between agent responsibilities.
+        The negative interference might stem from the specific spatial division of responsibilities (communities and zones).
+        The problem scope for a single UIC agent, which must manage incentive levels across all zones within a community, may be too complex for the PPO algorithm to solve effectively due to the large state and action spaces.
+        A more effective approach could be to deepen the hierarchy by decomposing the user-incentive strategy itself into two levels.
+        This would involve a new mid-level agent setting broad incentive goals for the community, while multiple low-level agents would execute these goals with fine-grained actions in more manageable sub-regions.
+
+%    \item \textbf{Incorporation of External-Data:}
+%        Both the \gls{hrl} agents and the demand forecasting module could be enhanced by integrating external data sources that influence mobility patterns.
+%        Typical external data sources include real-time weather data, public transport schedules, information about public events, Point of Interest (POI) data, and land use data.
+%        These external data sources can cause significant demand fluctuations, which could be anticipated by the models if included.
 \end{itemize}
 
 \subsection{Enhancing Simulation}
@@ -52,11 +57,11 @@ The current work relies on a custom simulation environment that uses simplified 
 Future research could significantly enhance the realism of the evaluation.
 \begin{itemize}
     \item \textbf{Advanced User-Willingnes Modeling:}
-        Given that the simple linear user model likely contributed to the UICs' poor performance, a critical area for improvement is the development of more sophisticated user choice models.
+        Given that the simple linear user model likely contributed to the \glspl{uic}' poor performance, a critical area for improvement is the development of more sophisticated user choice models.
         Instead of a static function, a model could be learned directly from trip data to better capture the complex factors influencing user decisions, such as walking distance, cost savings, and trip purpose.
     \item \textbf{Incorporating Latent Demand:}
         The demand utilized in this study is historical observed demand, which is biased or censored, meaning that it only contains a portion of the actual demand, as only satisfied demand is quantified through the GBFS data.
-        Incorporating an unbiased, uncensored demand model results in more realistic possibilities to increase satisfied demand by addressing the unsatisfied demand not present in historical demand data.
+        Incorporating an uncensored demand model produces more realistic possibilities for increasing satisfied demand by addressing the unsatisfied demand not reflected in historical demand data.
         Gammeli et al. \cite{gammelli_estimating_2020} developed a model based on Gaussian Processes to estimate the uncensored demand that is not present in historical demand data.
     \item \textbf{High-Fidelity Simulation:}
         As noted in the literature review, there exists a research gap for implementing a high-fidelity simulator for testing shared micromobility services under real conditions.
@@ -67,7 +72,7 @@ Future research could significantly enhance the realism of the evaluation.
 
 \subsection{Expanding the Problem Scope}
 Once the core algorithmic and simulation challenges are addressed, the framework can be extended to encompass a broader range of operational aspects.
-This thesis focused on the core rebalancing problem, while other critical operation aspects were deliberately excluded due to the time constraints of this work.
+This thesis focused on the core rebalancing problem, while other critical operation aspects were deliberately excluded due to the time constraints of this thesis.
 Future work could expand the scope of this framework by integrating other operational aspects.
 \begin{itemize}
     \item \textbf{Incorporate State-of-Charge:}
@@ -76,10 +81,11 @@ Future work could expand the scope of this framework by integrating other operat
         This would involve integrating battery swapping or charging tasks into the operator's rebalancing routes, adding a new layer of complexity to the optimization problem.
         With the current underlying demand data, incorporating the SOC isn't directly possible, since only trip start and end locations that are not connected to each other are available.
         This would mean that the decrease of the SOC must be modeled based on the GBFS data that includes a parameter for the SOC.
-        This modeling does come with a bias and is a limited solution, ideally would be connected trip data from which more realistic modeling of the SOC is possible.
+        This modeling does come with a bias and is a limited solution.
+        Ideally, a more realistic model of the SoC would be possible using connected trip data.
     \item \textbf{Operator Vehicle Routing:}
-        As stated in \autoref{sec:design-problem_definition}, this work explicitly excluded the vehicle routing problem to focus on the rebalancing problem, due to the many implementations already published.
-        By incorporating the vehicle routing problem for the operator-based rebalancing, the suggested rebalancing quotas by the RDC agent could be fulfilled using VRP algorithms.
+        As stated in \autoref{sec:design-problem_definition}, this work explicitly excluded the \glsfirst{vrp} to focus on the rebalancing problem, due to the many implementations already published.
+        By incorporating the \gls{vrp} for the operator-based rebalancing, the suggested rebalancing quotas by the RDC agent could be fulfilled using VRP algorithms.
 %    \item \textbf{Dynamic Fleet Management:}
 %        The current implementation of the simulation environment forces a constant fleet size based on the mean of the observed GBFs data.
 %        Many sharing services operate a depot from which e-scooters can be picked up or dropped off.

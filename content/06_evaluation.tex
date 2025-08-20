@@ -1,12 +1,12 @@
 \chapter{Evaluation}\label{sec:evaluation} % approx. 14 pages
-The following chapter details the experimental setup used for evaluation, the hyperparameter optimization for the RDC and UIC agents, and the discussion of the final results.
+The following chapter details the experimental setup used for evaluation, the hyperparameter optimization for the RDC and UIC agents, the analysis of the final results, and the discussion of these results.    
 
 
 \section{Hyperparameter Optimization}\label{sec:evaluation-ho}
-The performance of reinforcement learning agents is highly dependent on the selection of their hyperparameters.
-A systematic hyperparameter optimization (HO) is therefore essential to ensure agent efficacy, particularly for a complex hierarchical reinforcement learning (HRL) framework such as the one proposed.
-A dedicated HO process was conducted for both the Regional Distribution Coordinator (RDC) and the User-Incentive Coordinator (UIC) agents to maximize their individual performance.
-This section outlines the optimization methodology and presents the final hyperparameter configurations used in the subsequent evaluation of the HRL framework
+The performance of reinforcement learning agents is highly dependent on the selection of their hyperparameters \cite{sutton_reinforcement_2018}.
+A systematic hyperparameter optimization (HO) is therefore essential to ensure agent efficacy, particularly for a complex \gls{hrl} framework such as the one proposed.
+A dedicated HO process was conducted for both the \glsfirst{rdc} and the \glsfirst{uic} agents to maximize their individual performance.
+This section outlines the optimization methodology and presents the final hyperparameter configurations used in the subsequent evaluation of the \gls{hrl} framework
 
 The optimization objective for both agents was to maximize a composite reward function.
 This function is a weighted sum of three metrics: maximizing satisfied user demand ($R_{demand}$), minimizing rebalancing costs ($R_{cost}$), and promoting equitable vehicle distribution ($R_{gini}$).\\
@@ -19,19 +19,19 @@ The sampler then selects the parameter value that maximizes this ratio, guiding 
 
 To ensure reproducibility, all optimization runs were seeded.
 As HO is computationally intensive, the process was parallelized across multiple jobs.
-Furthermore, demand forecasts were pre-calculated to reduce computation time. The remainder of this section details the specific HO processes for the RDC and UIC agents.
+Furthermore, demand forecasts were pre-calculated to reduce computation time. The remainder of this section details the specific HO processes for the \gls{rdc} and \gls{uic} agents.
 
 \paragraph{Reward Weight Optimization}
 Initial experiments in which the reward weights themselves were included in the HO process consistently led to undesirable agent behaviors.
-Both RDC and UIC agents learned to adopt passive strategies, as avoiding rebalancing entirely was the most effective way to achieve a high reward under automatically discovered weight configurations.
+Both \gls{rdc} and \gls{uic} agents learned to adopt passive strategies, as avoiding rebalancing entirely was the most effective way to achieve a high reward under automatically discovered weight configurations.
 This behavior directly conflicted with the intended operational goals.
-To address this, the reward weights were determined manually through targeted short-run experiments with different weight configurations.
+To address this, the reward weights were chosen manually through targeted short-run experiments with different weight configurations.
 This manual tuning ensured that the reward structure encouraged active rebalancing while balancing the trade-offs between demand satisfaction, operational costs, and fleet balance.
-Furthermore, identical reward weights were selected for both the RDC and UIC agents to align their objectives and prevent them from working at cross-purposes during joint operation.
+Furthermore, identical reward weights were selected for both the RDC and \gls{uic} agents to align their objectives and prevent them from working in a counterproductive way during joint operation.
 The final chosen weights are documented in \autoref{tab:rdc_final_hyperparameters} and \autoref{tab:uic_final_hyperparameters}.
 
 \subsection{Regional Distribution Coordinator (RDC)}\label{sec:evaluation-ho-rdc}
-The RDC agent, based on a Multi-head Deep Q-Network (MH-DQN) architecture with Prioritized Experience Replay (PER), has 17 distinct hyperparameters.
+The RDC agent, based on a \gls{mh-dqn} architecture with \gls{per}, has 17 distinct hyperparameters.
 To manage this complexity, a three-round coarse-to-fine optimization strategy was adopted.
 For all rounds, each trial consisted of 100 training episodes, each with a maximum of 100 steps, followed by 20 evaluation episodes.
 
@@ -63,7 +63,8 @@ Each blue point corresponds to an individual trial, and the solid red line track
 \autoref{fig:ho-rdc-focused-slice} dives deeper into the analysis of the HO process of the RDC agent.
 It demonstrates the four most critical hyperparameters, with each point representing a single trial.
 These four hyperparameters were selected by visually analyzing the slice plot for all parameters and by examining the importance value for each HO run.
-Since the hyperparameters were grouped and individually optimized in the first two rounds, a global importance metric couldn't be plotted over all HO runs due to a lack of comparability.
+The calculation of a global importance metric is not possible in this case due to the optimization of the hyperparameters in separate groups during the initial rounds.
+This prevents a valid comparison across all runs.
 
 The discount factor \texttt{RDC\_gamma} has a strong positive correlation to the objective value.
 The best results are concentrated in the upper range of $[0.98, 0.99]$, which suggests that the RDC prefers to be far-sighted.
@@ -74,7 +75,7 @@ This aligns with the intended purpose of the RDC agent, which is a strategic one
 The target network update rate, \texttt{RDC\_tau}, exhibits a clear pattern.
 The vast majority of high-performing trials are concentrated at very low values, specifically in the range of [0,0.02].
 This indicates that slow, incremental updates to the target network are crucial for stable and effective learning.
-As \texttt{tau} increases, the objective values become significantly more varied and trend lower.
+As \texttt{RDC\_tau} increases, the objective values become significantly more varied and trend lower.
 
 The \texttt{RDC\_epsilon\_decay}, which controls the exploration decay of the $\epsilon$-Greedy strategy, reveals a distinct optimal region.
 The best results are found for decay rates between approximately 0.96 and 0.985.
@@ -94,6 +95,7 @@ While good results are possible at other sizes, the smallest (64) and largest (1
 
 The resulting optimal hyperparameter configuration is presented in \autoref{tab:rdc_final_hyperparameters}.
 Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:rdc_hyperparameters_description}), while the search spaces for each optimization round are defined in the appendix (\cref{tab:rdc_ho_first_round,tab:rdc_ho_second_round,tab:rdc_ho_final_round}).
+The slice plots for all hyperparameters are presented in \autoref{fig:rdc-full-slice-plot}.
 
 \begin{table}[!htb]
     \centering
@@ -101,7 +103,7 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
         \toprule
         \textbf{Parameter} & \textbf{Summary Description} & \textbf{Final Value} \\
         \midrule
-        \texttt{RDC\_lr} & Initial learning rate & $1 \times 1.1^{-6}$ \\
+        \texttt{RDC\_lr} & Initial learning rate & $1.1e-6$ \\
         \texttt{RDC\_lr\_step\_size} & LR decay step size & $30,000$ \\
         \texttt{RDC\_lr\_gamma} & LR decay factor & $0.9$ \\
         \texttt{RDC\_gamma} & Discount factor & $0.978$\\
@@ -129,8 +131,8 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
 \end{table}
 
 \subsection{User-Incentive Coordinator (UIC)}\label{sec:evaluation-ho-uic}
-The UIC agent, which employs a Proximal Policy Optimization (PPO) algorithm, has 15 distinct hyperparameters to be optimized.
-A multi-stage optimization strategy, similar to that used for the RDC, was implemented over three rounds.
+The \gls{uic} agent, which employs a \gls{ppo} algorithm, has 15 distinct hyperparameters to be optimized.
+A multi-stage optimization strategy, similar to that used for the \gls{rdc}, was implemented over three rounds.
 Each trial in every round was run for 50,000 timesteps.
 
 \begin{enumerate}
@@ -149,19 +151,19 @@ Each trial in every round was run for 50,000 timesteps.
 The aggregated optimization process is illustrated by \autoref{fig:ho-uic-history}.
 Each blue point corresponds to an individual trial, and the solid red line tracks the best-performing trial of each run.
 It clearly demonstrates the benefits of employing a three-round hyperparameter optimization strategy.
-Unlike the RDC, the UIC's optimization history displays a step-wise improvement pattern, although the steps are less pronounced in the later stages.
+Unlike the RDC, the \gls{uic}'s optimization history displays a step-wise improvement pattern, although the steps are less pronounced in the later stages.
 This suggests that while the PPO agent is sensitive to specific parameter configurations, gains beyond certain thresholds become increasingly incremental.
 This phenomenon is likely due to the reduced amount of manual tuning before running the HO process compared to the RDC.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_history_plot.png}
-    \caption{Aggregated Optimization History for the UIC Agent. This plot shows the aggregated results from the multi-round hyperparameter optimization for the UIC agent. Each blue dot represents the result of a single trial, and the red line indicates the best performance achieved over time. The distinct step-wise improvements in the best-so-far objective value suggest that the PPO agent's performance is highly sensitive to specific combinations of hyperparameters that were discovered in later, more focused optimization rounds.}
+    \caption{Aggregated Optimization History for the \gls{uic} Agent. This plot shows the aggregated results from the multi-round hyperparameter optimization for the \gls{uic} agent. Each blue dot represents the result of a single trial, and the red line indicates the best performance achieved over time. The distinct step-wise improvements in the best-so-far objective value suggest that the PPO agent's performance is highly sensitive to specific combinations of hyperparameters that were discovered in later, more focused optimization rounds.}
     \label{fig:ho-uic-history}
 \end{figure}
 
 
-\autoref{fig:ho-uic-focused-slice} dives deeper into the analysis of the HO process of the UIC agent.
+\autoref{fig:ho-uic-focused-slice} dives deeper into the analysis of the HO process of the \gls{uic} agents.
 The top four most relevant parameters have been selected similarly to the process done for the RDC agent (see \autoref{sec:evaluation-ho-rdc}).
 The plots show that the agent's performance is strongly correlated with the learning rate, with competitive results achieved in a range between $1\mathrm{e}{-5}$ and $1\mathrm{e}{-4}$.
 For the \texttt{UIC\_n\_steps} parameter, most high-performing trials cluster around 512 steps, with another more minor concentration at the maximum value of 2048 steps.
@@ -174,13 +176,14 @@ This suggests that only a minimal entropy bonus is needed to prevent convergence
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_focused_slice_plot.png}
-    \caption{Focused Slice Plot of Critical UIC Hyperparameters. This figure displays slice plots for the four most critical hyperparameters for the PPO-based UIC agent: learning rate (\texttt{UIC\_lr}), number of steps (\texttt{UIC\_n\_steps}), discount factor (\texttt{UIC\_gamma}), and entropy coefficient (\texttt{UIC\_ent\_coef}). The plots show the objective value achieved for each value of a given hyperparameter across all trials. These visualizations clearly indicate optimal regions, such as a preference for moderately low learning rates, a high discount factor close to~1.0, specific step sizes around 512 or 2048, and a very small entropy bonus, confirming that the agent benefits from stable updates, long-term planning, and minimal forced exploration.}
+    \caption{Focused Slice Plot of Critical \gls{uic} Hyperparameters. This figure displays slice plots for the four most critical hyperparameters for the PPO-based \gls{uic} agent: learning rate (\texttt{UIC\_lr}), number of steps (\texttt{UIC\_n\_steps}), discount factor (\texttt{UIC\_gamma}), and entropy coefficient (\texttt{UIC\_ent\_coef}). The plots show the objective value achieved for each value of a given hyperparameter across all trials. These visualizations clearly indicate optimal regions, such as a preference for moderately low learning rates, a high discount factor close to $\sim1.0$, specific step sizes around 512 or 2048, and a very small entropy bonus, confirming that the agent benefits from stable updates, long-term planning, and minimal forced exploration.}
     \label{fig:ho-uic-focused-slice}
 \end{figure}
 
 
-The resulting optimal hyperparameter configuration for the UIC agent is presented in \autoref{tab:uic_final_hyperparameters}.
+The resulting optimal hyperparameter configuration for the \gls{uic} agent is presented in \autoref{tab:uic_final_hyperparameters}.
 Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:uic_hyperparameters_description}), while the search spaces used are defined in the appendix (\cref{tab:uic_ho_first_round,tab:uic_ho_second_round,tab:uic_ho_final_round}).
+The slice plots for all hyperparameters are presented in \autoref{fig:uic-full-slice-plot}.
 
 \begin{table}[!htb]
     \centering
@@ -188,7 +191,7 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
         \toprule
         Parameter & Description & Final Value \\
         \midrule
-        \texttt{UIC\_lr}                    & Optimizer learning rate.                  & $2.124 \times e^{-5}$ \\
+        \texttt{UIC\_lr}                    & Optimizer learning rate.                  & $2.124  e-5$ \\
         \texttt{UIC\_n\_steps}              & Rollout buffer size per update.           & $512$ \\
         \texttt{UIC\_batch\_size}           & Minibatch size for gradient updates.      & $32$ \\
         \texttt{UIC\_clip\_range}           & PPO policy update clipping range.         & $0.26$\\
@@ -208,7 +211,7 @@ Detailed parameter descriptions are provided in the implementation chapter (see 
         \texttt{UIC\_weight\_gini}          & Gini index penalty weight                 & $7.0$ \\
         \bottomrule
     \end{tabularx}
-    \caption{Final Optimized Hyperparameter Configuration for the UIC. This table displays the final, optimized hyperparameter values for the UIC agents. The configuration was identified through a systematic, multi-round hyperparameter search. These settings were applied to all UIC agents used in the final evaluation experiments.}
+    \caption{Final Optimized Hyperparameter Configuration for the \gls{uic}. This table displays the final, optimized hyperparameter values for the \gls{uic} agents. The configuration was identified through a systematic, multi-round hyperparameter search. These settings were applied to all \gls{uic} agents used in the final evaluation experiments.}
     \label{tab:uic_final_hyperparameters}
 \end{table}
 
@@ -220,13 +223,13 @@ Evaluating the models under these varied conditions ensures a more comprehensive
 
 
 \subsection{Evaluation Metrics}\label{sec:evaluation-setup-metrics}
-To quantitatively compare the performance of the different rebalancing strategies developed by the HRL framework and the baselines, the following metrics are used:
+To quantitatively compare the performance of the different rebalancing strategies developed by the \gls{hrl} framework and the baselines, the following metrics are used:
 
 \begin{itemize}
-    \item \textbf{Satisfied Demand Ratio (SDR):} 
+    \item \textbf{\glsfirst{sdr}:} 
         The primary metric for evaluating the service quality and user satisfaction.
         This ratio is defined as the percentage of total user trip requests that were successfully served, as formulated in \autoref{eq:problem-definition-satisfied-demand-ratio}.
-        A higher SDR indicates a more effective rebalancing strategy.
+        A higher \gls{sdr} indicates a more effective rebalancing strategy.
     \item \textbf{Manual Rebalancing Costs:}
         This metric quantifies the operational cost of manual rebalancing actions.
         It is calculated as the total number of vehicles rebalanced by service workers in the whole evaluation period.
@@ -236,35 +239,35 @@ To quantitatively compare the performance of the different rebalancing strategie
         It is calculated as the total number of trips where users accepted the offered incentive to change their drop-off location.
         Similarly to the previous metric, a lower value is also preferred.
     \item \textbf{Fleet Imbalance:}
-        The Gini index is used as a metric to measure the equity of the vehicle distribution.
+        The Gini coefficient is used as a metric to measure the equity of the vehicle distribution.
         This metric is calculated over the number of vehicles per zone at every time step and then averaged (see \autoref{eq:pb-objective-gini}).
-        A Gini index of zero indicates a fully balanced fleet, and a value of one indicates the maximum imbalance.
+        A Gini coefficient of zero indicates a fully balanced fleet, and a value of one indicates the maximum imbalance.
 \end{itemize}
 
 \subsection{Baselines}\label{sec:evaluation-setup-baselines}
-To evaluate the proposed HRL rebalancing framework, multiple baselines have been selected.
+To evaluate the proposed \gls{hrl} rebalancing framework, multiple baselines have been selected.
 The evaluation against these baselines elevates the interpretability of the results.
 Each baseline has been selected to test a distinct hypothesis, thereby thoroughly evaluating the design choices of the proposed framework.
 
 \subsubsection{RDC-only Baseline}
-The first baseline for comparison is running the Regional Distribution Coordinator (RDC) only, without the User-Incentive Coordinators (UICs).
+The first baseline for comparison is running the \gls{rdc} only, without the \glspl{uic}.
 By comparing the results to this baseline, it can be observed whether broad, operator-based rebalancing is enough to significantly improve trip satisfaction.
 
 
 \subsubsection{UIC-only Baseline}
-The second baseline involves running only the second tier of the proposed HRL framework, i.e., only the UIC agents propose incentive levels to locally rebalance the system.
+The second baseline involves running only the second tier of the proposed \gls{hrl} framework, i.e., only the \gls{uic} agents propose incentive levels to locally rebalance the system.
 This baseline, which involves no rebalancing between communities, tests the hypothesis that localized, user-driven fleet optimization can achieve comparable results to a system with multi-level rebalancing.
 
 \subsubsection{Greedy Heuristic}
-The third baseline is a greedy heuristic designed to test whether the HRL approach can outperform a simple, rule-based algorithm. This baseline serves as a lower bound that the proposed framework should outperform. The greedy heuristic is implemented in the same two-tier hierarchy as the HRL framework:
+The third baseline is a greedy heuristic designed to test whether the \gls{hrl} approach can outperform a simple, rule-based algorithm. This baseline serves as a lower bound that the proposed framework should outperform. The greedy heuristic is implemented in the same two-tier hierarchy as the \gls{hrl} framework:
 
 \begin{itemize}
-    \item \textbf{Top-Tier (Operator Rebalancing):}
+    \item \textbf{Top-Tier (Operator-based Rebalancing):}
         The top-tier heuristic calculates the expected vehicle deficit for each community based on current vehicle counts and demand forecasts.
         It then prioritizes communities with the highest deficit or surplus.
         To meet the expected demand, it selects the most suitable discrete action from the same action space available to the RDC, with the total number of rebalanced vehicles capped at 5\% of the total fleet size per hour to simulate operational constraints.
 
-    \item \textbf{Second-Tier (User Incentives):}
+    \item \textbf{Second-Tier (User-based Rebalancing):}
         The second-tier heuristic determines incentive levels for each zone within a community.
         It calculates the ratio of vehicle supply to expected demand for each zone.
         If this ratio is below a threshold of 0.8, a maximal incentive is offered to encourage users to drop-off vehicles in that zone.
@@ -272,7 +275,7 @@ The third baseline is a greedy heuristic designed to test whether the HRL approa
 \end{itemize}
 
 \section{Results}
-This section presents the performance evaluation of the proposed Hierarchical Reinforcement Learning (HRL) framework.
+This section presents the performance evaluation of the proposed \gls{hrl} framework.
 The results are analyzed to validate the design choices of the hierarchical architecture and to understand the trade-offs between satisfying user demand, the associated costs of rebalancing, and fleet equity.
 
 The experiments follow the design described in \autoref{sec:evaluation-setup}.
@@ -312,7 +315,7 @@ Best values for each metric and fleet size scenario are highlighted in bold in t
     Greedy Heuristic & [0.8548] & [\textbf{0}] & [27.16] & [0.3478] \\
     \bottomrule
     \end{tabularx}
-    \caption{Summary of Evaluation Results Across All Models and Fleet Size Scenarios. This table presents the comprehensive performance comparison of the full HRL framework and the four baselines across three distinct fleet size scenarios: balanced (100\%), undersupply (67\%), and oversupply (133\%). Performance is measured using four key metrics: Satisfied Demand Ratio (SDR), Manual Rebalancing Cost, Incentive Rebalancing Cost, and the Gini Coefficient. These results provide a quantitative basis for analyzing the efficacy, cost-effectiveness, and robustness of the proposed hierarchical approach compared to simpler strategies.}
+    \caption{Summary of Evaluation Results Across All Models and Fleet Size Scenarios. This table presents the comprehensive performance comparison of the full \glsfirst{hrl} framework and the four baselines across three distinct fleet size scenarios: balanced (100\%), undersupply (67\%), and oversupply (133\%). Performance is measured using four key metrics: Satisfied Demand Ratio (SDR), Manual Rebalancing Cost, Incentive Rebalancing Cost, and the Gini Coefficient. These results provide a quantitative basis for analyzing the efficacy, cost-effectiveness, and robustness of the proposed hierarchical approach compared to simpler strategies.}
     \label{tab:full_results_summary}
 \end{table}
 
@@ -320,46 +323,46 @@ Best values for each metric and fleet size scenario are highlighted in bold in t
 Each evaluation metric is examined individually before considering cross-metric trade-offs.
 
 
-\subsubsection{Satisfied Demand Ratio}
-The performance of the proposed HRL framework and its baselines in terms of service quality is presented in \autoref{fig:eval-bars-sdr}, which illustrates the Satisfied Demand Ratio (SDR) across different fleet sizes.
-The results show that the proposed HRL models significantly improve service quality.
+\subsubsection{\glsfirst{sdr}}
+The performance of the proposed \gls{hrl} framework and its baselines in terms of service quality is presented in \autoref{fig:eval-bars-sdr}, which illustrates the Satisfied Demand Ratio (SDR) across different fleet sizes.
+The results of the proposed \gls{hrl} models show mixed results.
 The \texttt{HRL Manual Only} model, representing the strategic RDC agent acting alone, consistently achieves the highest SDR across all scenarios, satisfying approximately 84\% of user demand in the balanced 900-vehicle scenario.
-The fully integrated \texttt{HRL Both Enabled} framework demonstrates strong performance, achieving the second-highest SDR of approximately 80\% in the same scenario and consistently outperforming the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines.
+The fully integrated \texttt{HRL Both Enabled} framework demonstrates worse performance, achieving the second-highest SDR of approximately 80\% in the same scenario and outperforming the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines only slightly in the undersupply and balanced fleet size scenarios.
 This performance degradation suggests a negative interaction between the two hierarchical levels.
-Rather than creating synergy, the tactical actions of the low-level UIC agents appear to interfere with the globally effective strategy of the high-level RDC.
-Especially, in the oversupply scenario, the addition of the UIC agents even results in poorer results than the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines.
+Rather than creating synergy, the tactical actions of the low-level \gls{uic} agents appear to interfere with the globally effective strategy of the high-level RDC.
+Especially, in the oversupply scenario, the addition of the \gls{uic} agents even results in poorer results than the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines.
 The \texttt{HRL Incentive Only} model underperforms relative to other strategies, suggesting that user-based incentives are most effective when operating within a system already balanced at a higher level.
 
-The performance ranking of the models remains robust across the different fleet sizes.
-The error bars confirm that both the \texttt{HRL Both Enabled} and \texttt{HRL Manual Only} models provide a statistically significant improvement over the \texttt{No Rebalancing} baseline, particularly in the undersupply scenario.
-Ultimately, these results highlight that the hierarchical framework is successful.
-The combination of a high-level agent for strategic relocations and low-level agents for tactical incentives provides an effective solution to the complex problem of fleet rebalancing.
+The performance ranking of the models remains mostly consistent across the different fleet sizes.
+The error bars confirm that the \texttt{HRL Manual Only} models provide a statistically significant improvement over the \texttt{No Rebalancing} baseline, particularly in the undersupply scenario.
+Ultimately, these results underscore the need for further improvement of the fully integrated HRL framework.
+While the high-level agent is effective in isolation, the successful combination of both agents remains a significant challenge for future research.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-bars-sdr.png}
-    \caption{Satisfied Demand Ratio by Rebalancing Strategy and Fleet Size. This bar chart compares the mean Satisfied Demand Ratio (SDR) achieved by the full HRL framework (HRL Both Enabled) and four baseline models across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
+    \caption{Satisfied Demand Ratio (SDR) by Rebalancing Strategy and Fleet Size. This bar chart compares the mean SDR achieved by the full \gls{hrl} framework (\texttt{HRL Both Enabled}) and four baseline models across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
     \label{fig:eval-bars-sdr}
 \end{figure}
 
 \subsubsection{Gini Coefficient}
 An analysis of the Gini coefficient, which measures fleet distribution equity, reinforces the theme of hierarchical interference, as shown in \autoref{fig:eval-bars-gini}.
 The figure illustrates the impact of each rebalancing strategy on the Gini coefficient, where lower values indicate a more equitable distribution.
-The HRL-based models outperform the baselines, except the \texttt{HRL Incentive Only} model.
+The \gls{hrl}-based models outperform the baselines, except the \texttt{HRL Incentive Only} model.
 \texttt{HRL Manual Only} achieves the best equity overall.
-In the 900-vehicle scenario, the \texttt{HRL Manual Only} model reduces the Gini coefficient to approximately 0.24, a 40\% improvement over the \texttt{No Rebalancing} baseline (~0.40), demonstrating its effectiveness in creating a globally balanced fleet.
+In the 900-vehicle scenario, the \texttt{HRL Manual Only} model reduces the Gini coefficient to approximately 0.24, a 40\% improvement over the \texttt{No Rebalancing} baseline ($\sim 0.40$), demonstrating its effectiveness in creating a globally balanced fleet.
 
 Notably, the fully integrated \texttt{HRL Both Enabled} framework performs nearly as well, with a Gini coefficient of just 0.26 in the same scenario.
-This suggests that incorporating localized, user-based incentives from the UIC agents results in only a marginal increase in imbalance.
+This suggests that incorporating localized, user-based incentives from the \gls{uic} agents results in only a marginal increase in imbalance.
 In contrast, the \texttt{HRL Incentive Only} model is significantly less effective than the integrated approach, underperforming the \texttt{No Rebalancing} baseline in the fleet size scenarios of 900 and 1200 vehicles.
-It suggests that while the RDC establishes a highly equitable foundation, the localized incentives offered by the UICs introduce minor disruptions that slightly degrade this overall balance.
+It suggests that while the RDC establishes a highly equitable foundation, the localized incentives offered by the \glspl{uic} introduce minor disruptions that slightly degrade this overall balance.
 The goal of fine-tuning local supply appears to come at a small but consistent cost to global equity.
 The performance rankings remain consistent across all fleet sizes, confirming the robustness of this collaborative behavior.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-bars-gini.png}
-    \caption{Gini coefficient by Rebalancing Strategy and Fleet Size. This bar chart compares the mean Gini coefficient achieved by the full HRL framework (HRL Both Enabled) and four baseline models across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs. This metric quantifies the equity of the vehicle distribution.}
+    \caption{Gini coefficient by Rebalancing Strategy and Fleet Size. This bar chart compares the mean Gini coefficient achieved by the full \gls{hrl} framework (\texttt{HRL Both Enabled}) and four baseline models across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs. This metric quantifies the equity of the vehicle distribution.}
     \label{fig:eval-bars-gini}
 \end{figure}
 
@@ -367,60 +370,61 @@ The performance rankings remain consistent across all fleet sizes, confirming th
 \autoref{fig:eval-bars-manual} illustrates the Manual Rebalancing Cost, measured as the mean number of vehicles relocated per hour by service workers.
 In the balanced scenario with 900 vehicles, the fully integrated \texttt{HRL Both Enabled} model demonstrates the highest level of rebalancing, averaging around 7.6 vehicle relocations per hour.
 When viewed alongside its suboptimal SDR and Gini performance, this high operational cost suggests inefficiency.
-A plausible hypothesis is that the RDC is not supporting the UICs, but rather working harder to correct localized imbalances introduced by their incentive policies.
-The cost profiles for the HRL models show differing trends: the rate for the \texttt{HRL Manual Only} model increases with fleet size, whereas the rate for the more active \texttt{HRL Both Enabled} model slightly decreases.
+A plausible hypothesis is that the RDC is not supporting the \glspl{uic}, but rather working harder to correct localized imbalances introduced by their incentive policies.
+The cost profiles for the \gls{hrl} models show differing trends: the rate for the \texttt{HRL Manual Only} model increases with fleet size, whereas the rate for the more active \texttt{HRL Both Enabled} model slightly decreases.
 In contrast, the \texttt{Greedy Heuristic} baseline averages nearly zero rebalanced vehicles per hour, which suggests that operational constraints heavily restrict its simple rule-based logic.
 Overall, the figure clearly shows the trade-off between rebalancing rate and system performance.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-bars-manual.png}
-    \caption{Manual Rebalancing Cost by Rebalancing Strategy and Fleet Size. This bar chart compares the mean Manual Rebalancing Cost, measured as the average number of vehicle relocations per hour, for the full HRL framework and four baseline models. The comparison is shown across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
+    \caption{Manual Rebalancing Cost by Rebalancing Strategy and Fleet Size. This bar chart compares the mean Manual Rebalancing Cost, measured as the average number of vehicle relocations per hour, for the full \gls{hrl} framework and four baseline models. The comparison is shown across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
     \label{fig:eval-bars-manual}
 \end{figure}
 
 \subsubsection{Incentive Rebalancing Costs}
 \autoref{fig:eval-bars-incentive} presents the operational costs associated with user-based rebalancing, measured as the mean number of vehicles relocated per hour via incentives.
-The results demonstrate the cost-effectiveness of the HRL-driven user-incentive strategies.
-The HRL frameworks, which included the low-level UIC agents (HRL Both Enabled and HRL Incentive Only), consistently induced approximately 11 rebalancing moves per hour.
+The results demonstrate the cost-ineffectiveness of the \gls{hrl}-driven user-incentive strategies.
+The \gls{hrl} frameworks, which included the low-level \gls{uic} agents (\texttt{HRL Both Enabled} and \texttt{HRL Incentive Only}), consistently induced approximately 11 rebalancing moves per hour.
 This static rate, which remained insensitive to variations in fleet size, indicates that the PPO agents learned a disciplined policy that achieves its objectives with minimal intervention.
-However, the value generated by this expenditure is doubtful.
-The Greedy Heuristic incurs far higher costs for mediocre results, but the HRL models' spending is also inefficient.
-For the HRL Both Enabled model, the cost of ~11 incentivized trips is incurred while simultaneously achieving a lower SDR and higher Gini coefficient than the HRL Manual Only model, which has zero incentive cost.
+However, the value generated by this cost is questionable.
+The \texttt{Greedy Heuristic} incurs far higher costs for tolerable results, but the \gls{hrl} models' spending is also inefficient.
+For the \texttt{HRL Both Enabled} model, the cost of $\sim11$ incentivized trips is incurred while simultaneously achieving a lower SDR and higher Gini coefficient than the \texttt{HRL Manual Only} model, which has zero incentive cost.
 This is a clear illustration of inefficient resource allocation.
-The results suggest that while the UIC agents learned to spend their budget consistently, the rebalancing actions they promoted did not produce a net benefit for the system, failing to justify their operational cost when integrated into the full hierarchy.
+The results suggest that while the \gls{uic} agents learned to spend their budget consistently, the rebalancing actions they promoted did not produce a net benefit for the system, failing to justify their operational cost when integrated into the full hierarchy.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-bars-incentives.png}
-    \caption{User-based Rebalancing Cost by Rebalancing Strategy and Fleet Size. This bar chart compares the mean Rebalancing Cost by incentives, measured as the average number of vehicle relocations through users per hour, for the full HRL framework and four baseline models. The comparison is shown across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
+    \caption{User-based Rebalancing Cost by Rebalancing Strategy and Fleet Size. This bar chart compares the mean rebalancing cost by incentives, measured as the average number of vehicle relocations through users per hour, for the full \gls{hrl} framework and four baseline models. The comparison is shown across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
     \label{fig:eval-bars-incentive}
 \end{figure}
 
 
 \subsection{Metric Trade-offs}
-By visualizing the relationships between metrics, the trade-offs and overall efficiency of each strategy can be analyzed more deeply. The following scatter plots move beyond single-metric performance to reveal how the models balance competing objectives.\\
+By visualizing the relationships between metrics, the trade-offs and overall efficiency of each strategy can be analyzed more deeply.
+The following scatter plots reveal how the models balance competing objectives.\\
 
-\autoref{fig:eval-scatter-sdr-gini} plots the Satisfied Demand Ratio against the Gini Coefficient, illustrating the trade-off between service quality and fleet equity.
-The positioning of the HRL Manual Only model in the top-left region of the plot establishes it as the most balanced and effective strategy.
-Across all fleet sizes, it consistently delivers a superior combination of high service quality (SDR) and high fleet equity (low Gini) compared to all other models.
-In contrast, the UIC-based models (HRL Both Enabled and HRL Incentive Only) are shown to be less effective.
-Their placement demonstrates inferior performance on both axes relative to the HRL Manual Only model, providing a clear visualization that the addition of the low-level agents degrades overall performance.
+\autoref{fig:eval-scatter-sdr-gini} plots the \gls{sdr} against the Gini coefficient, illustrating the trade-off between service quality and fleet equity.
+The positioning of the \texttt{HRL Manual Only} model in the top-left region of the plot establishes it as the most balanced and effective strategy.
+Across all fleet sizes, it consistently delivers a superior combination of high service quality (\gls{sdr}) and high fleet equity (low Gini) compared to all other models.
+In contrast, the \gls{uic}-based models (\texttt{HRL Both Enabled} and \texttt{HRL Incentive Only}) are shown to be less effective.
+Their placement indicates worse performance on both axes relative to the \texttt{HRL Manual Only} model, providing a clear visualization that the addition of the low-level agents degrades overall performance.
 Additionally, the plot illustrates a consistent trend for all models as fleet size increases, with performance moving toward the optimal top-left corner.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-scatter-sdr-gini.png}
-    \caption{Satisfied Demand Ratio vs. Gini Coefficient. The plot shows the trade-off between service quality (y-axis) and fleet distribution equity (x-axis), where the top-left corner is optimal. Each point represents the mean of 20 evaluation runs.}
+    \caption{S\glsfirst{sdr} vs. Gini Coefficient. The plot illustrates the trade-off between service quality (y-axis) and fleet distribution equity (x-axis), where the top-left corner represents the optimal solution. Each point represents the mean of 20 evaluation runs.}
     \label{fig:eval-scatter-sdr-gini}
 \end{figure}
 
 The scatter plots in \autoref{fig:eval-scatter-sdr-manual} and \autoref{fig:eval-scatter-sdr-incentives} offer a direct cost-benefit analysis by plotting the SDR achieved against the operational costs of manual and incentive-based rebalancing, respectively.
-Together, they reveal a fundamental difference in the efficiency of the two rebalancing modes as implemented in the HRL framework.
+Together, they reveal a fundamental difference in the efficiency of the two rebalancing modes as implemented in the \gls{hrl} framework.
 
-As shown in \autoref{fig:eval-scatter-sdr-manual}, the HRL Manual Only model's top performance requires the highest operational cost.
+As shown in \autoref{fig:eval-scatter-sdr-manual}, the \texttt{HRL Manual Only} model's top performance requires the highest operational cost.
 This position, located in the top-right of the plot, quantifies the successful strategy learned by the RDC agent, where significant operational effort is effectively converted into optimal system performance.
-The inefficiency of the fully integrated framework is also starkly visible, with the HRL Both Enabled model paying a similarly high cost but for a lower return in SDR.
+The inefficiency of the fully integrated framework is also noticeable, with the \texttt{HRL Both Enabled} model incurring a similarly high cost but delivering a lower return in SDR.
 
 \begin{figure}[!htb]
 \centering
@@ -430,8 +434,8 @@ The inefficiency of the fully integrated framework is also starkly visible, with
 \end{figure}
 
 Conversely, \autoref{fig:eval-scatter-sdr-incentives} visualizes the limited effectiveness of the user-based incentive strategies.
-The HRL Incentive Only model consistently underperforms the zero-cost baselines; for a substantial incentive cost, it achieves a lower SDR than what HRL Manual Only provides for no incentive cost.
-The HRL Both Enabled model shows only situational benefits, outperforming the baselines in the 600 and 900-vehicle scenarios but failing to do so in the oversupply scenario, and never matching the performance of the HRL Manual Only model.
+The \texttt{HRL Incentive Only} model consistently underperforms the zero-cost baselines; for a substantial incentive cost, it achieves a lower SDR than what \texttt{HRL Manual Only} provides for no incentive cost.
+The \texttt{HRL Both Enabled} model shows only situational benefits, outperforming the baselines in the 600 and 900-vehicle scenarios but failing to do so in the oversupply scenario, and never matching the performance of the \texttt{HRL Manual Only} model.
 
 \begin{figure}[!htb]
 \centering
@@ -442,18 +446,18 @@ The HRL Both Enabled model shows only situational benefits, outperforming the ba
 
 Taken together, these plots lead to a clear conclusion regarding operational efficiency.
 The strategic, operator-based rebalancing of the RDC represents an effective use of resources, converting cost into measurable gains.
-The tactical, user-based incentives of the UICs, however, appear to be largely inefficient, and their integration with the RDC fails to produce a synergistic effect, instead degrading the otherwise optimal performance of the framework.
+The user-based incentives of the \glspl{uic}, however, appear to be largely inefficient, and their integration with the RDC fails to produce a collaborative effect, instead degrading the otherwise optimal performance of the framework.
 
 \section{Discussion}
-The evaluation of the proposed Hierarchical Reinforcement Learning (HRL) framework reveals a complex and counterintuitive dynamic between its constituent levels, yielding critical insights for the design of future multi-agent rebalancing systems.
-The primary finding from the experimental evaluation is that the fully integrated HRL framework did not outperform the HRL Manual Only baseline.
+The evaluation of the proposed \gls{hrl} framework reveals a complex and counterintuitive dynamic between its levels, yielding critical insights for the design of future multi-agent rebalancing systems.
+The primary finding from the experimental evaluation is that the fully integrated \gls{hrl} framework did not outperform the \texttt{HRL Manual Only} baseline.
 In fact, across the key metrics of Satisfied Demand Ratio (SDR) and fleet equity (Gini Coefficient), the high-level Regional Distribution Coordinator (RDC) operating in isolation demonstrated more effective performance.
 This outcome indicates that the current two-tier structure reveals harmful interference rather than the intended synergy.
-The performance degradation appears to stem from a misalignment between the RDC's global strategy and the UIC's localized optimizations.
-Evidence from the evaluation suggests that the low-level UICs, while pursuing their local objectives, introduce inefficiencies that the high-level RDC must then work to counteract.
-For instance, in the balanced 900-vehicle scenario, the HRL Both Enabled model incurred a higher manual rebalancing cost (7.62 relocations/hour) for a lower SDR (79.8\%) compared to the HRL Manual Only model (6.87 relocations/hour for 84.4\% SDR).
-This suggests the RDC was expending more effort to correct for imbalances at least partially induced by the UICs' actions.
+The performance degradation appears to stem from a misalignment between the RDC's global strategy and the \gls{uic}'s localized optimizations.
+Evidence from the evaluation suggests that the low-level \glspl{uic}, while pursuing their local objectives, introduce inefficiencies that the high-level RDC must then work to counteract.
+For instance, in the balanced 900-vehicle scenario, the \texttt{HRL Both Enabled} model incurred a higher manual rebalancing cost (7.62 relocations/hour) for a lower SDR (79.8\%) compared to the \texttt{HRL Manual Only} model (6.87 relocations/hour for 84.4\% SDR).
+This suggests the RDC was expending more effort to correct for imbalances at least partially induced by the \glspl{uic}' actions.
 The core issue, therefore, is not a failure of the agents to learn, but a structural limitation in how their learned policies are integrated.
 Crucially, a key insight from the development process confirms that the agents are capable of adaptation.
-It was observed that training the UICs in a simulation environment where the RDC was already active resulted in significantly better UIC performance compared to training them in isolation.
+It was observed that training the \glspl{uic} in a simulation environment where the RDC was already active resulted in significantly better \gls{uic} performance compared to training them in isolation.
 This demonstrates that the low-level agents successfully learned to adapt their policies to the dynamic conditions created by the RDC’s strategic vehicle relocations.

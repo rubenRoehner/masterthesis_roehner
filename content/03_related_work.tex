@@ -291,7 +291,7 @@ Sensitivity to prediction accuracy for demand forecasts and potential inefficien
         \cite{xie_censored_2023} & MAB & BSS & OB\\
         \cite{losapio_smart_2022} & DQ-Network & ESS & UB \& OB\\
         \cite{schofield_handling_2021} & PPO & BSS & UB\\
-        \cite{pan_deep_2019} & DDPG (HRL) & BSS & UB\\
+        \cite{pan_deep_2019} & DDPG (\gls{hrl}) & BSS & UB\\
         \cite{duan_optimizing_2019} & DDPG & BSS & UB\\
         \cite{li_dynamic_2018} & DQ-Network & BSS & OB\\
         \bottomrule
@@ -305,7 +305,7 @@ Conversely, research explicitly targeting operator-based rebalancing remains lim
 The most frequently applied methodologies fall into two primary categories.
 The first is value-based algorithms, such as Deep Q-Networks (DQN) and Q-learning.
 The second is policy-gradient methods, including Proximal Policy Optimization (PPO), Trust Region Policy Optimization (TRPO), and Actor-Critic using Kronecker-Factored Trust Region (ACKTR).
-Recent studies have explored Hierarchical Reinforcement Learning (HRL) and Multi-Agent Reinforcement Learning (MARL) frameworks to decompose complex rebalancing tasks into manageable subtasks addressed by multiple agents.
+Recent studies have explored \gls{hrl} and Multi-Agent Reinforcement Learning (MARL) frameworks to decompose complex rebalancing tasks into manageable subtasks addressed by multiple agents.
 The choice between factorizing the problem into independent single-agent tasks and employing a fully multi-agent framework represents a fundamental design trade-off between computational scalability and the ability to capture complex inter-agent dynamics.
 Such hierarchical and multi-agent approaches have demonstrated enhanced scalability and effectiveness in managing large-scale shared mobility services \cite{pan_deep_2019, li_dynamic_2018}.
 
