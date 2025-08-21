@@ -35,7 +35,7 @@ Rebalancing strategies often rely on demand forecasts to anticipate areas with h
 Consequently, rebalancing strategies are highly dependent on the accuracy of demand forecasts.
 \\
 
-In terms of scheduling rebalancing operations, these strategies are broadly categorized as dynamic and static:
+In terms of scheduling rebalancing operations, these strategies are broadly categorized as dynamic and static \cite{wu_challenges_2020}:
 \begin{itemize}
     \item \textbf{Static rebalancing} includes pre-planned or periodic rebalancing operations, typically conducted overnight to improve fleet distribution for the upcoming day.
     This approach benefits from lower operational costs and management complexity.
@@ -45,12 +45,12 @@ In terms of scheduling rebalancing operations, these strategies are broadly cate
     Additionally, this approach requires continuous data collection and more advanced rebalancing strategies.
 \end{itemize}
 
-The two predominant methods for executing these strategies, user-based and operator-based rebalancing, are discussed in the following sections.
+The two predominant methods for executing these strategies, user-based and operator-based rebalancing, are discussed in the following sections \cite{emami_integrated_2024}.
 
 \subsubsection{User-based Rebalancing}
 User-based rebalancing leverages users to perform rebalancing tasks.
 Operators typically incentivize users, often with discounts or credits, to pick-up or drop-off vehicles at specific locations that help balance the fleet.
-This method is cost-effective, but its efficacy is constrained by the users' willingness to adjust their routes in response to incentives.
+This method is cost-effective, but its efficacy is constrained by the users' willingness to adjust their routes in response to incentives \cite{jaber_preferences_2023}.
 Therefore, the operator's control over the outcome of user-based rebalancing is indirect and limited \cite{emami_integrated_2024}.
 
 \subsubsection{Operator-based Rebalancing}
@@ -218,13 +218,13 @@ In \gls{dqn}, a deep neural network approximates the Q-value function $q(s, a;\t
 The network takes the state as input and outputs estimated Q-values for each possible action.
 By training this network, the agent can generalize past experiences to new unseen states \cite{mnih_human-level_2015}.
 
-\gls{dqn} gained popularity due to several key innovations in this field, which massively increased the usability of \gls{dqn}.
+\gls{dqn} gained popularity due to several key innovations in this field, which massively increased the usability of \gls{dqn} \cite{mnih_human-level_2015}.
 Experience replay stabilizes training by using a replay memory to store the agent's experiences (e.g., transitions $(s_t, a_t, s_{t+1}, r_{t+1})$ at each time step), instead of learning from consecutive, correlated state transitions.
 From this memory, mini-batches are sampled uniformly to break temporal correlations between state transitions, which stabilizes training \cite{mnih_human-level_2015}.
 
-\gls{ddqn} introduces a second network.
+\gls{ddqn} introduces a second network \cite{hasselt_deep_2016}.
 This second network, the target network, can compute Q-learning target values.
-These targets are computed after several iterations, which reduces fluctuations in these targets and stabilizes training \cite{hasselt_deep_2016}.
+These targets are computed after several iterations, which reduces fluctuations in these targets and stabilizes training.
 
 \subsection{Policy Gradient Methods}\label{sec:background-reinforcement_learning-pgm}
 In contrast to value-based methods, such as Q-Learning, which estimate the optimal value function and derive it from their policy, policy gradient methods directly optimize the policy.

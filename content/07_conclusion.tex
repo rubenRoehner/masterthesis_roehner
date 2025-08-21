@@ -22,7 +22,7 @@ Finally, the framework was evaluated against multiple baselines (\hyperref[goal:
 This evaluation partially accomplished its objective by demonstrating the \gls{rdc}'s effectiveness while simultaneously highlighting the limitations of the current \gls{uic} strategy, thereby underscoring the need for further refinement of the user-incentive component.
 
 \section{Future Work}\label{sec:conclusion-future_work}
-Based on the key finding that the user-incentive strategy underperformed, the most critical avenues for future work involve improving the algorithmic framework and enhancing the simulation's realism to better capture user behavior.
+Based on the key finding that the current two-tier structure created harmful interference driven by the underperformance of the UICs, the most critical avenues for future work involve improving the algorithmic framework and enhancing the simulation's realism to better capture user behavior.
 The following points outline promising directions to build upon the findings of this thesis.
 
 \subsection{Improving the Algorithmic Framework}
@@ -32,7 +32,7 @@ The most immediate need is to address the performance limitations of the low-lev
     \item \textbf{Inter-Agent Communication:}
         The current implementation of the proposed \gls{hrl} framework relies only on implicit communication between the two tiers.
         The performance of the framework could benefit from incorporating explicit communication between the two tiers and between the \gls{uic} agents.
-        By doing so, the agents could coordinate rebalancing tasks to work together more effectively and minimize actions that work against each other.
+        By doing so, the agents could coordinate rebalancing tasks to work together more effectively and minimize the harmful interference observed in the evaluation.
         Implementing Inter-Agent Communication in any \gls{marl} or \gls{hrl} can cause significant problems and needs to be consciously designed and evaluated.
     \item \textbf{Alternative RL Algorithms:}
         To directly address the \glspl{uic}' policy limitations, exploring alternative \gls{rl} algorithms is a promising path. 
