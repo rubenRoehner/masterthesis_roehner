@@ -1,37 +1,37 @@
 \chapter{Evaluation}\label{sec:evaluation} % approx. 14 pages
-The following chapter details the experimental setup used for evaluation, the hyperparameter optimization for the RDC and UIC agents, the analysis of the final results, and the discussion of these results.    
+The following chapter details the experimental setup used for evaluation, the hyperparameter optimization for the \gls{rdc} and \gls{uic} agents, the analysis of the final results, and the discussion of these results.    
 
 
 \section{Hyperparameter Optimization}\label{sec:evaluation-ho}
 The performance of reinforcement learning agents is highly dependent on the selection of their hyperparameters \cite{sutton_reinforcement_2018}.
-A systematic hyperparameter optimization (HO) is therefore essential to ensure agent efficacy, particularly for a complex \gls{hrl} framework such as the one proposed.
-A dedicated HO process was conducted for both the \glsfirst{rdc} and the \glsfirst{uic} agents to maximize their individual performance.
+A systematic \glsfirst{ho} is therefore essential to ensure agent efficacy, particularly for a complex \gls{hrl} framework such as the one proposed.
+A dedicated \gls{ho} process was conducted for both the \glsfirst{rdc} and the \glsfirst{uic} agents to maximize their individual performance.
 This section outlines the optimization methodology and presents the final hyperparameter configurations used in the subsequent evaluation of the \gls{hrl} framework
 
 The optimization objective for both agents was to maximize a composite reward function.
 This function is a weighted sum of three metrics: maximizing satisfied user demand ($R_{demand}$), minimizing rebalancing costs ($R_{cost}$), and promoting equitable vehicle distribution ($R_{gini}$).\\
 
-For the HO process, the Optuna framework was utilized, a state-of-the-art optimization tool \cite{akiba_optuna_2019}.
-The Tree-structured Parzen Estimator (TPE) was selected as the search algorithm due to its effectiveness in complex, high-dimensional search spaces \cite{akiba_optuna_2019}.
-TPE probabilistically models the search space to efficiently identify promising hyperparameter configurations.
+For the \gls{ho} process, the Optuna framework was utilized, a state-of-the-art optimization tool \cite{akiba_optuna_2019}.
+The \glsfirst{tpe} was selected as the search algorithm due to its effectiveness in complex, high-dimensional search spaces \cite{akiba_optuna_2019}.
+\gls{tpe} probabilistically models the search space to efficiently identify promising hyperparameter configurations.
 The algorithm fits a Gaussian Mixture Model (GMM) to a set of well-performing parameter configurations and calculates a ratio against a GMM fitted to the remaining configurations.
 The sampler then selects the parameter value that maximizes this ratio, guiding the search toward more promising regions \cite{akiba_optuna_2019}.
 
 To ensure reproducibility, all optimization runs were seeded.
-As HO is computationally intensive, the process was parallelized across multiple jobs.
-Furthermore, demand forecasts were pre-calculated to reduce computation time. The remainder of this section details the specific HO processes for the \gls{rdc} and \gls{uic} agents.
+As \gls{ho} is computationally intensive, the process was parallelized across multiple jobs.
+Furthermore, demand forecasts were pre-calculated to reduce computation time. The remainder of this section details the specific \gls{ho} processes for the \gls{rdc} and \gls{uic} agents.
 
 \paragraph{Reward Weight Optimization}
-Initial experiments in which the reward weights themselves were included in the HO process consistently led to undesirable agent behaviors.
+Initial experiments in which the reward weights themselves were included in the \gls{ho} process consistently led to undesirable agent behaviors.
 Both \gls{rdc} and \gls{uic} agents learned to adopt passive strategies, as avoiding rebalancing entirely was the most effective way to achieve a high reward under automatically discovered weight configurations.
 This behavior directly conflicted with the intended operational goals.
 To address this, the reward weights were chosen manually through targeted short-run experiments with different weight configurations.
 This manual tuning ensured that the reward structure encouraged active rebalancing while balancing the trade-offs between demand satisfaction, operational costs, and fleet balance.
-Furthermore, identical reward weights were selected for both the RDC and \gls{uic} agents to align their objectives and prevent them from working in a counterproductive way during joint operation.
+Furthermore, identical reward weights were selected for both the \gls{rdc} and \gls{uic} agents to align their objectives and prevent them from working in a counterproductive way during joint operation.
 The final chosen weights are documented in \autoref{tab:rdc_final_hyperparameters} and \autoref{tab:uic_final_hyperparameters}.
 
 \subsection{Regional Distribution Coordinator (RDC)}\label{sec:evaluation-ho-rdc}
-The RDC agent, based on a \gls{mh-dqn} architecture with \gls{per}, has 17 distinct hyperparameters.
+The \gls{rdc} agent, based on a \gls{mh-dqn} architecture with \gls{per}, has 17 distinct hyperparameters.
 To manage this complexity, a three-round coarse-to-fine optimization strategy was adopted.
 For all rounds, each trial consisted of 100 training episodes, each with a maximum of 100 steps, followed by 20 evaluation episodes.
 
@@ -56,21 +56,21 @@ Each blue point corresponds to an individual trial, and the solid red line track
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/RDC_history_plot.png}
-    \caption{Aggregated Optimization History for the RDC Agent. This plot visualizes the results from the entire three-round hyperparameter optimization process for the RDC agent, comprising 500 total trials. Each blue dot represents the final objective value for a single trial, while the red line tracks the best objective value achieved up to that point in the optimization. The plot shows consistent improvement across the rounds, demonstrating the effectiveness of the coarse-to-fine search strategy.}
+    \caption{Aggregated Optimization History for the \gls{rdc} Agent. This plot visualizes the results from the entire three-round hyperparameter optimization process for the \gls{rdc} agent, comprising 500 total trials. Each blue dot represents the final objective value for a single trial, while the red line tracks the best objective value achieved up to that point in the optimization. The plot shows consistent improvement across the rounds, demonstrating the effectiveness of the coarse-to-fine search strategy.}
     \label{fig:ho-rdc-history}
 \end{figure}
 
-\autoref{fig:ho-rdc-focused-slice} dives deeper into the analysis of the HO process of the RDC agent.
+\autoref{fig:ho-rdc-focused-slice} dives deeper into the analysis of the \gls{ho} process of the \gls{rdc} agent.
 It demonstrates the four most critical hyperparameters, with each point representing a single trial.
-These four hyperparameters were selected by visually analyzing the slice plot for all parameters and by examining the importance value for each HO run.
+These four hyperparameters were selected by visually analyzing the slice plot for all parameters and by examining the importance value for each \gls{ho} run.
 The calculation of a global importance metric is not possible in this case due to the optimization of the hyperparameters in separate groups during the initial rounds.
 This prevents a valid comparison across all runs.
 
 The discount factor \texttt{RDC\_gamma} has a strong positive correlation to the objective value.
-The best results are concentrated in the upper range of $[0.98, 0.99]$, which suggests that the RDC prefers to be far-sighted.
+The best results are concentrated in the upper range of $[0.98, 0.99]$, which suggests that the \gls{rdc} prefers to be far-sighted.
 This priority decision results in a more optimal long-term fleet distribution across all communities.
 Short-term optimization is less prioritized.
-This aligns with the intended purpose of the RDC agent, which is a strategic one.
+This aligns with the intended purpose of the \gls{rdc} agent, which is a strategic one.
 
 The target network update rate, \texttt{RDC\_tau}, exhibits a clear pattern.
 The vast majority of high-performing trials are concentrated at very low values, specifically in the range of [0,0.02].
@@ -89,7 +89,7 @@ While good results are possible at other sizes, the smallest (64) and largest (1
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/RDC_focused_slice_plot.png}
-    \caption{Focused Slice Plot of Critical RDC Hyperparameters. This figure presents slice plots for the four most influential hyperparameters identified during the RDC's optimization process: the discount factor (\texttt{RDC\_gamma}), target network update rate (\texttt{RDC\_tau}), exploration decay (\texttt{RDC\_epsilon\_decay}), and batch size (\texttt{RDC\_batch\_size}). Each subplot shows the relationship between a single hyperparameter's value (x-axis) and the trial's objective value (y-axis). The dense clusters of high-performing trials reveal clear optimal ranges, such as a high discount factor and a very slow target network update rate.}
+    \caption{Focused Slice Plot of Critical \gls{rdc} Hyperparameters. This figure presents slice plots for the four most influential hyperparameters identified during the \gls{rdc}'s optimization process: the discount factor (\texttt{RDC\_gamma}), target network update rate (\texttt{RDC\_tau}), exploration decay (\texttt{RDC\_epsilon\_decay}), and batch size (\texttt{RDC\_batch\_size}). Each subplot shows the relationship between a single hyperparameter's value (x-axis) and the trial's objective value (y-axis). The dense clusters of high-performing trials reveal clear optimal ranges, such as a high discount factor and a very slow target network update rate.}
     \label{fig:ho-rdc-focused-slice}
 \end{figure}
 
@@ -113,9 +113,9 @@ The slice plots for all hyperparameters are presented in \autoref{fig:rdc-full-s
         \texttt{RDC\_tau} & Target network soft update rate & $0.0026$ \\
         \midrule
         \texttt{RDC\_rb\_capacity} & Replay buffer capacity & $13,000$\\
-        \texttt{RDC\_per\_alpha} & PER prioritization exponent ($\alpha$) & $1.0$\\
-        \texttt{RDC\_per\_beta\_start} & PER importance sampling start ($\beta_0$) & $0.25$\\
-        \texttt{RDC\_per\_beta\_frames} & PER $\beta$ annealing frames & $400,000$\\
+        \texttt{RDC\_per\_alpha} & \gls{per} prioritization exponent ($\alpha$) & $1.0$\\
+        \texttt{RDC\_per\_beta\_start} & \gls{per} importance sampling start ($\beta_0$) & $0.25$\\
+        \texttt{RDC\_per\_beta\_frames} & \gls{per} $\beta$ annealing frames & $400,000$\\
         \midrule
         \texttt{RDC\_epsilon\_start} & Initial exploration rate ($\epsilon_{start}$) & $1.0$\\
         \texttt{RDC\_epsilon\_end} & Final exploration rate ($\epsilon_{end}$) & $0.07$\\
@@ -126,7 +126,7 @@ The slice plots for all hyperparameters are presented in \autoref{fig:rdc-full-s
         \texttt{RDC\_weight\_gini} & Gini index penalty weight & $7.0$ \\
         \bottomrule
     \end{tabularx}
-    \caption{Final Optimized Hyperparameter Configuration for the RDC. This table presents the final set of optimal hyperparameter values for the RDC agent. These values were determined through the three-round, coarse-to-fine hyperparameter optimization process using the Optuna framework. This configuration was used for the final evaluation of the RDC.}
+    \caption{Final Optimized Hyperparameter Configuration for the \gls{rdc}. This table presents the final set of optimal hyperparameter values for the \gls{rdc} agent. These values were determined through the three-round, coarse-to-fine hyperparameter optimization process using the Optuna framework. This configuration was used for the final evaluation of the \gls{rdc}.}
     \label{tab:rdc_final_hyperparameters}
 \end{table}
 
@@ -138,10 +138,10 @@ Each trial in every round was run for 50,000 timesteps.
 \begin{enumerate}
     \item 
         The initial round identified promising search areas using broad hyperparameter ranges.
-        For the first two rounds, the parameters were divided into three logical groups: PPO Core, Architecture, and Stability.
+        For the first two rounds, the parameters were divided into three logical groups: \gls{ppo} Core, Architecture, and Stability.
         The initial round consisted of 30 trials.
     \item 
-        The second round refined the search by narrowing or expanding the parameter ranges based on the initial outcomes, following the same logic as the RDC optimization.
+        The second round refined the search by narrowing or expanding the parameter ranges based on the initial outcomes, following the same logic as the \gls{rdc} optimization.
         The second round again consisted of 30 trials.
     \item 
         The final round optimized all 15 parameters simultaneously to fine-tune the configuration, thereby accounting for any cross-group parameter dependencies.
@@ -151,20 +151,20 @@ Each trial in every round was run for 50,000 timesteps.
 The aggregated optimization process is illustrated by \autoref{fig:ho-uic-history}.
 Each blue point corresponds to an individual trial, and the solid red line tracks the best-performing trial of each run.
 It clearly demonstrates the benefits of employing a three-round hyperparameter optimization strategy.
-Unlike the RDC, the \gls{uic}'s optimization history displays a step-wise improvement pattern, although the steps are less pronounced in the later stages.
-This suggests that while the PPO agent is sensitive to specific parameter configurations, gains beyond certain thresholds become increasingly incremental.
-This phenomenon is likely due to the reduced amount of manual tuning before running the HO process compared to the RDC.
+Unlike the \gls{rdc}, the \gls{uic}'s optimization history displays a step-wise improvement pattern, although the steps are less pronounced in the later stages.
+This suggests that while the \gls{ppo} agent is sensitive to specific parameter configurations, gains beyond certain thresholds become increasingly incremental.
+This phenomenon is likely due to the reduced amount of manual tuning before running the \gls{ho} process compared to the \gls{rdc}.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_history_plot.png}
-    \caption{Aggregated Optimization History for the \gls{uic} Agent. This plot shows the aggregated results from the multi-round hyperparameter optimization for the \gls{uic} agent. Each blue dot represents the result of a single trial, and the red line indicates the best performance achieved over time. The distinct step-wise improvements in the best-so-far objective value suggest that the PPO agent's performance is highly sensitive to specific combinations of hyperparameters that were discovered in later, more focused optimization rounds.}
+    \caption{Aggregated Optimization History for the \gls{uic} Agent. This plot shows the aggregated results from the multi-round hyperparameter optimization for the \gls{uic} agent. Each blue dot represents the result of a single trial, and the red line indicates the best performance achieved over time. The distinct step-wise improvements in the best-so-far objective value suggest that the \gls{ppo} agent's performance is highly sensitive to specific combinations of hyperparameters that were discovered in later, more focused optimization rounds.}
     \label{fig:ho-uic-history}
 \end{figure}
 
 
-\autoref{fig:ho-uic-focused-slice} dives deeper into the analysis of the HO process of the \gls{uic} agents.
-The top four most relevant parameters have been selected similarly to the process done for the RDC agent (see \autoref{sec:evaluation-ho-rdc}).
+\autoref{fig:ho-uic-focused-slice} dives deeper into the analysis of the \gls{ho} process of the \gls{uic} agents.
+The top four most relevant parameters have been selected similarly to the process done for the \gls{rdc} agent (see \autoref{sec:evaluation-ho-rdc}).
 The plots show that the agent's performance is strongly correlated with the learning rate, with competitive results achieved in a range between $1\mathrm{e}{-5}$ and $1\mathrm{e}{-4}$.
 For the \texttt{UIC\_n\_steps} parameter, most high-performing trials cluster around 512 steps, with another more minor concentration at the maximum value of 2048 steps.
 This pattern suggests two distinct but viable learning regimes: more frequent parameter updates with smaller batches or less frequent updates with larger batches that provide a more comprehensive gradient estimate.
@@ -176,7 +176,7 @@ This suggests that only a minimal entropy bonus is needed to prevent convergence
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_focused_slice_plot.png}
-    \caption{Focused Slice Plot of Critical \gls{uic} Hyperparameters. This figure displays slice plots for the four most critical hyperparameters for the PPO-based \gls{uic} agent: learning rate (\texttt{UIC\_lr}), number of steps (\texttt{UIC\_n\_steps}), discount factor (\texttt{UIC\_gamma}), and entropy coefficient (\texttt{UIC\_ent\_coef}). The plots show the objective value achieved for each value of a given hyperparameter across all trials. These visualizations clearly indicate optimal regions, such as a preference for moderately low learning rates, a high discount factor close to $\sim1.0$, specific step sizes around 512 or 2048, and a very small entropy bonus, confirming that the agent benefits from stable updates, long-term planning, and minimal forced exploration.}
+    \caption{Focused Slice Plot of Critical \gls{uic} Hyperparameters. This figure displays slice plots for the four most critical hyperparameters for the \gls{ppo}-based \gls{uic} agent: learning rate (\texttt{UIC\_lr}), number of steps (\texttt{UIC\_n\_steps}), discount factor (\texttt{UIC\_gamma}), and entropy coefficient (\texttt{UIC\_ent\_coef}). The plots show the objective value achieved for each value of a given hyperparameter across all trials. These visualizations clearly indicate optimal regions, such as a preference for moderately low learning rates, a high discount factor close to $\sim1.0$, specific step sizes around 512 or 2048, and a very small entropy bonus, confirming that the agent benefits from stable updates, long-term planning, and minimal forced exploration.}
     \label{fig:ho-uic-focused-slice}
 \end{figure}
 
@@ -194,13 +194,13 @@ The slice plots for all hyperparameters are presented in \autoref{fig:uic-full-s
         \texttt{UIC\_lr}                    & Optimizer learning rate.                  & $2.124  e-5$ \\
         \texttt{UIC\_n\_steps}              & Rollout buffer size per update.           & $512$ \\
         \texttt{UIC\_batch\_size}           & Minibatch size for gradient updates.      & $32$ \\
-        \texttt{UIC\_clip\_range}           & PPO policy update clipping range.         & $0.26$\\
+        \texttt{UIC\_clip\_range}           & \gls{ppo} policy update clipping range.         & $0.26$\\
         \texttt{UIC\_ent\_coeff}            & Entropy bonus weight for exploration.     & $0.00016$\\
         \texttt{UIC\_vf\_coeff}             & Value function loss weight.               & $0.68$\\
         \midrule
         \texttt{UIC\_gamma}                 & Reward discount factor.                   & $0.963$ \\
-        \texttt{UIC\_gae\_lambda}           & Lambda parameter for GAE                  & $0.95$ \\
-        \texttt{UIC\_target\_kl}            & Target KL divergence for policy updates.  & $0.02$\\
+        \texttt{UIC\_gae\_lambda}           & Lambda parameter for \gls{gae}                  & $0.95$ \\
+        \texttt{UIC\_target\_kl}            & Target \gls{kl} divergence for policy updates.  & $0.02$\\
         \midrule
         \texttt{UIC\_num\_hidden\_layers}   & Number of network hidden layers.          & $3$\\
         \texttt{UIC\_hidden\_size}          & Neurons per hidden layer.                 & $256$ \\
@@ -216,7 +216,7 @@ The slice plots for all hyperparameters are presented in \autoref{fig:uic-full-s
 \end{table}
 
 \section{Experimental Setup}\label{sec:evaluation-setup}
-Fleet sizes for the experiments have been determined by the mean number of vehicles available based on the collected GBFS snapshots.
+Fleet sizes for the experiments have been determined by the mean number of vehicles available based on the collected \gls{gbfs} snapshots.
 For training and hyperparameter optimization, this fleet size was reduced to 90\% to allow the agents to learn from more experiences with vehicle undersupply.
 For the final evaluation, three different fleet sizes were used to test the robustness: the mean fleet size (100\%), an undersupply scenario (67\%), and an oversupply scenario (133\%).
 Evaluating the models under these varied conditions ensures a more comprehensive assessment of their performance in both oversupply and undersupply situations.
@@ -239,7 +239,7 @@ To quantitatively compare the performance of the different rebalancing strategie
         It is calculated as the total number of trips where users accepted the offered incentive to change their drop-off location.
         Similarly to the previous metric, a lower value is also preferred.
     \item \textbf{Fleet Imbalance:}
-        The Gini coefficient is used as a metric to measure the equity of the vehicle distribution.
+        The Gini coefficient is used as a metric to measure the equity of the vehicle distribution \cite{cederle_fairness-oriented_2025}.
         This metric is calculated over the number of vehicles per zone at every time step and then averaged (see \autoref{eq:pb-objective-gini}).
         A Gini coefficient of zero indicates a fully balanced fleet, and a value of one indicates the maximum imbalance.
 \end{itemize}
@@ -265,7 +265,7 @@ The third baseline is a greedy heuristic designed to test whether the \gls{hrl} 
     \item \textbf{Top-Tier (Operator-based Rebalancing):}
         The top-tier heuristic calculates the expected vehicle deficit for each community based on current vehicle counts and demand forecasts.
         It then prioritizes communities with the highest deficit or surplus.
-        To meet the expected demand, it selects the most suitable discrete action from the same action space available to the RDC, with the total number of rebalanced vehicles capped at 5\% of the total fleet size per hour to simulate operational constraints.
+        To meet the expected demand, it selects the most suitable discrete action from the same action space available to the \gls{rdc}, with the total number of rebalanced vehicles capped at 5\% of the total fleet size per hour to simulate operational constraints.
 
     \item \textbf{Second-Tier (User-based Rebalancing):}
         The second-tier heuristic determines incentive levels for each zone within a community.
@@ -315,7 +315,7 @@ Best values for each metric and fleet size scenario are highlighted in bold in t
     Greedy Heuristic & [0.8548] & [\textbf{0}] & [27.16] & [0.3478] \\
     \bottomrule
     \end{tabularx}
-    \caption{Summary of Evaluation Results Across All Models and Fleet Size Scenarios. This table presents the comprehensive performance comparison of the full \glsfirst{hrl} framework and the four baselines across three distinct fleet size scenarios: balanced (100\%), undersupply (67\%), and oversupply (133\%). Performance is measured using four key metrics: Satisfied Demand Ratio (SDR), Manual Rebalancing Cost, Incentive Rebalancing Cost, and the Gini Coefficient. These results provide a quantitative basis for analyzing the efficacy, cost-effectiveness, and robustness of the proposed hierarchical approach compared to simpler strategies.}
+    \caption{Summary of Evaluation Results Across All Models and Fleet Size Scenarios. This table presents the comprehensive performance comparison of the full \glsfirst{hrl} framework and the four baselines across three distinct fleet size scenarios: balanced (100\%), undersupply (67\%), and oversupply (133\%). Performance is measured using four key metrics: \glsfirst{sdr}, Manual Rebalancing Cost, Incentive Rebalancing Cost, and the Gini Coefficient. These results provide a quantitative basis for analyzing the efficacy, cost-effectiveness, and robustness of the proposed hierarchical approach compared to simpler strategies.}
     \label{tab:full_results_summary}
 \end{table}
 
@@ -324,12 +324,12 @@ Each evaluation metric is examined individually before considering cross-metric 
 
 
 \subsubsection{\glsfirst{sdr}}
-The performance of the proposed \gls{hrl} framework and its baselines in terms of service quality is presented in \autoref{fig:eval-bars-sdr}, which illustrates the Satisfied Demand Ratio (SDR) across different fleet sizes.
+The performance of the proposed \gls{hrl} framework and its baselines in terms of service quality is presented in \autoref{fig:eval-bars-sdr}, which illustrates the \glsfirst{sdr} across different fleet sizes.
 The results of the proposed \gls{hrl} models show mixed results.
-The \texttt{HRL Manual Only} model, representing the strategic RDC agent acting alone, consistently achieves the highest SDR across all scenarios, satisfying approximately 84\% of user demand in the balanced 900-vehicle scenario.
+The \texttt{HRL Manual Only} model, representing the strategic \gls{rdc} agent acting alone, consistently achieves the highest SDR across all scenarios, satisfying approximately 84\% of user demand in the balanced 900-vehicle scenario.
 The fully integrated \texttt{HRL Both Enabled} framework demonstrates worse performance, achieving the second-highest SDR of approximately 80\% in the same scenario and outperforming the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines only slightly in the undersupply and balanced fleet size scenarios.
 This performance degradation suggests a negative interaction between the two hierarchical levels.
-Rather than creating synergy, the tactical actions of the low-level \gls{uic} agents appear to interfere with the globally effective strategy of the high-level RDC.
+Rather than creating synergy, the tactical actions of the low-level \gls{uic} agents appear to interfere with the globally effective strategy of the high-level \gls{rdc}.
 Especially, in the oversupply scenario, the addition of the \gls{uic} agents even results in poorer results than the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines.
 The \texttt{HRL Incentive Only} model underperforms relative to other strategies, suggesting that user-based incentives are most effective when operating within a system already balanced at a higher level.
 
@@ -341,7 +341,7 @@ While the high-level agent is effective in isolation, the successful combination
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/eval-bars-sdr.png}
-    \caption{Satisfied Demand Ratio (SDR) by Rebalancing Strategy and Fleet Size. This bar chart compares the mean SDR achieved by the full \gls{hrl} framework (\texttt{HRL Both Enabled}) and four baseline models across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
+    \caption{\glsfirst{sdr} by Rebalancing Strategy and Fleet Size. This bar chart compares the mean SDR achieved by the full \gls{hrl} framework (\texttt{HRL Both Enabled}) and four baseline models across three distinct fleet size scenarios: undersupply (600 vehicles), balanced (900 vehicles), and oversupply (1200 vehicles). The error bars indicate the standard deviation over 20 independent evaluation runs.}
     \label{fig:eval-bars-sdr}
 \end{figure}
 
@@ -355,7 +355,7 @@ In the 900-vehicle scenario, the \texttt{HRL Manual Only} model reduces the Gini
 Notably, the fully integrated \texttt{HRL Both Enabled} framework performs nearly as well, with a Gini coefficient of just 0.26 in the same scenario.
 This suggests that incorporating localized, user-based incentives from the \gls{uic} agents results in only a marginal increase in imbalance.
 In contrast, the \texttt{HRL Incentive Only} model is significantly less effective than the integrated approach, underperforming the \texttt{No Rebalancing} baseline in the fleet size scenarios of 900 and 1200 vehicles.
-It suggests that while the RDC establishes a highly equitable foundation, the localized incentives offered by the \glspl{uic} introduce minor disruptions that slightly degrade this overall balance.
+It suggests that while the \gls{rdc} establishes a highly equitable foundation, the localized incentives offered by the \glspl{uic} introduce minor disruptions that slightly degrade this overall balance.
 The goal of fine-tuning local supply appears to come at a small but consistent cost to global equity.
 The performance rankings remain consistent across all fleet sizes, confirming the robustness of this collaborative behavior.
 
@@ -370,7 +370,7 @@ The performance rankings remain consistent across all fleet sizes, confirming th
 \autoref{fig:eval-bars-manual} illustrates the Manual Rebalancing Cost, measured as the mean number of vehicles relocated per hour by service workers.
 In the balanced scenario with 900 vehicles, the fully integrated \texttt{HRL Both Enabled} model demonstrates the highest level of rebalancing, averaging around 7.6 vehicle relocations per hour.
 When viewed alongside its suboptimal SDR and Gini performance, this high operational cost suggests inefficiency.
-A plausible hypothesis is that the RDC is not supporting the \glspl{uic}, but rather working harder to correct localized imbalances introduced by their incentive policies.
+A plausible hypothesis is that the \gls{rdc} is not supporting the \glspl{uic}, but rather working harder to correct localized imbalances introduced by their incentive policies.
 The cost profiles for the \gls{hrl} models show differing trends: the rate for the \texttt{HRL Manual Only} model increases with fleet size, whereas the rate for the more active \texttt{HRL Both Enabled} model slightly decreases.
 In contrast, the \texttt{Greedy Heuristic} baseline averages nearly zero rebalanced vehicles per hour, which suggests that operational constraints heavily restrict its simple rule-based logic.
 Overall, the figure clearly shows the trade-off between rebalancing rate and system performance.
@@ -386,7 +386,7 @@ Overall, the figure clearly shows the trade-off between rebalancing rate and sys
 \autoref{fig:eval-bars-incentive} presents the operational costs associated with user-based rebalancing, measured as the mean number of vehicles relocated per hour via incentives.
 The results demonstrate the cost-ineffectiveness of the \gls{hrl}-driven user-incentive strategies.
 The \gls{hrl} frameworks, which included the low-level \gls{uic} agents (\texttt{HRL Both Enabled} and \texttt{HRL Incentive Only}), consistently induced approximately 11 rebalancing moves per hour.
-This static rate, which remained insensitive to variations in fleet size, indicates that the PPO agents learned a disciplined policy that achieves its objectives with minimal intervention.
+This static rate, which remained insensitive to variations in fleet size, indicates that the \gls{ppo} agents learned a disciplined policy that achieves its objectives with minimal intervention.
 However, the value generated by this cost is questionable.
 The \texttt{Greedy Heuristic} incurs far higher costs for tolerable results, but the \gls{hrl} models' spending is also inefficient.
 For the \texttt{HRL Both Enabled} model, the cost of $\sim11$ incentivized trips is incurred while simultaneously achieving a lower SDR and higher Gini coefficient than the \texttt{HRL Manual Only} model, which has zero incentive cost.
@@ -423,7 +423,7 @@ The scatter plots in \autoref{fig:eval-scatter-sdr-manual} and \autoref{fig:eval
 Together, they reveal a fundamental difference in the efficiency of the two rebalancing modes as implemented in the \gls{hrl} framework.
 
 As shown in \autoref{fig:eval-scatter-sdr-manual}, the \texttt{HRL Manual Only} model's top performance requires the highest operational cost.
-This position, located in the top-right of the plot, quantifies the successful strategy learned by the RDC agent, where significant operational effort is effectively converted into optimal system performance.
+This position, located in the top-right of the plot, quantifies the successful strategy learned by the \gls{rdc} agent, where significant operational effort is effectively converted into optimal system performance.
 The inefficiency of the fully integrated framework is also noticeable, with the \texttt{HRL Both Enabled} model incurring a similarly high cost but delivering a lower return in SDR.
 
 \begin{figure}[!htb]
@@ -445,19 +445,19 @@ The \texttt{HRL Both Enabled} model shows only situational benefits, outperformi
 \end{figure}
 
 Taken together, these plots lead to a clear conclusion regarding operational efficiency.
-The strategic, operator-based rebalancing of the RDC represents an effective use of resources, converting cost into measurable gains.
-The user-based incentives of the \glspl{uic}, however, appear to be largely inefficient, and their integration with the RDC fails to produce a collaborative effect, instead degrading the otherwise optimal performance of the framework.
+The strategic, operator-based rebalancing of the \gls{rdc} represents an effective use of resources, converting cost into measurable gains.
+The user-based incentives of the \glspl{uic}, however, appear to be largely inefficient, and their integration with the \gls{rdc} fails to produce a collaborative effect, instead degrading the otherwise optimal performance of the framework.
 
 \section{Discussion}
 The evaluation of the proposed \gls{hrl} framework reveals a complex and counterintuitive dynamic between its levels, yielding critical insights for the design of future multi-agent rebalancing systems.
 The primary finding from the experimental evaluation is that the fully integrated \gls{hrl} framework did not outperform the \texttt{HRL Manual Only} baseline.
-In fact, across the key metrics of Satisfied Demand Ratio (SDR) and fleet equity (Gini Coefficient), the high-level Regional Distribution Coordinator (RDC) operating in isolation demonstrated more effective performance.
+In fact, across the key metrics of \glsfirst{sdr} and fleet equity (Gini Coefficient), the high-level \gls{rdc} operating in isolation demonstrated more effective performance.
 This outcome indicates that the current two-tier structure reveals harmful interference rather than the intended synergy.
-The performance degradation appears to stem from a misalignment between the RDC's global strategy and the \gls{uic}'s localized optimizations.
-Evidence from the evaluation suggests that the low-level \glspl{uic}, while pursuing their local objectives, introduce inefficiencies that the high-level RDC must then work to counteract.
+The performance degradation appears to stem from a misalignment between the \gls{rdc}'s global strategy and the \gls{uic}'s localized optimizations.
+Evidence from the evaluation suggests that the low-level \glspl{uic}, while pursuing their local objectives, introduce inefficiencies that the high-level \gls{rdc} must then work to counteract.
 For instance, in the balanced 900-vehicle scenario, the \texttt{HRL Both Enabled} model incurred a higher manual rebalancing cost (7.62 relocations/hour) for a lower SDR (79.8\%) compared to the \texttt{HRL Manual Only} model (6.87 relocations/hour for 84.4\% SDR).
-This suggests the RDC was expending more effort to correct for imbalances at least partially induced by the \glspl{uic}' actions.
+This suggests the \gls{rdc} was expending more effort to correct for imbalances at least partially induced by the \glspl{uic}' actions.
 The core issue, therefore, is not a failure of the agents to learn, but a structural limitation in how their learned policies are integrated.
 Crucially, a key insight from the development process confirms that the agents are capable of adaptation.
-It was observed that training the \glspl{uic} in a simulation environment where the RDC was already active resulted in significantly better \gls{uic} performance compared to training them in isolation.
-This demonstrates that the low-level agents successfully learned to adapt their policies to the dynamic conditions created by the RDC’s strategic vehicle relocations.
+It was observed that training the \glspl{uic} in a simulation environment where the \gls{rdc} was already active resulted in significantly better \gls{uic} performance compared to training them in isolation.
+This demonstrates that the low-level agents successfully learned to adapt their policies to the dynamic conditions created by the \gls{rdc}’s strategic vehicle relocations.

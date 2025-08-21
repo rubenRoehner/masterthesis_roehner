@@ -3,17 +3,17 @@ This chapter details the design of the proposed rebalancing framework.
 \autoref{sec:design-data} describes the data acquisition and preprocessing, \autoref{sec:design-problem_definition} formally defines the rebalancing problem, and \autoref{sec:design-rl_framework} presents the \gls{hrl} framework.
 
 \section{Data}\label{sec:design-data}
-The data underlying this thesis was collected from a General Bikeshare Feed Specification (GBFS)  \cite{mobilitydata_specification_2024} feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{mobidata_bw_gebundelte_2022}.
+The data underlying this thesis was collected from a \glsfirst{gbfs} \cite{mobilitydata_specification_2024} feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{mobidata_bw_gebundelte_2022}.
 These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations.
-This section details the collection, preprocessing, and exploratory analysis of the GBFS data used to develop this \gls{hrl} framework. 
+This section details the collection, preprocessing, and exploratory analysis of the \gls{gbfs} data used to develop this \gls{hrl} framework. 
 
 
 \subsection{Data Collection}
-To capture a comprehensive view of e-scooter usage, data was acquired from the GBFS feeds of two of the leading service providers in Stuttgart: Bolt and Voi.
+To capture a comprehensive view of e-scooter usage, data was acquired from the \gls{gbfs} feeds of two of the leading service providers in Stuttgart: Bolt and Voi.
 The data was collected by crawling the public feed, creating detailed time-series snapshots of all available vehicles.
 These snapshots were stored as JSON files for later use.
 The initial data collection interval was set to 15 minutes as a conservative, precautionary measure.
-Public data APIs, including the GBFS feed used in this work, often employ rate-limiting mechanisms to protect their services from excessive traffic and ensure high availability for all users.
+Public data APIs, including the \gls{gbfs} feed used in this work, often employ rate-limiting mechanisms to protect their services from excessive traffic and ensure high availability for all users.
 To avoid the risk of our data collection script being automatically flagged or blocked, we chose a longer interval to guarantee the establishment of a stable, long-term data pipeline.
 After confirming the reliability of this process over an initial period, the sampling rate was later refined and reduced to 5 minutes to capture vehicle dynamics with greater temporal resolution.
 The subsequent data processing steps address this variation in sampling frequency.
@@ -21,7 +21,7 @@ Because the final analysis relies on event data aggregated into one-hour time bi
 While the 15-minute interval may theoretically under-capture very short trips compared to the 5-minute data, this effect is considered negligible for the hourly resolution used in the demand analysis and model training.
 This process was conducted continuously over a 128-day period, from 11 February 2025 to 18 June 2025.
 
-The GBFS format, a standard for publishing shared micromobility vehicle data, provides several key attributes for each vehicle.
+The \gls{gbfs} format, a standard for publishing shared micromobility vehicle data, provides several key attributes for each vehicle.
 These include its unique identifier, GPS coordinates (latitude and longitude), operational status (reserved or disabled), and battery level.
 A complete list of the data fields extracted from the feed is presented in \autoref{tab:gbfs_fields}.
 
@@ -44,14 +44,14 @@ A complete list of the data fields extracted from the feed is presented in \auto
         \texttt{pricing\_plan\_id}     & Identifier for the pricing plan applicable to this rental. \\
         \bottomrule
     \end{tabularx}
-    \caption{Data Fields from the General Bikeshare Feed Specification (GBFS) \cite{mobilitydata_specification_2024}. This table lists and describes the data fields extracted from the raw GBFS JSON snapshots for each available e-scooter. Key attributes include the vehicle's GPS coordinates (\texttt{lat}, \texttt{lon}), its availability status (\url{is\_reserved}, \url{is\_disabled}), and its battery level (\url{current\_fuel\_percent}). This raw, time-series location data forms the foundation from which all pick-up and drop-off events were inferred for this study.}
+    \caption{Data Fields from the \glsfirst{gbfs} \cite{mobilitydata_specification_2024}. This table lists and describes the data fields extracted from the raw \gls{gbfs} JSON snapshots for each available e-scooter. Key attributes include the vehicle's GPS coordinates (\texttt{lat}, \texttt{lon}), its availability status (\url{is\_reserved}, \url{is\_disabled}), and its battery level (\url{current\_fuel\_percent}). This raw, time-series location data forms the foundation from which all pick-up and drop-off events were inferred for this study.}
     \label{tab:gbfs_fields}
 \end{table}
 
 
 \subsection{Data Preprocessing}
 The primary goal of preprocessing was to transform the raw location snapshots into a dataset of discrete pick-up and drop-off events.
-A methodological limitation of the GBFS feed is the randomization of vehicle identifiers for user anonymization, which prevents the direct tracking of individual trips.
+A methodological limitation of the \gls{gbfs} feed is the randomization of vehicle identifiers for user anonymization, which prevents the direct tracking of individual trips.
 To overcome this, an inferential approach was adopted: by comparing consecutive snapshots, the disappearance of a vehicle ID from one frame to the next was classified as a pick-up.
 In contrast, the appearance of a new ID was classified as a drop-off.
 This inference can result in errors, for instance, vehicles taken offline for maintenance may be misidentified as trip pick-ups, and newly deployed vehicles as drop-offs.
@@ -160,15 +160,15 @@ These observed imbalances, detailed in \autoref{fig:demand_net_imbalance_map}, u
 This section formalizes the fleet rebalancing problem of a free-floating e-scooter sharing system.
 The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, performed by users guided by incentives.
 The rebalancing mechanisms addressed are operator-based relocations between communities and user-based relocations within communities, which are achieved through incentives.
-The routing problem of service vehicles performing operator-based rebalancing is not addressed in this work, as the focus is on developing a framework for strategic decision-making rather than the operational Vehicle Routing Problem (VRP).
-The VRP for rebalancing is a well-studied field \cite{lee_battery_2024, emami_integrated_2024, jimenez-merono_optimization_2024, paparella_optimization-based_2023, sanchez_simulation_2022}.
-It is assumed that an existing VRP solver can be used to implement the strategic decisions made by our framework.
+The routing problem of service vehicles performing operator-based rebalancing is not addressed in this work, as the focus is on developing a framework for strategic decision-making rather than the operational \glsfirst{vrp}.
+The \gls{vrp} for rebalancing is a well-studied field \cite{lee_battery_2024, emami_integrated_2024, jimenez-merono_optimization_2024, paparella_optimization-based_2023, sanchez_simulation_2022}.
+It is assumed that an existing \gls{vrp} solver can be used to implement the strategic decisions made by our framework.
 
-The State of Charge (SOC) of the vehicles is also not modeled in the simulation.
+The \glsfirst{soc} of the vehicles is also not modeled in the simulation.
 This simplification is due to limited data availability, and is a common approach in recent literature \cite{cederle_fairness-oriented_2025, villa-zapata_incorporating_2024, schofield_handling_2021, pan_deep_2019}.
 As detailed in \autoref{sec:design-data}, only the trip start and endpoints are available, and no full trip data.
-Therefore, modeling whole trips in the simulation, which is necessary to update the SOC accordingly, isn't directly possible with the available data.
-In \autoref{sec:conclusion-future_work}, possible solutions for incorporating the SOC into the simulation despite these data limitations are discussed.
+Therefore, modeling whole trips in the simulation, which is necessary to update the \gls{soc} accordingly, isn't directly possible with the available data.
+In \autoref{sec:conclusion-future_work}, possible solutions for incorporating the \gls{soc} into the simulation despite these data limitations are discussed.
 
 \subsection{Scope and Notation}\label{sec:design-problem_definition-notation}
 The service area is partitioned into a set of zones ($\mathcal{Z}$), which are grouped into communities ($\mathcal{C}$), as displayed in \autoref{fig:data_grid_community_structure}.
@@ -273,7 +273,7 @@ Operator-based rebalancing should focus on strategic rebalancing between communi
 \subsection{Objective}\label{sec:design-problem_definition-objective}
 
 \autoref{eq:problem-definition-satisfied-demand} defines the satisfied demand, which is the demand that the service could satisfy with enough vehicles.
-This satisfied demand is used to calculate the Satisfied Demand Ratio (SDR), which defines the percentage of the requested demand to the amount of demand that could be satisfied by the system (see \autoref{eq:problem-definition-satisfied-demand-ratio}).
+This satisfied demand is used to calculate the \glsfirst{sdr}, which defines the percentage of the requested demand to the amount of demand that could be satisfied by the system (see \autoref{eq:problem-definition-satisfied-demand-ratio}).
 
 \begin{subequations}
     \begin{equation}\label{eq:problem-definition-satisfied-demand}
@@ -320,7 +320,7 @@ Additionally, an imbalance penalty based on the Gini coefficient is included to 
 The objective is calculated over the whole simulation horizon, e.g., over all time steps $t$.
 This equation serves as a high-level, conceptual formulation of the overall system's goals.
 It is intentionally presented as a simplified, unweighted sum to provide a clear and concise problem statement.
-This structure acts as an abstraction of the more detailed, operational reward functions that guide the individual RL agents, which are described in the following sections.
+This structure acts as an abstraction of the more detailed, operational reward functions that guide the individual \gls{rl} agents, which are described in the following sections.
 
 \begin{equation}\label{eq:pb-objective}
 \max\;\sum_{t\in \mathcal{T}}\Biggl[
@@ -332,7 +332,7 @@ This structure acts as an abstraction of the more detailed, operational reward f
 \end{equation}
 
 
-This problem can be modeled using two coupled Markov Decision Processes (MDPs), where the rebalancing outcomes $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$ result from the actions taken within a two-tier hierarchical reinforcement learning framework.
+This problem can be modeled using two coupled \glspl{mdp}, where the rebalancing outcomes $X_{c\rightarrow c'}(t)$ and $Y_{z\rightarrow z'}(t)$ result from the actions taken within a two-tier hierarchical reinforcement learning framework.
 This global objective function defines the overall optimization goal.
 In the following section, the \gls{hrl} framework is described, which is designed to maximize this objective function.
 Additionally, this section details how this global objective is decomposed into specific reward functions tailored to particular agents.
@@ -359,17 +359,17 @@ The \gls{rdc} addresses the rebalancing problem on a macroscopic community level
 
 A dedicated demand forecasting module supports both the \gls{rdc} and the \glspl{uic}.
 This module provides demand predictions as part of the state for both tiers, enhancing the effectiveness of rebalancing operations by allowing the system to anticipate future demand.
-This modular design ensures that both tiers optimize rebalancing decisions based on consistent future outlooks and separates the demand forecasting task from the RL agents.
+This modular design ensures that both tiers optimize rebalancing decisions based on consistent future outlooks and separates the demand forecasting task from the \gls{rl} agents.
 
 \subsection{Regional Distribution Coordinator}\label{sec:design-rl_framework-rdc}
 The \glsfirst{rdc} constitutes the first tier of the proposed two-tier \gls{hrl} framework.
 Its primary purpose is to address inter-community imbalances by determining the target number of e-scooters for each defined community through operator-based rebalancing.
 
 \subsubsection{Markov Decision Process (MDP) formulation}
-The \gls{rdc} is modeled as a Markov Decision Process (MDP), defined by a tuple $(\mathcal{S, A, P, R})$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $\mathcal{P}$ is the state transition probability function, and $\mathcal{R}$ is the reward function \cite{sutton_reinforcement_2018}.
+The \gls{rdc} is modeled as an \gls{mdp}, defined by a tuple $(\mathcal{S, A, P, R})$, where $\mathcal{S}$ is the state space, $\mathcal{A}$ is the action space, $\mathcal{P}$ is the state transition probability function, and $\mathcal{R}$ is the reward function \cite{sutton_reinforcement_2018}.
 Due to the complex dynamics of shared e-scooter systems, the transition probability function $\mathcal{P}$ is learned implicitly by the agent through interaction with the simulation environment.
-The MDP is assumed to be stationary, meaning that the transition probabilities depend only on the current state and the selected action and not on the specific timestep $t$.
-This MDP formulation is illustrated in \autoref{fig:rdc_mdp}.
+The \gls{mdp} is assumed to be stationary, meaning that the transition probabilities depend only on the current state and the selected action and not on the specific timestep $t$.
+This \gls{mdp} formulation is illustrated in \autoref{fig:rdc_mdp}.
 
 \paragraph{State ($\mathcal{S}^{RDC}_t$)}
 The state representation for the \gls{rdc} at timestep $t$, denoted $\mathcal{S}^{RDC}_t$, is a triple containing community-level vehicle counts ($n_c(t)$), pick-up demand forecast ($\hat{P}_c(t)$), and drop-off demand forecast ($\hat{D}_c(t)$).
@@ -438,23 +438,23 @@ The specific values for the weighting factors and the methodology for their sele
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/rdc_mdp.pdf}
-    \caption{Markov Decision Process (MDP) for the \glsfirst{rdc}. This figure provides a detailed schematic of the MDP formulation for the high-level \gls{rdc} agent. The state ($\mathcal{S}^{RDC}_t$) includes community-level vehicle counts and demand forecasts. The action ($\mathcal{A}^{RDC}_t$) is a vector of discrete rebalancing quotas for each community. The reward ($\mathcal{R}^{RDC}_t$) is a composite function of the satisfied demand ratio, rebalancing cost, and inter-community imbalance. This MDP formalizes the \gls{rdc}'s strategic decision-making problem of maintaining a balanced vehicle supply across the entire service area.}
+    \caption{\glsfirst{mdp} for the \glsfirst{rdc}. This figure provides a detailed schematic of the \gls{mdp} formulation for the high-level \gls{rdc} agent. The state ($\mathcal{S}^{RDC}_t$) includes community-level vehicle counts and demand forecasts. The action ($\mathcal{A}^{RDC}_t$) is a vector of discrete rebalancing quotas for each community. The reward ($\mathcal{R}^{RDC}_t$) is a composite function of the \gls{sdr}, rebalancing cost, and inter-community imbalance. This \gls{mdp} formalizes the \gls{rdc}'s strategic decision-making problem of maintaining a balanced vehicle supply across the entire service area.}
     \label{fig:rdc_mdp}
 \end{figure}
 
 \subsubsection{Algorithm and Architecture}
-Given this MDP formulation, a Multi-Head Deep Q-Network (MH-DQN) is employed for the Regional Distribution Coordinator. MH-DQN is a value-based reinforcement learning algorithm that utilizes deep neural networks to approximate the optimal action-value function, $Q*(s, a)$ \cite{mnih_human-level_2015}.
-The multi-head variant of the standard DQN \cite{li_personalized_2024} is particularly suitable for the \gls{rdc} as it needs to output multiple, correlated rebalancing actions, one for each community, simultaneously.
+Given this \gls{mdp} formulation, a \glsfirst{mh-dqn} is employed for the Regional Distribution Coordinator. \gls{mh-dqn} is a value-based reinforcement learning algorithm that utilizes deep neural networks to approximate the optimal action-value function, $Q*(s, a)$ \cite{mnih_human-level_2015}.
+The multi-head variant of the standard \gls{dqn} \cite{li_personalized_2024} is particularly suitable for the \gls{rdc} as it needs to output multiple, correlated rebalancing actions, one for each community, simultaneously.
 Alternative architectures, such as a single network predicting a composite action vector or Q-values for all joint actions, were considered but deemed impractical due to the combinatorial explosion of the action space.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/mh-dqn-architecture.pdf}
-    \caption{Multi-Head Deep Q-Network (MH-DQN) Architecture for the \gls{rdc}. This diagram illustrates the neural network architecture for the \gls{rdc} agent. A normalized input state is first processed by a series of shared layers that learn a common feature representation for the entire system. This shared representation is then fed into multiple independent \textit{heads,} where each head is a smaller neural network that outputs the Q-values for the discrete rebalancing actions of a single community. This multi-head design allows the agent to efficiently learn correlated but distinct policies for each community from a unified system state.}
+    \caption{The \glsfirst{mh-dqn} Architecture for the \gls{rdc}. This diagram illustrates the neural network architecture for the \gls{rdc} agent. A normalized input state is first processed by a series of shared layers that learn a common feature representation for the entire system. This shared representation is then fed into multiple independent \textit{heads,} where each head is a smaller neural network that outputs the Q-values for the discrete rebalancing actions of a single community. This multi-head design allows the agent to efficiently learn correlated but distinct policies for each community from a unified system state.}
     \label{fig:mdh-architecture}
 \end{figure}
 
-The core architecture of the MH-DQN comprises three main types of layers:
+The core architecture of the \gls{mh-dqn} comprises three main types of layers:
 \begin{enumerate}
     \item \textbf{Input Layer:}
     Processes the state representation ($\mathcal{S}^{RDC}_t$), involving flattening and normalization of the input features (community-level vehicle counts and demand forecasts).
@@ -468,14 +468,14 @@ The core architecture of the MH-DQN comprises three main types of layers:
 Each head thus determines the optimal rebalancing quota for its assigned community based on the global system state and learned rebalancing policies.
 
 \paragraph{Prioritized Experience Replay (PER)}
-The MH-DQN utilizes Prioritized Experience Replay (PER) \cite{schaul_prioritized_2016} to enhance learning efficiency.
-Standard DQN stores transitions $(s_t, a_t, r_t, s_{t+1})$ in a replay buffer and samples them uniformly for training.
-With PER, transitions are sampled non-uniformly based on their significance, measured by the magnitude of the Temporal Difference (TD) error.
-Prioritizing transitions with high TD-error, which are transitions where the agent learns the most, accelerates the learning process and improves sample efficiency.
+The \gls{mh-dqn} utilizes \glsfirst{per} \cite{schaul_prioritized_2016} to enhance learning efficiency.
+Standard \gls{dqn} stores transitions $(s_t, a_t, r_t, s_{t+1})$ in a replay buffer and samples them uniformly for training.
+With \gls{per}, transitions are sampled non-uniformly based on their significance, measured by the magnitude of the \gls{td-error}.
+Prioritizing transitions with high \gls{td-error}, which are transitions where the agent learns the most, accelerates the learning process and improves sample efficiency.
 However, this prioritization introduces a bias by modifying the distribution of training data.
 
-This bias is counterbalanced by Importance Sampling (IS) weights, which adjust the contribution of each sampled transition during the learning updates.
-These IS-weights are controlled by an exponent $\beta_{PER}$, which is annealed from an initial value towards one over the course of training (see \autoref{sec:implementation_rdc} for the exact annealing schedule).
+This bias is counterbalanced by \glsfirst{is} weights, which adjust the contribution of each sampled transition during the learning updates.
+These \gls{is}-weights are controlled by an exponent $\beta_{PER}$, which is annealed from an initial value towards one over the course of training (see \autoref{sec:implementation_rdc} for the exact annealing schedule).
 This annealing schedule for $\beta_{PER}$ helps to balance the benefits of prioritized sampling with the need for unbiased updates, contributing to stable and efficient learning \cite{schaul_prioritized_2016}.
 
 \paragraph{Exploration Strategy}
@@ -486,9 +486,9 @@ It starts at a high value at the beginning of training and is reduced to a small
 Maintaining a small $\epsilon$ ensures persistent exploration, which can be beneficial in complex and dynamic environments \cite{zhang_why_2020}.
 
 \paragraph{Training stabilization techniques}
-Several techniques are incorporated to stabilize the training of the MH-DQN.
-To address the bias in Q-learning, where Q-values are frequently overestimated, a Double DQN (DDQN) algorithm \cite{hasselt_deep_2016} is integrated.
-DDQN decouples action selection from action evaluation for estimating the value of the next state.
+Several techniques are incorporated to stabilize the training of the \gls{mh-dqn}.
+To address the bias in Q-learning, where Q-values are frequently overestimated, a \gls{ddqn} algorithm \cite{hasselt_deep_2016} is integrated.
+\gls{ddqn} decouples action selection from action evaluation for estimating the value of the next state.
 Specifically, the policy network determines the optimal action for the next state, and the target network then evaluates the Q-value of this selected action.
 
 A separate target network, with an identical architecture to the policy network (the network being actively trained), is used to provide stable targets for updating the Q-value.
@@ -507,7 +507,7 @@ The \gls{uic} agents propose incentives for each zone that is part of the design
 
 
 \subsubsection{Markov Decision Process (MDP) formulation}
-The \gls{uic}'s sequential decision-making problem is formalized as an MDP.
+The \gls{uic}'s sequential decision-making problem is formalized as an \gls{mdp}.
 A diagram of this formulation is provided in \autoref{fig:uic_mdp}.
 
 \paragraph{State ($\mathcal{S}^{UIC}_t$)}
@@ -561,9 +561,9 @@ The specific values for the weighting factors and the methodology for their sele
 
 \begin{enumerate}
     \item \textbf{Satisfied Demand Ratio ($R_{demand}^{UIC}(t, c)$):}
-    The core component of the reward function is the satisfied demand ratio, which measures the proportion of trip requests that are satisfied.
+    The core component of the reward function is the \glsfirst{sdr}, which measures the proportion of trip requests that are satisfied.
     It is calculated by summing the number of trip requests originating from the designated community the system successfully served, and dividing this sum by the total number of trip requests received for each zone (see \autoref{eq:uic-reward-demand}).
-    This satisfied demand ratio is calculated for the time interval $[t, t+1]$. 
+    This \gls{sdr} is calculated for the time interval $[t, t+1]$. 
     
     \item \textbf{Rebalancing Cost ($R_{cost}^{UIC}(t, c)$):}
     Rebalancing operations negatively change the reward signal to encourage the \gls{uic} to limit rebalancing operations to only necessary operations.
@@ -582,7 +582,7 @@ The specific values for the weighting factors and the methodology for their sele
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/uic_mdp.pdf}
-    \caption{Markov Decision Process (MDP) for the \glsfirst{uic}. This figure presents the MDP formulation for a low-level \gls{uic} agent, which operates within a single community $c$. The state ($\mathcal{S}^{UIC}_t$) consists of vehicle counts and demand forecasts at the finer zone level. The action ($\mathcal{A}^{UIC}_t$) is a vector of continuous incentive levels for each zone within its assigned community. The reward ($\mathcal{R}^{UIC}_t$) is based on local satisfied demand, the cost of incentives, and intra-community imbalance. This formulation defines the \gls{uic}'s task of optimizing local fleet distribution through user-based incentives.}
+    \caption{\glsfirst{mdp} for the \glsfirst{uic}. This figure presents the \gls{mdp} formulation for a low-level \gls{uic} agent, which operates within a single community $c$. The state ($\mathcal{S}^{UIC}_t$) consists of vehicle counts and demand forecasts at the finer zone level. The action ($\mathcal{A}^{UIC}_t$) is a vector of continuous incentive levels for each zone within its assigned community. The reward ($\mathcal{R}^{UIC}_t$) is based on local satisfied demand, the cost of incentives, and intra-community imbalance. This formulation defines the \gls{uic}'s task of optimizing local fleet distribution through user-based incentives.}
     \label{fig:uic_mdp}
 \end{figure}
 
@@ -608,15 +608,15 @@ This \texttt{user\_willingness\_fn} is a simplifying assumption that models comp
 This simplification is necessary for the simulation environment.
 
 \subsubsection{Algorithm and Architecture}
-A Proximal Policy Optimization (PPO) \cite{schulman_proximal_2017} algorithm is implemented for the User-Incentive Coordinators.
-The selection of PPO is made, as it can effectively handle continuous action spaces required for fine-grained setting of incentive intensities.
+A \glsfirst{ppo} \cite{schulman_proximal_2017} algorithm is implemented for the User-Incentive Coordinators.
+The selection of \gls{ppo} is made, as it can effectively handle continuous action spaces required for fine-grained setting of incentive intensities.
 
 This algorithm allocates incentives to specific zones within a community to encourage users to drop-off vehicles in these targeted zones rather than their originally intended destinations.
-The implementation leverages the Stable Baselines3 library, which provides a robust and stable implementation of the PPO algorithm \cite{raffin_stable-baselines3_2021}.
-The PPO algorithm is an on-policy actor-critic method recognized for its stability and robust performance.
-PPO is a policy gradient method which has been further discussed in \autoref{sec:background-reinforcement_learning-pgm}.
+The implementation leverages the Stable Baselines3 library, which provides a robust and stable implementation of the \gls{ppo} algorithm \cite{raffin_stable-baselines3_2021}.
+The \gls{ppo} algorithm is an on-policy actor-critic method recognized for its stability and robust performance.
+\gls{ppo} is a policy gradient method which has been further discussed in \autoref{sec:background-reinforcement_learning-pgm}.
 
-The implementation uses a Multi-Layer Perceptron (MLP) architecture with separate networks for the policy (\textit{actor}) and value (\textit{critic}) functions.
+The implementation uses a \glsfirst{mlp} architecture with separate networks for the policy (\textit{actor}) and value (\textit{critic}) functions.
 Utilizing separate networks can improve stability by preventing the learning objectives of the policy and value functions from interfering with each other's gradients.
 By isolating the \textit{actor} and the \textit{critic} into two distinct models, each network is updated with its own loss, thereby eliminating inferences between the two loss signals.
 Both networks consist of three hidden layers, using the same network parameters, which are described with other implementational details in \autoref{sec:implementation_uic}.
@@ -631,36 +631,36 @@ The architecture is illustrated in \autoref{fig:ppo-architecture} \cite{raffin_s
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/ppo-architecture.pdf}
-    \caption{Proximal Policy Optimization (PPO) Architecture for the \gls{uic} Agent. This diagram illustrates the actor-critic neural network architecture employed by the \gls{uic} agents. The architecture consists of two separate Multi-Layer Perceptrons (MLPs): an \textit{Actor} (Policy) network and a \textit{Critic} (Value) network. The \textit{Actor} network outputs the parameters (mean $\mu$ and standard deviation $\sigma$) of a Gaussian probability distribution from which a continuous incentive action is sampled. The \textit{Critic} network outputs a single scalar estimate of the state-value, $V(s)$, which is used to guide the policy updates. This two-network structure is a stable and practical approach for learning policies in continuous action spaces.}
+    \caption{\glsfirst{ppo} Architecture for the \gls{uic} Agent. This diagram illustrates the actor-critic neural network architecture employed by the \gls{uic} agents. The architecture consists of two separate \glsentryfullpl{mlp}: an \textit{Actor} (Policy) network and a \textit{Critic} (Value) network. The \textit{Actor} network outputs the parameters (mean $\mu$ and standard deviation $\sigma$) of a Gaussian probability distribution from which a continuous incentive action is sampled. The \textit{Critic} network outputs a single scalar estimate of the state-value, $V(s)$, which is used to guide the policy updates. This two-network structure is a stable and practical approach for learning policies in continuous action spaces.}
     \label{fig:ppo-architecture}
 \end{figure}
 
 \paragraph{Exploration Strategy}
-In contrast to the $\epsilon$-greedy strategy used for the \glspl{rdc} MH-DQN agent, the PPO algorithm with a continuous action space features a stochastic nature, thereby ensuring the exploration of the search space.
+In contrast to the $\epsilon$-greedy strategy used for the \glspl{rdc} \gls{mh-dqn} agent, the \gls{ppo} algorithm with a continuous action space features a stochastic nature, thereby ensuring the exploration of the search space.
 The degree of exploration is controlled by an entropy bonus, weighted by a coefficient.
 This entropy bonus is added to the loss function to encourage the policy to maintain a higher randomness, preventing the model from converging to a suboptimal solution \cite{schulman_proximal_2017}.
 
 \paragraph{Training stabilization techniques}
-PPO employs a Clipped Surrogate Objective function that ensures stable policy updates \cite{schulman_proximal_2017}.
+\gls{ppo} employs a Clipped Surrogate Objective function that ensures stable policy updates \cite{schulman_proximal_2017}.
 This mechanism prevents large policy updates that could potentially cause instability.
 The constraint is controlled by a clip range parameter, which is annealed over the training process.
 Therefore, larger exploratory updates are allowed at the beginning of the training process.
 Gradually decreasing the value of this parameter results in more granular updates at the end of the process.
 
-Additionally, to further stabilize training, Generalized Advantage Estimation (GAE) is used \cite{schulman_high-dimensional_2018}.
-GAE computes a weighted average of the advantage estimates over multiple timesteps, rather than relying on a single-step advantage value.
+Additionally, to further stabilize training, \glsfirst{gae} is used \cite{schulman_high-dimensional_2018}.
+\gls{gae} computes a weighted average of the advantage estimates over multiple timesteps, rather than relying on a single-step advantage value.
 This technique, therefore, produces more stable estimates of the advantage function, resulting in faster learning and more reliable policy gradients. 
 
 \subsection{Demand Forecasting Module}\label{sec:design-rl_framework-forecasting_module}
 The successful operation of the rebalancing algorithm is fundamentally dependent on its ability to anticipate future demand to proactively rebalance vehicles based on future demand.
 Therefore, a dedicated Demand Forecasting Module that accurately predicts future demand is critical.
-By predicting future pick-up and drop-off events, this module enables the RL agents to pre-position vehicles to meet anticipated demand.
+By predicting future pick-up and drop-off events, this module enables the \gls{rl} agents to pre-position vehicles to meet anticipated demand.
 This results in a proactive rebalancing strategy that can respond actively to changes in demand.
 This implementation of an independent Demand Forecasting Module removes the forecasting problem from the rebalancing algorithms themselves, which ideally should increase the overall efficiency of the framework, as the problems are separated and can be targeted directly.
 
 To effectively support the rebalancing agents mentioned earlier, the Demand Forecasting Module must predict the number of pick-ups and drop-offs for each zone on an hourly basis.
 The model must be capable of capturing the complex dynamics of e-scooter demand patterns.
-The underlying model of this Demand Forecasting Module is trained using historical demand data extracted from the raw GBFS data (see \autoref{sec:design-data}).
+The underlying model of this Demand Forecasting Module is trained using historical demand data extracted from the raw \gls{gbfs} data (see \autoref{sec:design-data}).
 The output of the demand model should be the expected number of pick-up / drop-off events hourly per zone, to be integrated in the proposed rebalancing framework.
 To meet these requirements, two separate models are trained: one for predicting pick-ups and another for drop-offs.
 This separation is motivated by the observed imbalances between pick-ups and drop-offs, as discussed in \autoref{sec:design-data}.
@@ -671,25 +671,25 @@ The model selected for the Demand Forecasting Module is the \glsfirst{irconvlstm
 The selection of the \gls{irconvlstm} model as part of this rebalancing framework is based on its empirically validated performance, its publicly available open-source implementation, and its suitable architecture for modeling the complex dynamics of micromobility demand data.
 Due to the short time scope of this master's thesis, the focus of this work is on the rebalancing framework itself, which is why an open-source implementation for the Demand Forecasting Module is preferred.
 Li et al. \cite{li_improving_2023} demonstrated the high performance of the \gls{irconvlstm} model in an empirical study comparing the proposed model against several other forecasting models.
-These included traditional time-series models like ARIMA, standalone deep-learning models like LSTM and GRU, and hybrid models like the CNN+LSTM model.
+These included traditional time-series models like ARIMA, standalone deep-learning models like \gls{lstm} and \gls{gru}, and hybrid models like the CNN+LSTM model.
 The evaluation was conducted across five different cities using bike-sharing data.
-The \gls{irconvlstm} using Dynamic Time Warping (DTW) yielded the best performance, which is why this variant is used for this work.
+The \gls{irconvlstm} using \glsfirst{dtw} yielded the best performance, which is why this variant is used for this work.
 \gls{irconvlstm} consistently outperformed the other models across all benchmarks, including Root Mean Squared Error (RMSE), Mean Absolute Error (MAE), and Mean Absolute Percentage Error (MAPE).\\
 
 
 \subsubsection{Architecture}
-The core of this model is the Irregular Convolution (IrConv) layers, which replace the standard kernels of a Convolutional layer with fixed spatial kernels with semantic kernels based on semantic neighbors.
-IrConv layers operate on the central cell and its top $N$ semantic neighbours.
+The core of this model is the \glsfirst{irconv} layers, which replace the standard kernels of a Convolutional layer with fixed spatial kernels with semantic kernels based on semantic neighbors.
+\gls{irconv} layers operate on the central cell and its top $N$ semantic neighbours.
 This allows the prediction to incorporate the historical demand development of zones with similar demand patterns.
-To identify these semantic neighbours, two metrics were proposed: Pearson Correlation Coefficient (PCC) and Dynamic Time Warping (DTW).
-The PCC measures the linear correlation between the historical time series of two cells.
-The DTW metric, on the other hand, measures the similarity between two temporal sequences.
-\autoref{fig:irconv-neighbors} illustrates these differences between standard kernels used in CNNs and semantic neighbour kernels used in IrConv layers.
+To identify these semantic neighbours, two metrics were proposed: \gls{pcc} and \gls{dtw}.
+The \gls{pcc} measures the linear correlation between the historical time series of two cells.
+The \gls{dtw} metric, on the other hand, measures the similarity between two temporal sequences.
+\autoref{fig:irconv-neighbors} illustrates these differences between standard kernels used in \glspl{cnn} and semantic neighbour kernels used in IrConv layers.
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.8\linewidth]{content/figures/IrConv-LSTM-Neighbors.pdf}
-    \caption{Comparison of Standard and Irregular Convolution Kernels. This figure contrasts the kernels of a standard convolutional layer with the proposed irregular convolution. Regular convolution (left) operates on a fixed grid of direct spatial neighbors. In contrast, Irregular Convolution (right) operates on \textit{semantic neighbors} that are not necessarily adjacent but show similar historical demand patterns, as measured by metrics like Dynamic Time Warping (DTW). This approach allows the Demand Forecasting Model to capture non-local spatial dependencies that are common in urban mobility \cite{li_improving_2023}.}
+    \caption{Comparison of Standard and Irregular Convolution Kernels. This figure contrasts the kernels of a standard convolutional layer with the proposed irregular convolution. Regular convolution (left) operates on a fixed grid of direct spatial neighbors. In contrast, Irregular Convolution (right) operates on \textit{semantic neighbors} that are not necessarily adjacent but show similar historical demand patterns, as measured by metrics like \glsfirst{dtw}. This approach allows the Demand Forecasting Model to capture non-local spatial dependencies that are common in urban mobility \cite{li_improving_2023}.}
     \label{fig:irconv-neighbors}
 \end{figure}
 
@@ -708,19 +708,19 @@ The \gls{irconvlstm} consists of three parallel modules, each corresponding to a
         By analyzing demand data from the same hour over the preceding two weeks, this module integrates long-term patterns in the data.
 \end{itemize}
 This multi-component structure allows the model to learn from immediate past data, daily periodic patterns, and longer-term bi-weekly trends simultaneously.
-Each of these three parallel streams feeds its sequence of historical demand data into a block containing three consecutive Irregular Convolutional (IrConv) layers followed by a flatten layer and an LSTM layer.
+Each of these three parallel streams feeds its sequence of historical demand data into a block containing three consecutive \gls{irconv} layers followed by a flatten layer and an \gls{lstm} layer.
 
 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.7\linewidth]{content/figures/IrConv-LSTM-Architecture.pdf}
-    \caption{Architecture of the \glsfirst{irconvlstm} Demand Forecasting Network. This diagram shows the architecture of the \gls{irconvlstm} network used for demand forecasting, adapted from Li et al. \cite{li_improving_2023}. The model processes historical demand data through three parallel streams—Closeness, Period, and Trend—which capture short-term, daily, and bi-weekly patterns, respectively. Each stream uses a block of IrConv layers to extract spatial features and an LSTM layer to model temporal dependencies, before their outputs are fused to produce the final forecast. This multi-stream architecture enables the model to learn and integrate demand dynamics across multiple time scales simultaneously.}
+    \caption{Architecture of the \glsfirst{irconvlstm} Demand Forecasting Network. This diagram shows the architecture of the \gls{irconvlstm} network used for demand forecasting, adapted from Li et al. \cite{li_improving_2023}. The model processes historical demand data through three parallel streams—Closeness, Period, and Trend—which capture short-term, daily, and bi-weekly patterns, respectively. Each stream uses a block of \gls{irconv} layers to extract spatial features and an \gls{lstm} layer to model temporal dependencies, before their outputs are fused to produce the final forecast. This multi-stream architecture enables the model to learn and integrate demand dynamics across multiple time scales simultaneously.}
     \label{fig:irconv-architecture}
 \end{figure}
 
 \subsubsection{Handling Forecast Uncertainty}
 The forecasts generated by this Demand Forecasting Module are biased and will not perfectly reflect the actual demand data.
-The RL agent's design accounts for this uncertainty in demand predictions.
+The \gls{rl} agent's design accounts for this uncertainty in demand predictions.
 The agent does not treat the forecasts as ground truth.
 That is why the simulation is driven by the actual demand and not by the forecasts.
 Additionally, the rewards for both agents are calculated using the actual realized demand based on the simulation.

@@ -3,7 +3,7 @@ This chapter provides the foundational knowledge required to understand the conc
 It provides the necessary context for the proposed framework that integrates operator- and user-based rebalancing for micromobility services.
 The chapter is structured as follows:
 \autoref{sec:background-mss} introduces the fundamentals of micromobility sharing services and the core problem of fleet rebalancing.
-\autoref{sec:background-reinforcement_learning} provides an overview of relevant reinforcement learning (RL) algorithms.
+\autoref{sec:background-reinforcement_learning} provides an overview of relevant \gls{rl} algorithms.
 \autoref{sec:background-heuristics} describes heuristic and meta-heuristic optimization methods.
 Finally, \autoref{sec:background-mathematical_optimization} presents traditional mathematical optimization techniques. 
 
@@ -62,7 +62,7 @@ Given the distinct advantages and disadvantages of each approach, service provid
 Typically, a combined approach creates efficient and robust solutions, but needs fine-tuning based on the specific requirements \cite{mahmoodian_design_2019}.
 
 \section{Reinforcement Learning (RL)}\label{sec:background-reinforcement_learning}
-Reinforcement Learning (RL) is a machine learning paradigm in which an agent learns to make optimal decisions through sequential interactions with an environment.
+\glsfirst{rl} is a machine learning paradigm in which an agent learns to make optimal decisions through sequential interactions with an environment.
 At each discrete time step $t$, the agent observes the environment's state $\mathcal{S}$, selects an action from an available set $\mathcal{A}$, and receives a numerical reward $R$ as feedback.
 The agent's objective is to maximize the cumulative reward, or return, over time.
 This learning process is guided by a policy, denoted as $\pi$, which is a strategy that maps states to actions \cite{zhang_dive_2023}.
@@ -70,11 +70,11 @@ Through a process of trial and error, the agent iteratively refines its policy t
 The agent-environment interaction loop is illustrated in \autoref{fig:mdp-diagram}.
 
 \subsection{Markov Decision Process (MDP) and Dynamic Programming (DP)}\label{sec:background-reinforcement_learning-mdp}
-A fundamental framework in the field of RL is the Markov Decision Process (MDP).
-An MDP is defined by a tuple consisting of four components (see equation \ref{eq:mdp}).
-Decision-making in environments where outcomes are not entirely in control of the agent can be modeled using such an MDP.
-Problems formulated as MDPs can be solved using techniques such as dynamic programming (DP).
-DP is a technique for solving complex models by dividing the problem into multiple sub-problems and using estimates to find an optimal policy that solves the problem \cite{zhang_dive_2023}.
+A fundamental framework in the field of \gls{rl} is the \glsfirst{mdp}.
+An \gls{mdp} is defined by a tuple consisting of four components (see equation \ref{eq:mdp}).
+Decision-making in environments where outcomes are not entirely in control of the agent can be modeled using such an \gls{mdp}.
+Problems formulated as \glspl{mdp} can be solved using techniques such as \gls{dp}.
+\gls{dp} is a technique for solving complex models by dividing the problem into multiple sub-problems and using estimates to find an optimal policy that solves the problem \cite{zhang_dive_2023}.
 
 \begin{equation}\label{eq:mdp}
     MDP : (\mathcal{S}; \mathcal{A}; P; R)
@@ -90,16 +90,16 @@ DP is a technique for solving complex models by dividing the problem into multip
 \begin{figure}
     \centering
     \includegraphics[width=.9\linewidth]{content/figures/Markov_diagram.png}
-    \caption{The Reinforcement Learning Agent-Environment Interaction Loop. This diagram illustrates the fundamental cycle of a Markov Decision Process (MDP). At each discrete time step $t$, the agent observes the environment's current state ($\mathcal{S}_t$) and selects an action ($\mathcal{A}_t$). In response, the environment transitions to a new state ($\mathcal{S}_{t+1}$) and provides a numerical reward ($R_{t+1}$) to the agent. This feedback loop forms the basis of trial-and-error learning, as the agent's objective is to learn a policy that maximizes the cumulative reward over time \cite{sutton_reinforcement_2018}.}
+    \caption{The Reinforcement Learning Agent-Environment Interaction Loop. This diagram illustrates the fundamental cycle of a \glsfirst{mdp}. At each discrete time step $t$, the agent observes the environment's current state ($\mathcal{S}_t$) and selects an action ($\mathcal{A}_t$). In response, the environment transitions to a new state ($\mathcal{S}_{t+1}$) and provides a numerical reward ($R_{t+1}$) to the agent. This feedback loop forms the basis of trial-and-error learning, as the agent's objective is to learn a policy that maximizes the cumulative reward over time \cite{sutton_reinforcement_2018}.}
     \label{fig:mdp-diagram}
 \end{figure}
 
-The Markov property is a fundamental assumption when working with MDPs.
+The Markov property is a fundamental assumption when working with \glspl{mdp}.
 This property states that the next state depends only on the current state and the action taken, and not on the sequence of states and actions that preceded them
 This assumption significantly simplifies the modeling process by ensuring that the current state provides all necessary information for optimal decision-making \cite{zhang_dive_2023}.
 
 \subsubsection{Value Functions}
-Key functions for solving MDPs are the state-value function presented in equation \ref{eq:state-value-function} and the action-value function presented in equation \ref{eq:action-value-function} \cite{zhang_dive_2023}.
+Key functions for solving \glspl{mdp} are the state-value function presented in equation \ref{eq:state-value-function} and the action-value function presented in equation \ref{eq:action-value-function} \cite{zhang_dive_2023}.
 
 The state-value function represents the expected reward of being in state $s$ and following the policy $\pi$.
 The action-value function, on the other hand, represents the expected reward of being in state $s$ performing the action $a$ and then acting to follow the policy $\pi$ \cite{zhang_dive_2023}.
@@ -119,7 +119,7 @@ The previously defined state-value and action-value functions accurately describ
 However, solving these equations directly is computationally complex and requires a complete model of the environment's dynamics ($\mathcal{P}$ and $\mathcal{R}$), which is often unavailable.
 Therefore, the Bellman equations describe an iterative approach for calculating the state-value function (see equation \ref{eq:bellman-state-value-function}) and the action-value function (see equation \ref{eq:bellman-action-value-function}) \cite{zhang_dive_2023}.
 They decompose the value of a state or state-action pair into the sum of the immediate reward and the discounted value of the successor states.
-This recursive property is fundamental to many RL algorithms \cite{zhang_dive_2023}.
+This recursive property is fundamental to many \gls{rl} algorithms \cite{zhang_dive_2023}.
 
 \begin{equation}\label{eq:bellman-state-value-function}
 v_\pi(s) = \sum_{a \in \mathcal{A}} \pi(a \mid s) \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma v_\pi(s') \right]
@@ -130,7 +130,7 @@ q_\pi(s, a) = \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \ga
 \end{equation}
 
 \subsubsection{Policy Iteration}
-Dynamic Programming employs two main algorithms to solve MDPs: policy iteration and value iteration.
+Dynamic Programming (DP) employs two main algorithms to solve \glspl{mdp}: policy iteration and value iteration.
 They utilize the previously defined Bellman Equations and their recursive approach.
 Policy Iteration alternates between the two steps: Policy Evaluation and Policy Improvement \cite{zhang_dive_2023}.
 Policy Evaluation estimates the effectiveness of the policy in every state.
@@ -142,7 +142,7 @@ After evaluating the current policy, the next step is to improve it, which is do
 \end{equation}
 
 \subsubsection{Value Iteration}
-On the other hand, value iteration attempts to solve MDPs by directly updating the value function, rather than using the two-step process employed in policy iteration.
+On the other hand, value iteration attempts to solve \glspl{mdp} by directly updating the value function, rather than using the two-step process employed in policy iteration.
 Value iteration repeatedly applies the Bellman optimality equation until this function converges and an optimal state-value function $v^*(s)$ is found (see equation \ref{eq:bellman-optimality}).
 With this optimal state-value function, an optimal policy can be obtained with the equation \ref{eq:value-iteration-optimal-policy} \cite{zhang_dive_2023}.
 
@@ -155,13 +155,13 @@ With this optimal state-value function, an optimal policy can be obtained with t
 \end{equation}
 
 \subsection{Multi-Armed Bandits (MAB)}
-The Multi-Armed Bandit (MAB) is a simplified RL problem that lacks states, forcing the agent to focus exclusively on the exploration-exploitation dilemma.
-An MAB agent has k arms, each representing an action the agent can choose from.
+The \glsfirst{mab} is a simplified \gls{rl} problem that lacks states, forcing the agent to focus exclusively on the exploration-exploitation dilemma.
+An \gls{mab} agent has k arms, each representing an action the agent can choose from.
 Notably, the agent has no state representation of the environment it is interacting with.
-This means the MAB agent can try out each action and choose based on the previous rewards it has received from exploring the different actions.
-That way, the MAB agent can learn the underlying probability distributions for the reward of each action.
-When the MAB agent has explored the actions sufficiently, it can exploit this information to maximize its total reward.
-The MAB theory describes the trade-off between exploration and exploitation by exploring the different actions to estimate their reward distributions.
+This means the \gls{mab} agent can try out each action and choose based on the previous rewards it has received from exploring the different actions.
+That way, the \gls{mab} agent can learn the underlying probability distributions for the reward of each action.
+When the \gls{mab} agent has explored the actions sufficiently, it can exploit this information to maximize its total reward.
+The \gls{mab} theory describes the trade-off between exploration and exploitation by exploring the different actions to estimate their reward distributions.
 The agent uses the information it has gained to maximize its total reward, which is its primary goal \cite{sutton_reinforcement_2018}.
 
 The estimated reward for a given action $a$ can be calculated as the average reward for choosing that action.
@@ -171,7 +171,7 @@ This estimated reward is denoted as $Q_t(a)$ and is presented in equation \ref{e
     Q_t(a) \doteq \frac{\text{sum of rewards when a taken prior to t}}{\text{number of times a taken prior to t}} = \frac{\sum_{i=1}^{t-1} R_i \, \mathbf{1}_{\{A_i = a\}}s}{\sum_{i=1}^{t-1} \mathbf{1}_{\{A_i = a\}}}
 \end{equation}
 
-Numerous algorithms have been developed for MAB agents to balance exploration and exploitation.
+Numerous algorithms have been developed for \gls{mab} agents to balance exploration and exploitation.
 
 \subsubsection{$\mathbf{\varepsilon}$-greedy}
 The $\varepsilon$-greedy algorithm is a relatively straightforward approach to strike a balance between exploration and exploitation.
@@ -188,9 +188,9 @@ A_t =
 \end{equation}
 
 \subsubsection{Upper Confidence Bound (UCB)}
-The Upper Confidence Bound (UCB) is a widely used algorithm for balancing exploration and exploitation in MAB settings.
+The \glsfirst{ucb} is a widely used algorithm for balancing exploration and exploitation in \gls{mab} settings.
 This approach selects the arm based on the highest estimated reward and the uncertainty associated with those estimates.
-Therefore, the UCB algorithm improves estimates based on the variance of each estimate.
+Therefore, the \gls{ucb} algorithm improves estimates based on the variance of each estimate.
 The algorithm is presented in equation \ref{eq:upper-confidence-bound} \cite{sutton_reinforcement_2018}.
 
 \begin{equation}\label{eq:upper-confidence-bound}
@@ -198,7 +198,7 @@ A_t \doteq \arg\max_a \left[ Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}} \right]
 \end{equation}
 
 \subsection{Q-Learning}
-Q-learning is a foundational model-free RL algorithm, meaning it can learn an optimal policy without requiring a model of the environment's dynamics ($P$ and $R$).
+Q-learning is a foundational model-free \gls{rl} algorithm, meaning it can learn an optimal policy without requiring a model of the environment's dynamics ($P$ and $R$).
 Q-Learning is an off-policy algorithm, meaning two distinct policies are used.
 This algorithm optimizes the target policy, while a different behavior policy is used for exploration.
 In contrast, on-policy algorithms like SARSA use a single policy, which is used for exploration and serves as the target policy to be optimized.
@@ -213,16 +213,16 @@ With this update rule, the algorithm iteratively updates the action-value functi
 
 \subsection{Deep-Q-Networks (DQN)}\label{sec:background-reinforcement_learning-dqn}
 Traditional Q-learning struggles with high-dimensional or continuous state spaces, as maintaining a tabular representation of Q-values becomes infeasible.
-Deep Q-Networks (DQN) address this problem by using neural networks instead.
-In DQN, a deep neural network approximates the Q-value function $q(s, a;\theta)$, with network weights $\theta$.
+\glsentryfullpl{dqn} address this problem by using neural networks instead.
+In \gls{dqn}, a deep neural network approximates the Q-value function $q(s, a;\theta)$, with network weights $\theta$.
 The network takes the state as input and outputs estimated Q-values for each possible action.
 By training this network, the agent can generalize past experiences to new unseen states \cite{mnih_human-level_2015}.
 
-DQN gained popularity due to several key innovations in this field, which massively increased the usability of DQN.
+\gls{dqn} gained popularity due to several key innovations in this field, which massively increased the usability of \gls{dqn}.
 Experience replay stabilizes training by using a replay memory to store the agent's experiences (e.g., transitions $(s_t, a_t, s_{t+1}, r_{t+1})$ at each time step), instead of learning from consecutive, correlated state transitions.
 From this memory, mini-batches are sampled uniformly to break temporal correlations between state transitions, which stabilizes training \cite{mnih_human-level_2015}.
 
-Double DQN (DDQN) introduces a second network.
+\gls{ddqn} introduces a second network.
 This second network, the target network, can compute Q-learning target values.
 These targets are computed after several iterations, which reduces fluctuations in these targets and stabilizes training \cite{hasselt_deep_2016}.
 
@@ -256,21 +256,21 @@ The \textit{critic} also updates its state-value approximation based on this TD-
 A widespread approach for actor-critic methods is to use the advantage $A(s, a)=q(s, a) - v(s)$ as the feedback to the \textit{actor}, which results in lower variance and even more stable training \cite{sewak_policy-approximation_2022}.
 
 \subsubsection{Proximal Policy Optimization (PPO)}
-Proximal Policy Optimization (PPO) is a state-of-the-art actor-critic method designed to enhance training stability and sample efficiency.
-PPO achieves this by optimizing a clipped surrogate objective function.
+\glsfirst{ppo} is a state-of-the-art actor-critic method designed to enhance training stability and sample efficiency.
+\gls{ppo} achieves this by optimizing a clipped surrogate objective function.
 This objective function constrains the policy update in a simple way to not differ too much from the previous policy.
-This avoids destructively large policy updates, making PPO more robust and easier to implement than other methods while maintaining state-of-the-art performance \cite{schulman_proximal_2017}.
+This avoids destructively large policy updates, making \gls{ppo} more robust and easier to implement than other methods while maintaining state-of-the-art performance \cite{schulman_proximal_2017}.
 
 \subsection{Multi-Agent Reinforcement Learning (MARL)}
-The previously discussed RL algorithms involve only one agent learning through interaction with the environment.
-Multi-Agent Reinforcement Learning (MARL) extends this by introducing a setting involving multiple agents that interact or compete against each other.
-MARL involves a much more complex setting through the interaction of multiple agents.
+The previously discussed \gls{rl} algorithms involve only one agent learning through interaction with the environment.
+\glsfirst{marl} extends this by introducing a setting involving multiple agents that interact or compete against each other.
+\gls{marl} involves a much more complex setting through the interaction of multiple agents.
 Therefore, the state is not only influenced by the actions of one agent, but the agents need to account for changes in the state due to the actions of the other agents.
 Often, a channel for communication is established between the agents.
 This communication can be implicit through observation or explicit as part of the agent's actions \cite{busoniu_multi-agent_2008}.
 
-An MDP cannot formalize MARL due to the lack of support for multiple agents.
-Therefore, numerous approaches have been introduced to formalize MARL models.
+An \gls{mdp} cannot formalize \gls{marl} due to the lack of support for multiple agents.
+Therefore, numerous approaches have been introduced to formalize \gls{marl} models.
 A well-known approach is the Markov Game (MG). 
 In MG, each agent has its own set of actions and its own reward function.
 The state space and the state transition probabilities are shared between all agents.
@@ -308,11 +308,11 @@ Multi-armed bandits, which address the exploration–exploitation dilemma in iso
 However, due to the simplicity of these models, their application is limited to isolated decision-making problems.
 Q-learning, a model-free and off-policy algorithm, learns optimal action value functions by iteratively updating estimates based on observed rewards.
 While Q-learning is effective in discrete environments, it faces challenges in scalability and often suffers from overestimation bias.
-DQN utilizes deep neural networks to approximate Q-values from high-dimensional inputs, thereby enhancing generalization for complex real-world tasks at the expense of increased computational complexity.
+\gls{dqn} utilizes deep neural networks to approximate Q-values from high-dimensional inputs, thereby enhancing generalization for complex real-world tasks at the expense of increased computational complexity.
 In contrast, policy gradient methods optimize the policy directly and are particularly well-suited for continuous action spaces.
 Their ability to learn stochastic policies is essential for adapting to rapidly changing environments.
 
-MARL extends these methodologies to settings involving multiple interacting agents, though it introduces additional challenges such as non-stationarity and scalability problems.
+\gls{marl} extends these methodologies to settings involving multiple interacting agents, though it introduces additional challenges such as non-stationarity and scalability problems.
 Finally, \gls{hrl} further decomposes complex tasks into hierarchical subtasks through abstraction, allowing high-level policies to set sub-goals for lower-level controllers, thereby improving learning efficiency. 
 However, designing an effective hierarchy often requires additional human intervention and extensive optimization.
 
@@ -339,8 +339,8 @@ Metaheuristics manage the trade-off between exploration and exploitation to over
 These methods are often inspired by natural processes, such as evolution or swarm intelligence, and typically operate on a population of candidate solutions.
 
 \subsubsection{Genetic Algorithms (GAs)}
-Genetic Algorithms (GAs) are a class of metaheuristics inspired by the principles of biological evolution.
-GAs improve a population of candidate solutions iteratively to identify a near-optimal solution.
+\glsentryfullpl{ga} are a class of metaheuristics inspired by the principles of biological evolution.
+\glspl{ga} improve a population of candidate solutions iteratively to identify a near-optimal solution.
 Each candidate is evaluated by a fitness function, which quantifies its suitability relative to the optimization objective. 
 The algorithm generates a new population in each generation through three primary operators: 
 
@@ -353,7 +353,7 @@ The algorithm generates a new population in each generation through three primar
 This iterative process, involving the selection, crossover, and mutation operators, is repeated across multiple generations until the fitness function converges to a stable optimum or a predefined termination criterion is met \cite{holland_adaptation_1992}.
 
 \subsubsection{Ant Colony Optimization (ACO)}
-Ant Colony Optimization (ACO) is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants.
+\glsfirst{aco} is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants.
 The optimization problem is modeled as a graph, where the nodes represent the problem's components and the edges represent possible connections or choices.
 Artificial \textit{ants} then traverse this graph to construct candidate solutions.
 As the ants build these solutions, they deposit artificial pheromones along their chosen paths.
@@ -361,7 +361,7 @@ As the ants build these solutions, they deposit artificial pheromones along thei
 Paths corresponding to superior solutions receive more potent pheromones.
 In subsequent iterations, the ants are probabilistically attracted to paths with higher concentrations of pheromones, thereby exploiting known good routes.
 At the same time, a degree of stochastic exploration is maintained to allow the ants to discover novel paths.
-This mechanism makes ACO well-suited for solving routing and scheduling problems, as well as other combinatorial optimization problems that can be naturally represented as graphs \cite{dorigo_ant_1997}.
+This mechanism makes \gls{aco} well-suited for solving routing and scheduling problems, as well as other combinatorial optimization problems that can be naturally represented as graphs \cite{dorigo_ant_1997}.
 
 \subsection{Summary}
 Heuristic and metaheuristic methods offer a range of approaches to optimization problems, each with its distinct advantages and limitations.
@@ -370,50 +370,50 @@ However, this results in suboptimal global performance.
 Greed-and-match heuristics improve upon this by incorporating matching strategies, which help enhance overall solution quality.
 However, they also introduce additional computational overhead and complexity compared to simple heuristics.
 
-In contrast, metaheuristics such as GAs and ACO offer more robust frameworks for navigating complex search spaces.
-GAs leverage evolutionary principles to evolve a population of solutions.
-ACO mimics the pheromone-based foraging behavior of ant swarms, where artificial ants traverse a graph representing the problem space.
+In contrast, metaheuristics such as \glspl{ga} and \gls{aco} offer more robust frameworks for navigating complex search spaces.
+\glspl{ga} leverage evolutionary principles to evolve a population of solutions.
+\gls{aco} mimics the pheromone-based foraging behavior of ant swarms, where artificial ants traverse a graph representing the problem space.
 However, they often require significantly more computational resources to avoid premature convergence and maintain genetic diversity.
 
 In summary, while greedy and greed-and-match heuristics offer simplicity and speed, they may not be sufficient to address global optimization challenges.
-Conversely, GAs and ACO provide more robust frameworks that are better equipped to handle complex, dynamic problem spaces, but at the cost of a significant increase in computational complexity.
+Conversely, \glspl{ga} and \gls{aco} provide more robust frameworks that are better equipped to handle complex, dynamic problem spaces, but at the cost of a significant increase in computational complexity.
 
 \section{Mathematical Optimization}\label{sec:background-mathematical_optimization}
-Mathematical optimization uses a fundamentally different approach than RL and heuristics.
+Mathematical optimization uses a fundamentally different approach than \gls{rl} and heuristics.
 Mathematical optimization approaches problems by formulating them as mathematical expressions consisting of objective functions and constraints that can be solved mathematically.
-This approach contrasts with the previously discussed RL and heuristic methods, employing a trial-and-error approach.
+This approach contrasts with the previously discussed \gls{rl} and heuristic methods, employing a trial-and-error approach.
 Formulating a mathematical expression based on real-world problems comes with some challenges and limitations.
 A simplified model of the environment is often formulated due to the high complexity of real-world scenarios, which cannot be formulated as a mathematical expression in a feasible amount of time.
-Linear Programming (LP) and Mixed Integer Linear Programming (MILP) are the most common approaches for formulating problems in the field of mathematical optimization.
+\glsfirst{lp} and \glsfirst{milp} are the most common approaches for formulating problems in the field of mathematical optimization.
 
 \subsection{Linear Programming (LP)}
-Linear programming (LP) is an optimization technique that is used to solve mathematical expressions for decision-making problems.
-In the context of LP, objective functions and constraints are linear, and their variables are continuous.
-This restriction, however, limits the scope of applications of the LP approach when confronted with complex real-world scenarios.
-A variety of algorithms exist to solve LPs for optimal solutions, but the most common are the simplex algorithm and the interior-point method.
+\glsfirst{lp} is an optimization technique that is used to solve mathematical expressions for decision-making problems.
+In the context of \gls{lp}, objective functions and constraints are linear, and their variables are continuous.
+This restriction, however, limits the scope of applications of the \gls{lp} approach when confronted with complex real-world scenarios.
+A variety of algorithms exist to solve \glspl{lp} for optimal solutions, but the most common are the simplex algorithm and the \glsfirst{ipm}.
 
 \begin{itemize}
-    \item The simplex algorithm utilizes a convex-shaped polytope, defined by the intersections of the LP constraints.
+    \item The simplex algorithm utilizes a convex-shaped polytope, defined by the intersections of the \gls{lp} constraints.
     The algorithm starts with a base solution located at one of the vertices of the polytope.
     Thereafter, the algorithm systematically moves from one vertex to the adjacent vertex, which provides the most significant improvement in terms of the objective function.
     This iterative process continues until no neighboring vertex improves the objective function value, at which point the algorithm achieves optimality \cite{boyd_convex_2004}.
-    \item The interior-point method takes a different path, traversing through the interior of the feasible region.
+    \item The \gls{ipm} takes a different path, traversing through the interior of the feasible region.
     It uses barrier functions to ensure it remains within the constraint boundaries and calculates a gradient to determine the direction of traversal.
     As the algorithm progresses, the influence of the barriers is reduced, allowing convergence to an optimal solution \cite{boyd_convex_2004}.
 \end{itemize}
 
-While the simplex algorithm is efficient in practice for many problems, its worst-case time complexity can be exponential. In contrast, interior-point methods have polynomial-time complexity, making them more robust for very large-scale LPs.
-While the interior-point method scales better, it comes with more computational overhead.
-In summary, the simplex method is more suited for solving smaller or repetitive LPs, while the interior-point method is better suited for larger and more complex LPs \cite{boyd_convex_2004}.
+While the simplex algorithm is efficient in practice for many problems, its worst-case time complexity can be exponential. In contrast, \glspl{ipm} have polynomial-time complexity, making them more robust for very large-scale \glspl{lp}.
+While \gls{ipm} scales better, it comes with more computational overhead.
+In summary, the simplex method is more suited for solving smaller or repetitive \glspl{lp}, while \gls{ipm} is better suited for larger and more complex \glspl{lp} \cite{boyd_convex_2004}.
 
 
 \subsection{Mixed Integer Linear Programming (MILP)}
-Mixed integer linear programming (MILP) is an extension of linear programming (LP) that allows some decision variables to be restricted to integer values.
+\glsfirst{milp} is an extension of \gls{lp} that allows some decision variables to be restricted to integer values.
 This greatly enhances the modeling capabilities of the framework, enabling the direct representation of discrete choices, such as binary (0/1) decisions.
 
-MILP problems are NP-hard and are typically solved using algorithms such as branch-and-cut.
-This method solves a series of LP relaxations, where the integer constraints are temporarily ignored, to establish bounds on the optimal solution.
+\gls{milp} problems are NP-hard and are typically solved using algorithms such as branch-and-cut.
+This method solves a series of \gls{lp} relaxations, where the integer constraints are temporarily ignored, to establish bounds on the optimal solution.
 The algorithm then systematically branches on integer variables, creating a tree of subproblems.
 It uses \textit{cuts}, or additional constraints, to prune branches of the tree that cannot yield an optimal solution.
 While effective for moderately complex problems, the computational time of these algorithms can grow exponentially with problem size, making them unsuitable for finding exact solutions to very large or time-sensitive systems.
-For such systems, however, MILP can still be applied to subproblems or used with heuristic methods to find high-quality approximate solutions \cite{vielma_mixed_2015}.
+For such systems, however, \gls{milp} can still be applied to subproblems or used with heuristic methods to find high-quality approximate solutions \cite{vielma_mixed_2015}.

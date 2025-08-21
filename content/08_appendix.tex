@@ -20,7 +20,7 @@
         \texttt{RDC\_batch\_size}           & The number of experiences sampled from the replay buffer for each training step. \\
         \texttt{RDC\_per\_alpha}            & The prioritization exponent ($\alpha_{PER}$), controlling how aggressively priorities are used for sampling (0 = uniform sampling, 1 = full prioritization). \\
         \texttt{RDC\_per\_beta\_start}      & The initial value of the importance-sampling exponent ($\beta_{PER}$), which is annealed to 1.0 to correct for the bias introduced by prioritized sampling. \\
-        \texttt{RDC\_per\_beta\_frames}     & The number of training frames over which the PER exponent $\beta$ is annealed to 1.0. \\
+        \texttt{RDC\_per\_beta\_frames}     & The number of training frames over which the \gls{per} exponent $\beta$ is annealed to 1.0. \\
         \midrule
         \texttt{RDC\_epsilon\_start}        & The initial probability ($\epsilon_{start}$) of selecting a random action to encourage exploration. \\
         \texttt{RDC\_epsilon\_end}          & The minimum final probability ($\epsilon_{min}$) of selecting a random action, ensuring some exploration persists. \\
@@ -47,7 +47,7 @@
         \midrule
         \texttt{UIC\_gamma}             & The discount factor applied to future rewards. It determines the present value of future rewards, influencing how far-sighted the agent's planning horizon is. \\
         \texttt{UIC\_gae\_lambda}       & The lambda parameter for Generalized Advantage Estimation (GAE). It provides a trade-off between bias (low lambda) and variance (high lambda) in the advantage function estimates. \\
-        \texttt{UIC\_target\_kl}        & If the Kullback-Leibler (KL) divergence between the new and old policies exceeds this target, updates for the current iteration are stopped. \\
+        \texttt{UIC\_target\_kl}        & If the \glsfirst{kl} divergence between the new and old policies exceeds this target, updates for the current iteration are stopped. \\
         \midrule
         \texttt{UIC\_num\_layers}       & The number of hidden layers used in the neural network architecture for both the policy (actor) and value (critic) networks. \\
         \texttt{UIC\_hidden\_size}      & The number of neurons within each hidden layer of the policy and value networks. \\
