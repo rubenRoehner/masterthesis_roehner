@@ -76,10 +76,10 @@ A comprehensive comparison with other rebalancing algorithms from prior research
 \\
 
 Rebalancing algorithms employing mathematical optimization techniques primarily concentrate on operator-based rebalancing, particularly addressing the routing problem of service vehicles.
-These approaches frequently encounter challenges with larger sharing systems, leading much of the research to employ simplified representations of the sharing system or to focus solely on a subset of the operational area.
+These approaches frequently encounter challenges with larger sharing systems, leading much of the research to employ simplified representations of the sharing system or to focus solely on a subset of the operational area \cite{dellamico_bike_2014}.
 Problem formulation is commonly achieved using \gls{milp} or \gls{lp}, subsequently solved by algorithms such as Branch and Bound (BB), \gls{ipm}, Coin-or Branch and Cut (CBC), or similar techniques.
 Some research combines traditional solving algorithms with heuristics, thereby enabling the enhancement of problem definitions for more complex models.
-However, these methods are often constrained by their reliance on static demand forecasts, simplified system representations, and fixed rebalancing intervals.
+However, these methods are often constrained by their reliance on static demand forecasts, simplified system representations, and fixed rebalancing intervals \cite{saum_optimizing_2024}.
 These limitations consequently restrict the scalability and responsiveness of such systems to real-time demand fluctuations.
 Such frameworks should prioritize capturing demand more dynamically and decomposing the rebalancing problem to enhance scalability.\\
 
@@ -146,7 +146,7 @@ Nevertheless, this research demonstrated the importance of advanced, effective d
 
 Heuristic-based rebalancing algorithms have demonstrated their value as a computationally efficient alternative to exact mathematical optimization techniques, producing near-optimal fleet distributions in significantly reduced time.
 The review of the literature reveals that such rebalancing algorithms predominantly focus on operator-based rebalancing under static demand conditions.
-A common strategy is to frame the task as a vehicle routing problem to find optimal routes for staff vehicles to rebalance the sharing system, frequently by formulating it as a \gls{tsp}.
+A common strategy is to frame the task as a Vehicle Routing Problem (VRP) to find optimal routes for staff vehicles to rebalance the sharing system, frequently by formulating it as a \gls{tsp}.
 A recurring theme in these approaches is that the rebalancing problem is decomposed into separate subtasks, most commonly the independent optimization of each service vehicle's route, allowing a single algorithm to detect regions of under- or oversupply, propose fleet relocations, and compute vehicle tours.
 This monolithic approach, which merges imbalance detection, fleet distribution, and route planning into a single optimization process, can compromise the overall quality of the solution.
 The inherent trade-offs between these different objectives often result in a loss of precision, leading to suboptimal outcomes.

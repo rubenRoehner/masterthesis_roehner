@@ -31,7 +31,7 @@ The architecture of this \gls{mh-dqn} is defined as follows:
         The feature tensor outputted from the shared layers is then processed in $N_C$ heads, one head for each community.
         Each of these heads consists of two fully connected linear layers (\texttt{torch.nn.Linear}) and a \texttt{torch.nn.ReLU} activation function in between.
         The second of those layers outputs the Q-values for each discrete action per community.
-        This branching architecture allows the agent to learn specific value functions for each of the community's action spaces, which is more efficient than a single monolithic approach with a combined action space.
+        This branching architecture allows the agent to learn specific value functions for each of the community's action spaces, which is more efficient than a single monolithic approach with a combined action space \cite{li_personalized_2024}.
 \end{itemize}
 
 This network is embedded within a custom simulation environment, which is described next.
@@ -120,8 +120,8 @@ The loss is calculated using the Huber loss, which has been selected due to its 
 The loss is calculated for each head separately, averaged for each sample, and weighted by the \gls{is}-weights.
 The final loss is the average of these weighted per-sample losses.
 
-The Adam optimizer (\texttt{torch.optim.Adam}) updates the gradients.
-Before the optimizer steps, the gradients are clipped to a maximum value of 10 to stabilize the training process.
+The Adam optimizer (\texttt{torch.optim.Adam}) updates the gradients \cite{kingma_adam_2017}.
+Before the optimizer steps, the gradients are clipped to a maximum value of 10 to stabilize the training process \cite{mnih_human-level_2015}.
 A learning rate scheduler updates the learning rate linearly every \texttt{RDC\_lr\_step\_size} by \texttt{RDC\_lr\_gamma}.
 
 Finally, the agent's parameters are updated accordingly.

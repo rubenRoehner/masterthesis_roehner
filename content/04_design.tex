@@ -19,7 +19,7 @@ After confirming the reliability of this process over an initial period, the sam
 The subsequent data processing steps address this variation in sampling frequency.
 Because the final analysis relies on event data aggregated into one-hour time bins, the differences in the underlying snapshot frequency are normalized.
 While the 15-minute interval may theoretically under-capture very short trips compared to the 5-minute data, this effect is considered negligible for the hourly resolution used in the demand analysis and model training.
-This process was conducted continuously over a 128-day period, from 11 February 2025 to 18 June 2025.
+This process was conducted continuously over a 128-day period, from February 11, 2025, to June 18, 2025.
 
 The \gls{gbfs} format, a standard for publishing shared micromobility vehicle data, provides several key attributes for each vehicle.
 These include its unique identifier, GPS coordinates (latitude and longitude), operational status (reserved or disabled), and battery level.
@@ -74,7 +74,7 @@ In contrast, the Bolt dataset was largely unaffected, retaining 96.4\% of its da
         \caption{Bolt}
         \label{fig:demand_map_bolt}
         \end{subfigure}
-    \caption{Geographical Filtering of Raw E-Scooter Event Data. The maps illustrate the spatial distribution of inferred e-scooter events before and after applying a geographical bounding box for the city of Stuttgart. Panel (a) shows the initial, unfiltered data for the provider Voi. Panel (b) shows the Bolt provider data. This filtering step was crucial for isolating the analysis to the urban core of Stuttgart.}
+    \caption{Geographical Filtering of Raw E-Scooter Event Data. The maps illustrate the spatial distribution of inferred e-scooter events before filtering, with the geographical bounding box for the city of Stuttgart shown in red. Panel (a) shows the initial, unfiltered data for the provider Voi. Panel (b) shows the Bolt provider data. This filtering step was crucial for isolating the analysis to the urban core of Stuttgart.}
     \label{fig:demand_map_reduction}
 \end{figure}
 
@@ -353,7 +353,7 @@ These coordinators aim to promote an equal distribution of vehicles by offering 
     \label{fig:hrl-architecture}
 \end{figure}
 
-The hierarchical approach has been chosen due to its ability to decompose a large problem, such as the rebalancing problem of an e-scooter sharing service, into more manageable sub-problems.
+The hierarchical approach has been chosen due to its ability to decompose a large problem, such as the rebalancing problem of an e-scooter sharing service, into more manageable sub-problems \cite{pateria_hierarchical_2021}.
 In this \gls{hrl} framework, the rebalancing problem is decomposed into sub-problems representing different spatial and operational levels.
 The \gls{rdc} addresses the rebalancing problem on a macroscopic community level, while the \gls{uic} handles it on a microscopic zone level.
 

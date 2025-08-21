@@ -321,11 +321,11 @@ These approaches strike a balance between ease of use and the scalability and co
 
 
 \section{Heuristics}\label{sec:background-heuristics}
-A heuristic is a problem-solving approach, similar to a rule of thumb, that attempts to find a satisfactory solution fast.
+A heuristic is a problem-solving approach, similar to a rule of thumb, that attempts to find a satisfactory solution fast \cite{russell_modern_1995}.
 This is particularly relevant for complex problems, where finding an exact optimal solution is computationally impossible or too time-consuming.
 While heuristics offer such a significant computational performance advantage, they do not guarantee global optimality. 
 
-The most common heuristic is the greedy heuristic, which operates by making the locally optimal choice at each step, i.e., greedily choosing the action with the most significant immediate reward.
+The most common heuristic is the greedy heuristic, which operates by making the locally optimal choice at each step, i.e., greedily choosing the action with the most significant immediate reward \cite{russell_modern_1995}.
 Greedy treats every choice individually, without considering future or previous decisions.
 This simple approach makes the greedy heuristic computationally efficient.
 However, it lacks complexity, resulting in globally suboptimal solutions.
@@ -334,12 +334,12 @@ For example, matching a set of supply locations to a set of demand locations.
 This allows for more informed local choices, which often yield better overall solutions than a simple greedy algorithm but come at the cost of increased computational complexity \cite{wu_challenges_2020}.
 
 \subsection{Metaheuristic Optimization}
-Metaheuristics are a class of optimization techniques that aim to enhance heuristics by guiding their actions to improve the search space and discover more optimal solutions than can be found solely with the heuristics themselves.
+Metaheuristics are a class of optimization techniques that aim to enhance heuristics by guiding their actions to improve the search space and discover more optimal solutions than can be found solely with the heuristics themselves \cite{russell_modern_1995}.
 Metaheuristics manage the trade-off between exploration and exploitation to overcome local optima and discover more optimal solutions.
 These methods are often inspired by natural processes, such as evolution or swarm intelligence, and typically operate on a population of candidate solutions.
 
 \subsubsection{Genetic Algorithms (GAs)}
-\glsentryfullpl{ga} are a class of metaheuristics inspired by the principles of biological evolution.
+\glsentryfullpl{ga} are a class of metaheuristics inspired by the principles of biological evolution \cite{holland_adaptation_1992}.
 \glspl{ga} improve a population of candidate solutions iteratively to identify a near-optimal solution.
 Each candidate is evaluated by a fitness function, which quantifies its suitability relative to the optimization objective. 
 The algorithm generates a new population in each generation through three primary operators: 
@@ -353,7 +353,7 @@ The algorithm generates a new population in each generation through three primar
 This iterative process, involving the selection, crossover, and mutation operators, is repeated across multiple generations until the fitness function converges to a stable optimum or a predefined termination criterion is met \cite{holland_adaptation_1992}.
 
 \subsubsection{Ant Colony Optimization (ACO)}
-\glsfirst{aco} is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants.
+\glsfirst{aco} is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants \cite{dorigo_ant_1997}.
 The optimization problem is modeled as a graph, where the nodes represent the problem's components and the edges represent possible connections or choices.
 Artificial \textit{ants} then traverse this graph to construct candidate solutions.
 As the ants build these solutions, they deposit artificial pheromones along their chosen paths.
@@ -384,10 +384,10 @@ Mathematical optimization approaches problems by formulating them as mathematica
 This approach contrasts with the previously discussed \gls{rl} and heuristic methods, employing a trial-and-error approach.
 Formulating a mathematical expression based on real-world problems comes with some challenges and limitations.
 A simplified model of the environment is often formulated due to the high complexity of real-world scenarios, which cannot be formulated as a mathematical expression in a feasible amount of time.
-\glsfirst{lp} and \glsfirst{milp} are the most common approaches for formulating problems in the field of mathematical optimization.
+\glsfirst{lp} and \glsfirst{milp} are the most common approaches for formulating problems in the field of mathematical optimization \cite{boyd_convex_2004}.
 
 \subsection{Linear Programming (LP)}
-\glsfirst{lp} is an optimization technique that is used to solve mathematical expressions for decision-making problems.
+\glsfirst{lp} is an optimization technique that is used to solve mathematical expressions for decision-making problems \cite{boyd_convex_2004}.
 In the context of \gls{lp}, objective functions and constraints are linear, and their variables are continuous.
 This restriction, however, limits the scope of applications of the \gls{lp} approach when confronted with complex real-world scenarios.
 A variety of algorithms exist to solve \glspl{lp} for optimal solutions, but the most common are the simplex algorithm and the \glsfirst{ipm}.
@@ -402,13 +402,14 @@ A variety of algorithms exist to solve \glspl{lp} for optimal solutions, but the
     As the algorithm progresses, the influence of the barriers is reduced, allowing convergence to an optimal solution \cite{boyd_convex_2004}.
 \end{itemize}
 
-While the simplex algorithm is efficient in practice for many problems, its worst-case time complexity can be exponential. In contrast, \glspl{ipm} have polynomial-time complexity, making them more robust for very large-scale \glspl{lp}.
+While the simplex algorithm is efficient in practice for many problems, its worst-case time complexity can be exponential.
+In contrast, \glspl{ipm} have polynomial-time complexity, making them more robust for very large-scale \glspl{lp}.
 While \gls{ipm} scales better, it comes with more computational overhead.
 In summary, the simplex method is more suited for solving smaller or repetitive \glspl{lp}, while \gls{ipm} is better suited for larger and more complex \glspl{lp} \cite{boyd_convex_2004}.
 
 
 \subsection{Mixed Integer Linear Programming (MILP)}
-\glsfirst{milp} is an extension of \gls{lp} that allows some decision variables to be restricted to integer values.
+\glsfirst{milp} is an extension of \gls{lp} that allows some decision variables to be restricted to integer values \cite{vielma_mixed_2015}.
 This greatly enhances the modeling capabilities of the framework, enabling the direct representation of discrete choices, such as binary (0/1) decisions.
 
 \gls{milp} problems are NP-hard and are typically solved using algorithms such as branch-and-cut.
