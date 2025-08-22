@@ -12,7 +12,7 @@ The optimization objective for both agents was to maximize a composite reward fu
 This function is a weighted sum of three metrics: maximizing satisfied user demand ($R_{demand}$), minimizing rebalancing costs ($R_{cost}$), and promoting equitable vehicle distribution ($R_{gini}$).\\
 
 For the \gls{ho} process, the Optuna framework was utilized, a state-of-the-art optimization tool \cite{akiba_optuna_2019}.
-The \glsfirst{tpe} was selected as the search algorithm due to its effectiveness in complex, high-dimensional search spaces \cite{akiba_optuna_2019}.
+The \glsfirst{tpe} \cite{bergstra_algorithms_2011} was selected as the search algorithm due to its effectiveness in complex, high-dimensional search spaces \cite{akiba_optuna_2019}.
 \gls{tpe} probabilistically models the search space to efficiently identify promising hyperparameter configurations.
 The algorithm fits a Gaussian Mixture Model (GMM) to a set of well-performing parameter configurations and calculates a ratio against a GMM fitted to the remaining configurations.
 The sampler then selects the parameter value that maximizes this ratio, guiding the search toward more promising regions \cite{akiba_optuna_2019}.
@@ -330,7 +330,7 @@ The \texttt{HRL Manual Only} model, representing the strategic \gls{rdc} agent a
 The fully integrated \texttt{HRL Both Enabled} framework demonstrates worse performance, achieving the second-highest SDR of approximately 80\% in the same scenario and outperforming the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines only slightly in the undersupply and balanced fleet size scenarios.
 This performance degradation suggests a negative interaction between the two hierarchical levels.
 Rather than creating synergy, the tactical actions of the low-level \gls{uic} agents appear to interfere with the globally effective strategy of the high-level \gls{rdc}.
-Especially, in the oversupply scenario, the addition of the \gls{uic} agents even results in poorer results than the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines.
+Notably, in the oversupply scenario, the addition of the \gls{uic} agents even results in poorer results than the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines.
 The \texttt{HRL Incentive Only} model underperforms relative to other strategies, suggesting, within our framework, user-based incentives alone are insufficient to achieve a balanced state and may be more effective as a fine-tuning mechanism on top of a globally balanced system.
 
 The performance ranking of the models remains mostly consistent across the different fleet sizes.

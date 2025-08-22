@@ -219,7 +219,7 @@ The network takes the state as input and outputs estimated Q-values for each pos
 By training this network, the agent can generalize past experiences to new unseen states \cite{mnih_human-level_2015}.
 
 \gls{dqn} gained popularity due to several key innovations in this field, which massively increased the usability of \gls{dqn} \cite{mnih_human-level_2015}.
-Experience replay stabilizes training by using a replay memory to store the agent's experiences (e.g., transitions $(s_t, a_t, s_{t+1}, r_{t+1})$ at each time step), instead of learning from consecutive, correlated state transitions.
+Experience replay stabilizes training by using a replay memory to store the agent's experiences (e.g., transitions $(s_t,$ $a_t,$ $s_{t+1},$ $r_{t+1})$ at each time step), instead of learning from consecutive, correlated state transitions.
 From this memory, mini-batches are sampled uniformly to break temporal correlations between state transitions, which stabilizes training \cite{mnih_human-level_2015}.
 
 \gls{ddqn} introduces a second network \cite{hasselt_deep_2016}.

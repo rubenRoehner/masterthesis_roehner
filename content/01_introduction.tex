@@ -8,8 +8,8 @@ They address the common problem of the \textit{first and last mile gap}, which d
 The growing popularity of micromobility sharing services comes from their flexibility, ease of use, low environmental impacts, and the possibility of reducing private car rides \cite{jaber_preferences_2023}.
 However, this popularity brings significant challenges for service providers aiming to maintain high service quality.
 The spatiotemporal dynamics of urban mobility, particularly the flow patterns of commuters, systematically create significant fleet imbalances within micromobility systems \cite{wu_challenges_2020}.
-These imbalances lead to a poor user experience, notable by the unavailability and overcrowding of vehicles in specific locations.
-To counteract these effects, operators employ rebalancing strategies.
+These imbalances lead to a poor user experience, as evident in the unavailability and overcrowding of vehicles in specific locations \cite{wu_challenges_2020}.
+To counteract these effects, operators employ rebalancing strategies \cite{dellamico_bike_2014}.
 Rebalancing is a common approach to maintaining a balanced fleet of vehicles and, therefore, providing a high service quality.
 Rebalancing refers to the process of relocating vehicles from low-demand areas to high-demand areas to increase satisfied user demand.
 This can be achieved through two primary modes: operator-based rebalancing, where service crews manually move vehicles using trucks, and user-based rebalancing, where users are incentivized to start or end their trips at specific, over- or under-supplied locations \cite{emami_integrated_2024}.
@@ -19,14 +19,18 @@ Effectively managing these strategies is critical to maximizing vehicle availabi
 
 \section{Research Gap and Objectives}\label{sec:introduction-reserach_gap}
 Various rebalancing methods exist, but current approaches suffer from significant limitations.
-Traditional strategies based on mathematical optimization and heuristics often depend on highly abstracted simulation environments and demand models.
+Traditional strategies, particularly those based on mathematical optimization, struggle to scale for large real-world systems due to the exponential growth in computational complexity inherent in solving routing and allocation problems.
+Moreover, heuristic and optimization methods often depend on static or pre-computed demand models, which can limit their responsiveness to sudden changes in demand caused by public events or other real-time dynamics.
 Demand can peak unexpectedly due to public events or similar, which static rebalancing strategies can not account for.
 This makes such approaches slow to adapt to the highly dynamic nature of urban mobility.
 Additionally, such strategies struggle to scale for large real-world systems.
 
 \glsfirst{rl} approaches have emerged due to the outstanding relevance of artificial intelligence.
 They offer more dynamic strategies than traditional approaches.
-But a critical research gap remains: the vast majority of existing studies address operator-based and user-based rebalancing in isolation, without integrating them into a unified framework.
+However, a critical research gap remains: the vast majority of existing studies address operator-based and user-based rebalancing in isolation, without integrating them into a unified framework.
+This research gap is significant because the rebalancing problem exhibits a natural hierarchy.
+It involves both high-level, strategic decisions regarding fleet distribution between city districts and low-level, tactical decisions for specific regions.
+This structure enables Hierarchical Reinforcement Learning (HRL), which is explicitly designed to decompose problems into interconnected sub-policies, to be a suitable methodology for this challenge.
 This clear separation between the two rebalancing approaches overlooks the potential of a combined strategy that can benefit from the advantages of both approaches while mitigating their limitations when properly combined.
 Furthermore, many \gls{rl} rebalancing strategies focus on either city-wide or local neighborhood optimization, but both rely on each other, which, combined, could significantly enhance service quality.\\
 

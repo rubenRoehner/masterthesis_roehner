@@ -342,7 +342,7 @@ However, they noted that using ODySSEUS directly for training resulted in an ove
 \\
 
 \subsubsection{MATSim}
-\glsfirst{matsim} is an open-source, activity-based simulator that models travel demand and network loading at a macroscopic city scale.
+\glsfirst{matsim} is an open-source, activity-based simulator that models travel demand and network loading at a macroscopic city scale \cite{horni_introducing_2016}.
 It represents each traveler as an agent with a daily plan of activities, and simulates their mode choice and routes in an iterative manner.
 Consequently, its level of detail is coarser than \gls{sumo}'s, with traffic flow simulated using queue models rather than explicit vehicle tracking. \gls{matsim} has been utilized in several studies for evaluating rebalancing algorithms \cite{chouaki_review_2025}.
 While its flexible architecture allows for custom modules, its Java-based implementation presents integration challenges for \gls{rl} frameworks, which are predominantly developed in Python.
