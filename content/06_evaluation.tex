@@ -3,8 +3,8 @@ The following chapter details the experimental setup used for evaluation, the hy
 
 
 \section{Hyperparameter Optimization}\label{sec:evaluation-ho}
-The performance of reinforcement learning agents is highly dependent on the selection of their hyperparameters \cite{sutton_reinforcement_2018}.
-A systematic \glsfirst{ho} is therefore essential to ensure agent efficacy, particularly for a complex \gls{hrl} framework such as the one proposed.
+The performance of RL agents is highly dependent on the selection of their hyperparameters \cite{sutton_reinforcement_2018}.
+A systematic \gls{ho} is therefore essential to ensure agent efficacy, particularly for a complex \gls{hrl} framework such as the one proposed.
 A dedicated \gls{ho} process was conducted for both the \glsfirst{rdc} and the \glsfirst{uic} agents to maximize their individual performance.
 This section outlines the optimization methodology and presents the final hyperparameter configurations used in the subsequent evaluation of the \gls{hrl} framework
 
@@ -12,7 +12,7 @@ The optimization objective for both agents was to maximize a composite reward fu
 This function is a weighted sum of three metrics: maximizing satisfied user demand ($R_{demand}$), minimizing rebalancing costs ($R_{cost}$), and promoting equitable vehicle distribution ($R_{gini}$).\\
 
 For the \gls{ho} process, the Optuna framework was utilized, a state-of-the-art optimization tool \cite{akiba_optuna_2019}.
-The \glsfirst{tpe} \cite{bergstra_algorithms_2011} was selected as the search algorithm due to its effectiveness in complex, high-dimensional search spaces \cite{akiba_optuna_2019}.
+The \gls{tpe} \cite{bergstra_algorithms_2011} was selected as the search algorithm due to its effectiveness in complex, high-dimensional search spaces \cite{akiba_optuna_2019}.
 \gls{tpe} probabilistically models the search space to efficiently identify promising hyperparameter configurations.
 The algorithm fits a Gaussian Mixture Model (GMM) to a set of well-performing parameter configurations and calculates a ratio against a GMM fitted to the remaining configurations.
 The sampler then selects the parameter value that maximizes this ratio, guiding the search toward more promising regions \cite{akiba_optuna_2019}.
@@ -61,7 +61,7 @@ Each blue point corresponds to an individual trial, and the solid red line track
 \end{figure}
 
 \autoref{fig:ho-rdc-focused-slice} dives deeper into the analysis of the \gls{ho} process of the \gls{rdc} agent.
-It demonstrates the four most critical hyperparameters, with each point representing a single trial.
+It displays the four most critical hyperparameters, with each point representing a single trial.
 These four hyperparameters were selected by visually analyzing the slice plot for all parameters and by examining the importance value for each \gls{ho} run.
 The calculation of a global importance metric is not possible in this case due to the optimization of the hyperparameters in separate groups during the initial rounds.
 This prevents a valid comparison across all runs.
@@ -123,7 +123,7 @@ The slice plots for all hyperparameters are presented in \autoref{fig:rdc-full-s
         \midrule
         \texttt{RDC\_weight\_demand} & Satisfied demand weight & $7.0$ \\
         \texttt{RDC\_weight\_cost} & Rebalancing cost weight & $0.2$ \\
-        \texttt{RDC\_weight\_gini} & Gini index penalty weight & $7.0$ \\
+        \texttt{RDC\_weight\_gini} & Gini coefficient penalty weight & $7.0$ \\
         \bottomrule
     \end{tabularx}
     \caption{Final Optimized Hyperparameter Configuration for the \gls{rdc}. This table presents the final set of optimal hyperparameter values for the \gls{rdc} agent. These values were determined through the three-round, coarse-to-fine hyperparameter optimization process using the Optuna framework. This configuration was used for the final evaluation of the \gls{rdc}.}
@@ -199,16 +199,16 @@ The slice plots for all hyperparameters are presented in \autoref{fig:uic-full-s
         \texttt{UIC\_vf\_coeff}             & Value function loss weight.               & $0.68$\\
         \midrule
         \texttt{UIC\_gamma}                 & Reward discount factor.                   & $0.963$ \\
-        \texttt{UIC\_gae\_lambda}           & Lambda parameter for \gls{gae}                  & $0.95$ \\
+        \texttt{UIC\_gae\_lambda}           & Lambda parameter for \gls{gae}.                  & $0.95$ \\
         \texttt{UIC\_target\_kl}            & Target \gls{kl} divergence for policy updates.  & $0.02$\\
         \midrule
         \texttt{UIC\_num\_hidden\_layers}   & Number of network hidden layers.          & $3$\\
         \texttt{UIC\_hidden\_size}          & Neurons per hidden layer.                 & $256$ \\
         \texttt{UIC\_activation\_fn}        & Hidden layer activation function.         & LeakyReLU \\
         \midrule
-        \texttt{UIC\_weight\_demand}        & Satisfied demand weight                   & $7.0$ \\
-        \texttt{UIC\_weight\_cost}          & Rebalancing cost weight                   & $0.2$ \\
-        \texttt{UIC\_weight\_gini}          & Gini index penalty weight                 & $7.0$ \\
+        \texttt{UIC\_weight\_demand}        & Satisfied demand weight.                   & $7.0$ \\
+        \texttt{UIC\_weight\_cost}          & Rebalancing cost weight.                   & $0.2$ \\
+        \texttt{UIC\_weight\_gini}          & Gini coefficient penalty weight.                 & $7.0$ \\
         \bottomrule
     \end{tabularx}
     \caption{Final Optimized Hyperparameter Configuration for the \gls{uic}. This table displays the final, optimized hyperparameter values for the \gls{uic} agents. The configuration was identified through a systematic, multi-round hyperparameter search. These settings were applied to all \gls{uic} agents used in the final evaluation experiments.}
@@ -240,7 +240,7 @@ To quantitatively compare the performance of the different rebalancing strategie
         Similarly to the previous metric, a lower value is also preferred.
     \item \textbf{Fleet Imbalance:}
         The Gini coefficient is used as a metric to measure the equity of the vehicle distribution \cite{cederle_fairness-oriented_2025}.
-        This metric is calculated over the number of vehicles per zone at every time step and then averaged (see \autoref{eq:pb-objective-gini}).
+        This metric is calculated over the number of vehicles per zone at every timestep and then averaged (see \autoref{eq:pb-objective-gini}).
         A Gini coefficient of zero indicates a fully balanced fleet, and a value of one indicates the maximum imbalance.
 \end{itemize}
 
@@ -331,7 +331,7 @@ The fully integrated \texttt{HRL Both Enabled} framework demonstrates worse perf
 This performance degradation suggests a negative interaction between the two hierarchical levels.
 Rather than creating synergy, the tactical actions of the low-level \gls{uic} agents appear to interfere with the globally effective strategy of the high-level \gls{rdc}.
 Notably, in the oversupply scenario, the addition of the \gls{uic} agents even results in poorer results than the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines.
-The \texttt{HRL Incentive Only} model underperforms relative to other strategies, suggesting, within our framework, user-based incentives alone are insufficient to achieve a balanced state and may be more effective as a fine-tuning mechanism on top of a globally balanced system.
+The \texttt{HRL Incentive Only} model underperforms relative to other strategies, suggesting, within the framework, user-based incentives alone are insufficient to achieve a balanced state and may be more effective as a fine-tuning mechanism on top of a globally balanced system.
 
 The performance ranking of the models remains mostly consistent across the different fleet sizes.
 The error bars confirm that the \texttt{HRL Manual Only} models provide a statistically significant improvement over the \texttt{No Rebalancing} baseline, particularly in the undersupply scenario.
@@ -434,7 +434,8 @@ The inefficiency of the fully integrated framework is also noticeable, with the 
 \end{figure}
 
 Conversely, \autoref{fig:eval-scatter-sdr-incentives} visualizes the limited effectiveness of the user-based incentive strategies.
-The \texttt{HRL Incentive Only} model consistently underperforms the zero-cost baselines; for a substantial incentive cost, it achieves a lower SDR than what \texttt{HRL Manual Only} provides for no incentive cost.
+The \texttt{HRL Incentive Only} model consistently underperforms the zero-cost baselines.
+For a substantial incentive cost, it achieves a lower SDR than what \texttt{HRL Manual Only} provides for no incentive cost.
 The \texttt{HRL Both Enabled} model shows only situational benefits, outperforming the baselines in the 600 and 900-vehicle scenarios but failing to do so in the oversupply scenario, and never matching the performance of the \texttt{HRL Manual Only} model.
 
 \begin{figure}[!htb]
@@ -475,7 +476,7 @@ Consequently, if the selected incentive levels are excessively high, too many us
 Conversely, if the incentives are set too low, no users accept the offer, and no rebalancing occurs.
 This fine-grained trade-off, which must be managed for each zone, proves to be particularly difficult.
 
-One potential improvement would be to decrease the operational time step for the UICs. Currently, the agents determine incentive levels for a 60-minute scope.
+One potential improvement would be to decrease the operational timestep for the UICs. Currently, the agents determine incentive levels for a 60-minute scope.
 By reducing this interval to, for example, 15 minutes, the UICs could more accurately address imbalances within their respective communities.
 This modification would result in more constructive interaction with the RDC.
 Such a change better illustrates the agents' intended roles in the HRL framework: the RDC would manage long-term, strategic distribution, while the UICs would execute short-term, tactical adjustments for immediate gains.

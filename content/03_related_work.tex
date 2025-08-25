@@ -11,8 +11,8 @@ The selected papers were systematically organized and categorized using Zotero.
 This process led to a structured classification system based on key attributes, including the type of sharing system (\glsfirst{ess} or \glsfirst{bss}) and the employed rebalancing mode.
 These modes are defined as \glsfirst{ob}, \glsfirst{ub}, or \glsfirst{au}.
 
-This review identified three primary categories of rebalancing algorithms: Reinforcement Learning, mathematical optimization, and heuristic-based approaches.
-The following sections explore the most significant contributions within each of these categories, supplemented by tables that summarize key papers published between 2018 and 2025.
+This review identified three primary categories of rebalancing algorithms: Reinforcement Learning (RL), mathematical optimization, and heuristic-based approaches.
+The following sections explore the most significant contributions within each of these categories, supplemented by tables that summarize key papers published between 2018 and 2025 (\cref{tab:related-works_reinforcement-learning,tab:related-works_heuristics,tab:related-works_mathematical optimization}).
 Furthermore, a dedicated section examines the simulation environments implemented to evaluate rebalancing strategies.
 The chapter concludes with a summary of the findings and a critical analysis of remaining gaps in the literature, thereby highlighting the contribution of this thesis.
 \\
@@ -101,7 +101,7 @@ Such frameworks should prioritize capturing demand more dynamically and decompos
         \cite{s_k_ghosh_dynamic_2017} & \gls{milp} & LDD & BSS & OB\\
         \bottomrule
     \end{tabularx}
-    \caption{Summary of Mathematical Optimization Approaches in Rebalancing Literature. This table categorizes key research papers from 2018 to 2025 that utilize mathematical optimization for rebalancing shared mobility systems. It details the specific optimization model (e.g., \gls{milp}, \gls{lp}), the solver used, the type of sharing system (e-scooter or bike sharing), and the rebalancing mode. The summary highlights that existing literature in this domain predominantly focuses on operator-based (OB) rebalancing and often employs \gls{milp} formulations.}
+    \caption{Summary of Mathematical Optimization Approaches in Rebalancing Literature. This table categorizes key research papers from 2018 to 2025 that utilize mathematical optimization for rebalancing shared micromobility systems. It details the specific optimization model (e.g., \gls{milp}, \gls{lp}), the solver used, the type of sharing system (e-scooter or bike sharing), and the rebalancing mode. The summary highlights that existing literature in this domain predominantly focuses on operator-based (OB) rebalancing and often employs \gls{milp} formulations.}
     \label{tab:related-works_mathematical optimization}
 \end{table}
 
@@ -144,12 +144,12 @@ However, the greedy rebalancing logic is not benchmarked against more sophistica
 Nevertheless, this research demonstrated the importance of advanced, effective demand forecasting as the foundation of a successful rebalancing strategy.
 \\
 
-Heuristic-based rebalancing algorithms have demonstrated their value as a computationally efficient alternative to exact mathematical optimization techniques, producing near-optimal fleet distributions in significantly reduced time.
+Heuristic-based rebalancing algorithms have demonstrated their value as a computationally efficient alternative to exact mathematical optimization techniques, resulting in near-optimal fleet distributions in significantly reduced time.
 The review of the literature reveals that such rebalancing algorithms predominantly focus on operator-based rebalancing under static demand conditions.
-A common strategy is to frame the task as a Vehicle Routing Problem (VRP) to find optimal routes for staff vehicles to rebalance the sharing system, frequently by formulating it as a \gls{tsp}.
+A common strategy is to frame the task as a Vehicle Routing Problem (VRP) to find optimal routes for service vehicles to rebalance the sharing system, frequently by formulating it as a \gls{tsp}.
 A recurring theme in these approaches is that the rebalancing problem is decomposed into separate subtasks, most commonly the independent optimization of each service vehicle's route, allowing a single algorithm to detect regions of under- or oversupply, propose fleet relocations, and compute vehicle tours.
-This monolithic approach, which merges imbalance detection, fleet distribution, and route planning into a single optimization process, can compromise the overall quality of the solution.
-The inherent trade-offs between these different objectives often result in a loss of precision, leading to suboptimal outcomes.
+This monolithic approach, which merges imbalance detection, fleet distribution, and route planning into a single optimization process, can reduce the overall quality of the solution.
+The trade-offs between these different objectives often result in a loss of precision, leading to suboptimal outcomes.
 While concentrating on a single one of these subproblems can yield more accurate and efficient results for that specific task, this narrow focus can overlook the broader system dynamics.
 \\
 
@@ -172,11 +172,11 @@ While concentrating on a single one of these subproblems can yield more accurate
 \end{table}
 
 \section{Reinforcement Learning Approaches}\label{sec:related-work_rl}
-Losapio et al. \cite{losapio_smart_2022} present the Multi-Agent Deep Reinforcement Learning system called \glsfirst{esb-dqn}. 
+Losapio et al. \cite{losapio_smart_2022} present the Multi-Agent Deep Reinforcement Learning system called \gls{esb-dqn}. 
 This system consists of two agents: a pick-up and a drop-off agent.
-These agents propose alternative zones for users, limited to adjacent 1-hop areas, by offering incentives to encourage deviations from planned trips.
+These agents propose alternative zones for users, limited to adjacent 1-hop areas, by offering incentives to encourage changes from planned trips.
 The operational area for the dockless e-scooter service is divided into 279 zones, each measuring 200 x 200 meters. 
-Both agents are implemented as \glspl{dqn}, utilizing an $\epsilon$-greedy strategy combined with experience replay, following the Rainbow \gls{dqn} architecture. 
+Both agents are implemented as \glspl{dqn}, utilizing an $\epsilon$-greedy strategy combined with experience replay, following the Rainbow \gls{dqn} architecture \cite{hessel_rainbow_2017}. 
 The state representation consists of three vectors of size $1 \times n$, where $n$ is the number of zones, representing: the number of available scooters, the expected deficit or surplus from demand forecasting, and a binary flag indicating zones involved in the current trip.
 Upon each trip request, the pick-up and drop-off agents recommend an alternative adjacent zone. 
 The simulator then processes the trip request and the associated recommendation before transitioning to the next state.
@@ -189,13 +189,13 @@ Rebalancing and battery swapping operations occur within a specified time window
 \\
 
 Cederle et al. \cite{cederle_fairness-oriented_2025} developed an RL approach to enhance the fairness of micromobility sharing services. 
-They address the problem that earlier rebalancing algorithms primarily focus on efficiency and profit maximization, rather than a fair and equitable fleet distribution.
+They address the problem that earlier rebalancing algorithms primarily focus on efficiency and profit maximization, rather than a fair and balanced fleet distribution.
 Such rebalancing algorithms tend to prioritize rebalancing to wealthier areas while excluding poorer regions, due to the differing demand rates in those areas.
 To counteract this bias, Cederle et al. introduced a fairness metric and integrated it, alongside traditional efficiency measures, into Q-learning agents that perform rebalancing tasks. 
 Instead of employing a classic \gls{marl} approach, they utilize one agent for each zone. 
 Each agent undergoes independent training, which breaks the \gls{marl} problem into multiple single-agent subproblems. 
 They formulated the problem first as a Multi-Agent \gls{mdp} and factored it into single-agent subproblems, which enables them to adapt it to other cities or services with significantly less effort than alternative methods. 
-The fairness metric employed is the Gini index, which is combined with a weighting parameter to balance the optimization of fairness and efficiency. 
+The fairness metric employed is the Gini coefficient, which is combined with a weighting parameter to balance the optimization of fairness and efficiency. 
 The reward function thus incorporates this metric, along with penalties for unmet demand, rebalancing costs, and vehicle overcrowding.
 Each agent chooses between thirteen different actions, representing a need or an oversupply of vehicles in steps of size five, ranging from -30 to 30. 
 The agents operate independently, and the system assumes access to a central vehicle depot to resolve any net vehicle deficits or surpluses across the system.
@@ -216,7 +216,7 @@ The agent's action is a continuous vector of region-specific incentive prices.
 
 The core innovation of HRP lies in its critic network, which decomposes the total Q-value into an additive combination of regional estimators.
 This design addresses two key challenges.
-First, to capture temporal dependencies, each regional estimator incorporates a \glsfirst{gru} to process time-series patterns in demand and supply.
+First, to capture temporal dependencies, each regional estimator incorporates a \gls{gru} to process time-series patterns in demand and supply.
 Second, to account for spatial dependencies, a localized bias-correction module is embedded for each region, taking the state of its direct neighbors as additional input to model the flow of users between them.
 This decomposed critic architecture provides a more stable and accurate learning signal, which in turn increases sampling efficiency and stabilizes convergence during training.
 
@@ -224,7 +224,7 @@ Although results show significant improvements over baselines, the approach has 
 It relies on predefined assumptions about user willingness functions and historical data distributions, which may not capture real-world variability or unexpected demand shifts.
 \\
 
-Xie et al. \cite{xie_censored_2023} used a different approach than the previously discussed papers. 
+Xie et al. \cite{xie_censored_2023} used a different approach than the previously discussed publications. 
 They proposed a censored semi-bandit model for allocating bikes from a docked bike-sharing system to other zones. 
 The operating area is divided into 12 different zones. 
 The authors formulate a censored semi-bandit problem where each arm corresponds to one of the zones. 
@@ -232,6 +232,7 @@ The semi-bandit formulation, unlike a standard \gls{mab}, enables the model to s
 In each decision round, which is done once a day, the model allocates bikes to each zone. 
 The primary objective is to maximize the cumulated number of successful bike pick-ups.
 This model employs an \gls{ucb}- based policy, which adds an exploration bonus to zones where demand is uncertain. 
+
 A key contribution of this work is that the authors address the common problem of micromobility service data being censored, which means that the available historical trip data only contains data that has met demand and is missing data on unmet demand. 
 This missing information is crucial for evaluating rebalancing strategies, as their primary goal is to minimize such service failures.
 In this research paper, the authors use a nonparametric estimator to estimate the survival function of demand by comparing the frequency of observed pick-ups above a threshold to the number of opportunities to observe such demand. 
@@ -244,7 +245,7 @@ A limitation of the model, inherent to the \gls{mab} formulation, is the assumpt
 This simplifies reality and restricts the model's capacity to adapt dynamically to changing demand patterns after the initial exploration phase.
 \\
 
-Schofield et al. \cite{schofield_handling_2021} develop an incentive-based rebalancing approach, evaluating three distinct policy-gradient \gls{rl} algorithms: \glsfirst{trpo}, \gls{ppo}, and Actor-Critic using Kronecker-Factored Trust Region (ACKTR).
+Schofield et al. \cite{schofield_handling_2021} developed an incentive-based rebalancing approach, evaluating three distinct policy-gradient \gls{rl} algorithms: \glsfirst{trpo}, \gls{ppo}, and Actor-Critic using Kronecker-Factored Trust Region (ACKTR).
 The problem is framed as an \gls{mdp} where the service area is partitioned spatially and time is discretized into hourly intervals.
 The state is composed of vectors representing the number of bikes per zone, demand forecasts, remaining budget, and unsatisfied demand.
 The action is a vector of incentive values for each zone, and the reward is defined by the service level (i.e., the fraction of satisfied demand).
@@ -301,10 +302,10 @@ Sensitivity to prediction accuracy for demand forecasts and potential inefficien
 \end{table}
 
 In summary, existing literature on \gls{rl}-based rebalancing algorithms predominantly emphasizes user-based strategies, seeking optimal incentives for users to pick-up and drop-off vehicles at alternative locations.
-Conversely, research explicitly targeting operator-based rebalancing remains limited, with even fewer studies investigating hybrid approaches combining both user and operator rebalancing.
+Conversely, research explicitly targeting operator-based rebalancing remains limited, with even fewer studies investigating hybrid approaches combining both user- and operator-based rebalancing.
 The most frequently applied methodologies fall into two primary categories.
 The first is value-based algorithms, such as \glspl{dqn} and Q-learning.
-The second is policy-gradient methods, including \gls{ppo}, \gls{trpo}, and Actor-Critic using Kronecker-Factored Trust Region (ACKTR).
+The second is policy-gradient methods, including \gls{ppo}, TRPO, and ACKTR.
 Recent studies have explored \gls{hrl} and \gls{marl} frameworks to decompose complex rebalancing tasks into manageable subtasks addressed by multiple agents.
 The choice between factorizing the problem into independent single-agent tasks and employing a fully multi-agent framework represents a fundamental design trade-off between computational scalability and the ability to capture complex inter-agent dynamics.
 Such hierarchical and multi-agent approaches have demonstrated enhanced scalability and effectiveness in managing large-scale shared mobility services \cite{pan_deep_2019, li_dynamic_2018}.
@@ -325,7 +326,7 @@ This section introduces the most commonly used simulation frameworks for evaluat
 \\
 
 \subsubsection{SUMO}
-The \glsfirst{sumo} is an open-source, microscopic traffic simulation platform widely used in mobility research \cite{alvarez_lopez_simulation_2025}.
+The \gls{sumo} is an open-source, microscopic traffic simulation platform widely used in mobility research \cite{alvarez_lopez_simulation_2025}.
 \gls{sumo} models individual vehicle movements with high granularity, employing car-following and lane-changing models to reproduce realistic traffic dynamics.
 Due to its modular, open-source nature, \gls{sumo} is highly extensible.
 An external control API \gls{traci} enables users to observe and manipulate the simulation state via Python scripts, which opens up numerous opportunities, such as incorporating rebalancing algorithms.
@@ -342,7 +343,7 @@ However, they noted that using ODySSEUS directly for training resulted in an ove
 \\
 
 \subsubsection{MATSim}
-\glsfirst{matsim} is an open-source, activity-based simulator that models travel demand and network loading at a macroscopic city scale \cite{horni_introducing_2016}.
+\gls{matsim} is an open-source, activity-based simulator that models travel demand and network loading at a macroscopic city scale \cite{horni_introducing_2016}.
 It represents each traveler as an agent with a daily plan of activities, and simulates their mode choice and routes in an iterative manner.
 Consequently, its level of detail is coarser than \gls{sumo}'s, with traffic flow simulated using queue models rather than explicit vehicle tracking. \gls{matsim} has been utilized in several studies for evaluating rebalancing algorithms \cite{chouaki_review_2025}.
 While its flexible architecture allows for custom modules, its Java-based implementation presents integration challenges for \gls{rl} frameworks, which are predominantly developed in Python.
@@ -374,12 +375,12 @@ The preceding sections have reviewed the primary methodologies of micromobility 
 These algorithms can be broadly categorized into mathematical optimization techniques, heuristics and meta-heuristics, and reinforcement learning.
 Mathematical optimizations can provide optimal solutions to the rebalancing problem, but require a simplified static problem definition to be able to converge due to scalability issues.
 In contrast, heuristics or meta-heuristics offer a computationally more efficient approach but can't guarantee optimality.
-Reinforcement learning has emerged as a promising approach for handling the complex and dynamic nature of shared micromobility systems, although it introduces its individual challenges related to complexity.
+RL has emerged as a promising approach for handling the complex and dynamic nature of shared micromobility systems, although it introduces its individual challenges related to complexity.
 Furthermore, the existing simulation tools for shared micromobility reveal a common trade-off between high-fidelity traffic simulation, specialized operational tools, and computational performance, leading to the most recent research developing custom simulators.
 \\
 
 From this comprehensive review, several distinct research gaps emerge. 
-The most significant gap is the fragmented treatment of rebalancing modes.
+The most significant gap is the independent treatment of rebalancing modes.
 Almost all examined research papers propose a system to optimize user-based or operator-based rebalancing in isolation, without a comprehensive framework that incorporates both rebalancing approaches.
 
 Furthermore, a multitude of existing solutions, particularly those based on mathematical optimization or heuristics, follow a static nature.
@@ -389,7 +390,8 @@ Therefore, a clear requirement for rebalancing strategies is to develop dynamic 
 A third, more fundamental problem in this field is the use of historical data for driving the 
 training and evaluation simulations.
 This leads to the problem of censored demand.
-Demand datasets only log completed trips; they fail to capture unmet demand, where a user cannot find an available vehicle within their acceptable walking radius.
+Demand datasets only log completed trips.
+They fail to capture unmet demand, where a user cannot find an available vehicle within their acceptable walking radius.
 Consequently, most models are optimized against an incomplete and biased demand model.
 Addressing this data problem is a complex task, especially under the data availability conditions this thesis is facing (see \autoref{sec:design-data}).
 

@@ -33,7 +33,7 @@ The most immediate need is to address the performance limitations of the low-lev
         The current implementation of the proposed \gls{hrl} framework relies only on implicit communication between the two tiers.
         The performance of the framework could benefit from incorporating explicit communication between the two tiers and between the \gls{uic} agents.
         By doing so, the agents could coordinate rebalancing tasks to work together more effectively and minimize the harmful interference observed in the evaluation.
-        Implementing Inter-Agent Communication in any \gls{marl} or \gls{hrl} can cause significant problems and needs to be consciously designed and evaluated.
+        Implementing Inter-Agent Communication in any \gls{marl} or \gls{hrl} can cause significant problems and needs to be consciously designed and evaluated \cite{pateria_hierarchical_2021}.
     \item \textbf{Alternative RL Algorithms:}
         To directly address the \glspl{uic}' policy limitations, exploring alternative \gls{rl} algorithms is a promising path. 
         The \gls{uic} agents currently implemented as \gls{ppo} could be tested using \gls{ddpg} or a multi-agent PPO (MAPPO), which uses a shared critic and multiple agents.
@@ -84,7 +84,7 @@ Future work could expand the scope of this framework by integrating other operat
         This modeling does come with a bias and is a limited solution.
         Ideally, a more realistic model of the \gls{soc} would be possible using connected trip data.
     \item \textbf{Operator Vehicle Routing:}
-        As stated in \autoref{sec:design-problem_definition}, this work explicitly excluded the \glsfirst{vrp} to focus on the rebalancing problem, due to the many implementations already published.
+        As stated in \autoref{sec:design-problem_definition}, this work explicitly excluded the \glsfirst{vrp} to focus on the rebalancing problem, due to the scope of this thesis and the many implementations already published.
         By incorporating the \gls{vrp} for the operator-based rebalancing, the suggested rebalancing quotas by the \gls{rdc} agent could be fulfilled using \gls{vrp} algorithms.
 %    \item \textbf{Dynamic Fleet Management:}
 %        The current implementation of the simulation environment forces a constant fleet size based on the mean of the observed \gls{gbfs} data.

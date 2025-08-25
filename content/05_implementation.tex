@@ -13,7 +13,7 @@ The experiences stored in this buffer are gained by interacting with the \texttt
 
 The configurable hyperparameters that influence the agent's ability to learn an efficient rebalancing strategy are defined in \autoref{tab:rdc_hyperparameters_description}.
 
-\subsection{Multi-Head Deep Q-Network Architecture (\texttt{MultiHeadDQN} Class)}
+\subsection{Multi-Head Deep Q-Network Architecture}
 The \texttt{MultiHeadDQN} class defines the architecture of the underlying network of the \gls{rdc} agent.
 This class inherits from \texttt{torch.nn.Module}.
 The architecture of this \gls{mh-dqn} is defined as follows:
@@ -70,7 +70,7 @@ This network is embedded within a custom simulation environment, which is descri
     \label{tab:rdc_hyperparameters_description}
 \end{table}
 
-\subsection{Environment (\texttt{EScooterRDCEnv} Class)}
+\subsection{Environment}
 The \texttt{EScooterRDCEnv} class implements the simulation environment used for training the \gls{rdc} agent.
 It follows the standard OpenAI Gym interface \cite{brockman_openai_2016}.
 The \texttt{step()} function defines the core logic of the simulation, which is detailed in the following:
@@ -90,8 +90,8 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
         Crucially, the demand simulated within the environment is drawn from raw historical data, not the forecasts provided to the agent.
         This introduces a natural degree of uncertainty and partial observability, testing the agent's robustness against the inevitable errors of the Demand Forecasting Module.
     \item \textbf{Observation and Reward Calculation:}
-        After both rebalancing and demand are simulated, the reward for the time step is calculated.
-        As detailed in \autoref{sec:design-rl_framework-rdc}, the reward consists of the ratio between satisfied and unsatisfied demand, a penalty for the amount of vehicles rebalanced, and the Gini coefficient to reward equally distributed vehicles.
+        After both rebalancing and demand are simulated, the reward for the timestep is calculated.
+        As detailed in \autoref{sec:design-rl_framework-rdc}, the reward consists of the SDR, a penalty for the number of vehicles rebalanced, and the Gini coefficient to reward equally distributed vehicles.
         Then, a new state observation $S_{t+1}^{RDC}$ is created based on the updated vehicle counts and newly forecasted demand.
         The method then returns the complete experience tuple \texttt{(state, action, reward, next\_state, done)}.
 \end{enumerate}
@@ -130,7 +130,7 @@ $\theta_{t+1}^- = \tau \theta_{t} + (1-\tau)\theta_t^-$
 The \texttt{epsilon} value of the $\epsilon$-greedy strategy is annealed using the following formula:
 $\epsilon = \max(\epsilon_{min}, \epsilon_{start} \cdot (\delta_{\epsilon}^{n_{step}}))$
 , where $n_{step}$ is the current step count.
-Lastly, the priorities of the \gls{per} are updated using the newly calculated \glspl{td-error} by the \texttt{update\_priorities} from the \texttt{ReplayBuffer}.
+Lastly, the priorities of the \gls{per} are updated using the newly calculated \glspl{td-error} by the \texttt{update\_priorities} function from the \texttt{ReplayBuffer}.
 
 The learning progress of the \gls{rdc} agent over the course of the final training run is visualized in \autoref{fig:rdc_training_curves}.
 The plot displays the episodic reward, which shows a clear upward trend before converging, indicating that the agent successfully learned a policy to maximize its objective function. 
@@ -143,7 +143,7 @@ The plot displays the episodic reward, which shows a clear upward trend before c
 \end{figure}
 
 \section{User-Incentive Coordinator}\label{sec:implementation_uic}
-The \glsfirst{uic}, which constitutes the second tier of our \gls{hrl} framework, is implemented in the \texttt{UserIncentiveCoordinator} class.
+The \glsfirst{uic}, which constitutes the second tier of the \gls{hrl} framework, is implemented in the \texttt{UserIncentiveCoordinator} class.
 It utilizes the \gls{ppo} algorithm from the \gls{sb3} library \cite{schulman_proximal_2017, raffin_stable-baselines3_2021}.
 
 The behavior of the \gls{ppo} agent is determined by a set of key hyperparameters governing the learning algorithm, the neural network architecture, and the reward function, as detailed in \autoref{tab:uic_hyperparameters_description}.
@@ -178,7 +178,7 @@ The behavior of the \gls{ppo} agent is determined by a set of key hyperparameter
     \label{tab:uic_hyperparameters_description}
 \end{table}
 
-\subsection{Environment (\texttt{EScooterUICEnv} Class)}
+\subsection{Environment}
 The \texttt{EScooterUICEnv} class implements the simulation environment used for training the \gls{uic} agents.
 It follows the standard OpenAI Gym interface \cite{brockman_openai_2016}.
 The \texttt{step()} function defines the core logic of the simulation, which is detailed in the following:
@@ -197,7 +197,7 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
         Instead of modeling a complex choice among multiple options, it is assumed that users are presented only with an incentive for the most attractive neighboring zone.
         The willingness of the user to take the incentive is modeled by a linear function (\texttt{user\_willingnes\_fn}).
         This linear function multiplies the offered incentive value [0, 1] by the willingness factor of 0.4, resulting in a linear willingness between 0 and 0.4.
-        This simplified model is a deliberate methodological choice, consistent with state-of-the-art research in reinforcement learning for rebalancing, which prioritizes the evaluation of control algorithms over high-fidelity behavioral prediction \cite{pan_deep_2019}.
+        This simplified model is a deliberate methodological choice, consistent with state-of-the-art research in RL for rebalancing, which prioritizes the evaluation of control algorithms over high-fidelity behavioral prediction \cite{pan_deep_2019}.
         The linear form represents the simplest positive correlation between incentive and acceptance, while the 0.4 factor is a conservative parameterization.
         This willingness value then represents the probability that an individual user will accept the offered incentive.
         As a result, the function returns an updated list of drop-off events, including those shifted due to incentives, and the number of rebalanced vehicles.
@@ -253,7 +253,7 @@ The value function loss, scaled by the coefficient $c_{VF}$ (\texttt{UIC\_vf\_co
 The entropy bonus, scaled by $c_{ent}$ (\texttt{UIC\_ent\_coeff}), encourages exploration by maximizing the policy's randomness.
 The computed total loss is then backpropagated to determine the gradients.
 An Adam optimizer \cite{kingma_adam_2017}, configured with the \texttt{UIC\_lr} learning rate, executes a single optimization step, updating the parameters ($\theta$) of both the policy and value networks.
-Finally, a learning rate scheduler updates the learning rate according to a predefined schedule, completing the training cycle.
+Finally, a learning rate scheduler updates the learning rate according to a predefined linear schedule, completing the training cycle.
 
 The learning process of the \gls{uic} agents is demonstrated in \autoref{fig:uic_reward_curve}.
 The figure illustrates the episodic average reward for one representative \gls{uic} agent.
@@ -267,7 +267,7 @@ The reward curve demonstrates a consistent upward trend that eventually plateaus
 \end{figure}
 
 \section{Demand Forecasting Module}\label{sec:implementation_demand-forecasting-module}
-A requirement for the effective operation of the \glspl{rdc} and \glspl{uic} is an accurate forecast of future demand.
+A requirement for the effective operation of the \gls{rdc} and \glspl{uic} is an accurate forecast of future demand.
 This is provided by the Demand Forecasting Module, which is detailed in this section.
 This Demand Forecasting Module is built upon the implementation by Li et al. \cite{li_improving_2023}.
 For the scope of this thesis, the original hyperparameters from Li et al. \cite{li_improving_2023} were adopted under the assumption of reasonable transferability.
@@ -288,7 +288,7 @@ Based on this distance parameter (\texttt{dtw\_dist}), the similarity is calcula
 \end{equation}
 
 A kernel size of seven has been chosen.
-For each zone, its convolutional kernel was constructed using itself and the six other zones with the highest demand similarity, as determined by the \gls{dtw}-based similarity matrix.
+For each zone, its convolutional kernel was constructed using itself and the six zones with the highest demand similarity, as determined by the \gls{dtw}-based similarity matrix.
 
 For training the agents and hyperparameter optimization, the forecasts have been pre-computed for the entire training set, which significantly improved computational performance and, therefore, resulted in faster training.
 
