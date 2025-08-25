@@ -4,7 +4,7 @@ This chapter details the design of the proposed rebalancing framework.
 
 \section{Data}\label{sec:design-data}
 The data underlying this thesis was collected from a \glsfirst{gbfs} \cite{mobilitydata_specification_2024} feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{mobidata_bw_gebundelte_2022}.
-These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations.
+These services utilize a free-floating approach \cite{oeschger_micromobility_2020}, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations.
 This section details the collection, preprocessing, and exploratory analysis of the \gls{gbfs} data used to develop this \gls{hrl} framework. 
 
 
@@ -498,7 +498,7 @@ This combination of a separate target network and soft updates helps stabilize t
 
 Furthermore, to enhance performance and maintain training stability, a learning rate schedule is employed.
 The learning rate starts higher to accelerate initial learning and is gradually decreased to facilitate fine-tuning and convergence to more optimal solutions.
-Additionally, gradient clipping is applied during backpropagation to prevent exploding gradients, a common issue that can destabilize the training of deep neural networks \cite{sutton_reinforcement_2018}.
+Additionally, gradient clipping is applied during backpropagation to prevent exploding gradients, a common issue that can destabilize the training of deep neural networks \cite{zhang_why_2020}.
 
 \subsection{User-Incentive Coordinator (UIC)}\label{sec:design-rl_framework-uic}
 The second tier of the proposed \gls{hrl} framework comprises multiple \glsentryfullpl{uic}, each assigned to a specific community to manage intra-community imbalances.
@@ -682,7 +682,7 @@ The core of this model are the \glsfirst{irconv} layers, which replace the stand
 This allows the prediction to incorporate the historical demand development of zones with similar demand patterns.
 To identify these semantic neighbours, two metrics were proposed: \gls{pcc} and \gls{dtw}.
 The \gls{pcc} measures the linear correlation between the historical time series of two cells.
-The \gls{dtw} metric, on the other hand, measures the similarity between two temporal sequences.
+The \gls{dtw} metric \cite{berndt_using_1994}, on the other hand, measures the similarity between two temporal sequences.
 \autoref{fig:irconv-neighbors} illustrates these differences between standard kernels used in \glspl{cnn} and semantic neighbour kernels used in IrConv layers.
 
 \begin{figure}[!htb]

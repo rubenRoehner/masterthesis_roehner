@@ -4,7 +4,7 @@ The following chapter details the experimental setup used for evaluation, the hy
 
 \section{Hyperparameter Optimization}\label{sec:evaluation-ho}
 The performance of RL agents is highly dependent on the selection of their hyperparameters \cite{sutton_reinforcement_2018}.
-A systematic \gls{ho} is therefore essential to ensure agent efficacy, particularly for a complex \gls{hrl} framework such as the one proposed.
+A systematic \gls{ho} is therefore essential to ensure agent efficacy, particularly for a complex \gls{hrl} framework such as the one proposed \cite{pateria_hierarchical_2021}.
 A dedicated \gls{ho} process was conducted for both the \glsfirst{rdc} and the \glsfirst{uic} agents to maximize their individual performance.
 This section outlines the optimization methodology and presents the final hyperparameter configurations used in the subsequent evaluation of the \gls{hrl} framework
 
@@ -15,7 +15,7 @@ For the \gls{ho} process, the Optuna framework was utilized, a state-of-the-art 
 The \gls{tpe} \cite{bergstra_algorithms_2011} was selected as the search algorithm due to its effectiveness in complex, high-dimensional search spaces \cite{akiba_optuna_2019}.
 \gls{tpe} probabilistically models the search space to efficiently identify promising hyperparameter configurations.
 The algorithm fits a Gaussian Mixture Model (GMM) to a set of well-performing parameter configurations and calculates a ratio against a GMM fitted to the remaining configurations.
-The sampler then selects the parameter value that maximizes this ratio, guiding the search toward more promising regions \cite{akiba_optuna_2019}.
+The sampler then selects the parameter value that maximizes this ratio, guiding the search toward more promising regions \cite{bergstra_algorithms_2011}.
 
 To ensure reproducibility, all optimization runs were seeded.
 As \gls{ho} is computationally intensive, the process was parallelized across multiple jobs.

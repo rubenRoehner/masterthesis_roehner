@@ -8,7 +8,7 @@ This machine is powered by an Intel Core i7-6850K CPU (six cores, each at 3.60 G
 The \glsfirst{rdc} defines the \gls{rl} agent of the first level of the proposed \gls{hrl} framework (see \autoref{sec:design-rl_framework}).
 The central component of the agent is the \texttt{RegionalDistributionCoordinator} class, which defines the agent itself.
 The agent utilizes an \gls{mh-dqn}, defined by the class \texttt{MultiHeadDQN}, to choose rebalancing quotas, thereby tackling inter-community imbalances in the system through manual rebalancing by service workers.
-To ensure efficient learning and effective use of training data, the agent employs a \gls{per} buffer, which is implemented by the \texttt{ReplayBuffer} class.
+To ensure efficient learning and effective use of training data, the agent employs a \gls{per} \cite{schaul_prioritized_2016} buffer, which is implemented by the \texttt{ReplayBuffer} class.
 The experiences stored in this buffer are gained by interacting with the \texttt{EScooterRDCEnv}, which defines a custom environment based on the OpenAI Gym interface \cite{brockman_openai_2016}.
 
 The configurable hyperparameters that influence the agent's ability to learn an efficient rebalancing strategy are defined in \autoref{tab:rdc_hyperparameters_description}.
@@ -20,8 +20,8 @@ The architecture of this \gls{mh-dqn} is defined as follows:
 
 \begin{itemize}
     \item \textbf{Input Layer}:
-        The input state tensor is passed to a \texttt{torch.nn.LayerNorm} layer to standardize the feature values, which stabilizes the learning process, by ensuring all input features have the same scale.
-        This input normalization is a common practice in deep learning models \cite{ba_layer_2016}.
+        The input state tensor is passed to a \texttt{torch.nn.LayerNorm} layer to standardize the feature values, which stabilizes the learning process, by ensuring all input features have the same scale \cite{ba_layer_2016}.
+        This input normalization is a common practice in deep learning models.
     \item \textbf{Shared Layers}:
         The normalized state tensor then gets processed by two fully connected layers with a size of \texttt{RDC\_hidden\_size}.
         Each of these fully connected shared layers (\texttt{torch.nn.Linear}) are followed by a non-linear \texttt{torch.nn.ReLU} activation function.
@@ -112,6 +112,7 @@ The \texttt{RDC\_per\_beta} is annealed over the course of \texttt{RDC\_per\_bet
 
 After sampling experiences from the replay buffer, the Q-values are estimated for each head of the \gls{mh-dqn}.
 The policy network calculates the current Q-values based on the actions $a_c^{RDC}(t)$ taken in the observed state $S_t^{RDC}$.
+The target Q-value $Y_t$ is then computed using the Double DQN update rule \cite{hasselt_deep_2016}:
 \begin{equation}\label{eq:ddqn-target}
     Y_t = R_{t+1} + \gamma Q(S_{t+1},\arg\max_{a} Q(S_{t+1},a;\theta_t);\theta_t^-)
 \end{equation}
@@ -228,7 +229,7 @@ The advantage $\hat{A}_t$ is computed for each timestep using \gls{gae}, which r
 \end{equation}
 
 Here, $\gamma^{\text{UIC}}$ represents the discount factor, a hyperparameter specified as \texttt{UIC\_gamma}.
-The \gls{gae} advantage, $\hat{A}_t$, is then calculated as the discounted sum of these \glspl{td-error}, where the hyperparameter $\lambda_{\text{GAE}}^{\text{UIC}}$ (\texttt{UIC\_gae\_lambda}) modulates the trade-off between bias and variance:
+The \gls{gae} advantage, $\hat{A}_t$, is then calculated as the discounted sum of these \glspl{td-error}, where the hyperparameter $\lambda_{\text{GAE}}^{\text{UIC}}$ (\texttt{UIC\_gae\_lambda}) modulates the trade-off between bias and variance \cite{schulman_high-dimensional_2018}:
 
 \begin{equation}
     \hat{A}_t = \sum_{l=0}^{N-1} (\gamma^{\text{UIC}} \lambda_{\text{GAE}}^{\text{UIC}})^l \delta_{t+l}
@@ -241,7 +242,7 @@ The core learning phase is encapsulated within the \gls{ppo}-specific \texttt{tr
 This loop iterates over the entire \texttt{RolloutBuffer} for a predefined number of epochs (\texttt{UIC\_n\_epochs}), shuffling the collected data and partitioning it into mini-batches of size \texttt{UIC\_batch\_size}.
 For each mini-batch, the composite \gls{ppo} loss function, $L_{\text{total}}$, is evaluated.
 This requires re-computing action log-probabilities, state-values, and the policy entropy with the current network parameters.
-The total loss integrates three weighted components: the policy loss ($L^{\text{CLIP}}$), the value function loss ($L^{\text{VF}}$), and an entropy bonus ($S$):
+The total loss integrates three weighted components: the policy loss ($L^{\text{CLIP}}$), the value function loss ($L^{\text{VF}}$), and an entropy bonus ($S$) \cite{schulman_proximal_2017}:
 
 \begin{equation}
     L_{\text{total}}(\theta, \phi) = L^{\text{CLIP}}(\theta) - c_{VF} \cdot L^{\text{VF}}(\phi) + c_{ent} \cdot S[\pi_{\theta}](S_t)

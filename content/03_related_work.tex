@@ -351,7 +351,7 @@ The implementation of custom rebalancing frameworks is more complex for \gls{mat
 
 A notable trend in recent studies is the increasing use of custom simulation environments, particularly for \gls{rl} approaches \cite{chouaki_review_2025}.
 This is often necessary because integrating complex rebalancing algorithms into existing open-source simulators can be hindered by steep learning curves, insufficient documentation, and performance limitations, rendering them unsuitable for the iterative demands of \gls{rl} training.
-Especially, the increased computational overhead often makes it infeasible to implement such detailed simulations into the training process of rebalancing algorithms.
+Especially, the increased computational overhead often makes it infeasible to implement such detailed simulations into the training process of rebalancing algorithms \cite{losapio_smart_2022}.
 To mitigate the developmental and maintenance overhead of a separate high-fidelity environment, many studies consequently rely on a single, simplified simulator for both agent training and final validation.
 Therefore, a notable research gap exists for a unified, high-fidelity simulation framework with a consistent interface.
 Such a simulation environment could operate in a simplified mode for efficient training and a full-fidelity mode for accurate validation, thereby providing the benefits of realistic evaluation without the overhead of maintaining two distinct systems.
@@ -360,26 +360,24 @@ Such a simulation environment could operate in a simplified mode for efficient t
 
 \section{Summary and Research Gaps}
 The preceding sections have reviewed the primary methodologies of micromobility fleet optimization through rebalancing algorithms.
-These algorithms can be broadly categorized into mathematical optimization techniques, heuristics and meta-heuristics, and reinforcement learning.
+These algorithms can be broadly categorized into mathematical optimization techniques, heuristics and meta-heuristics, and Reinforcement Learning (RL) \cite{tu_overview_2023, jimenez-merono_optimization_2024}.
 Mathematical optimizations can provide optimal solutions to the rebalancing problem, but require a simplified static problem definition to be able to converge due to scalability issues \cite{jimenez-merono_optimization_2024}.
-In contrast, heuristics or meta-heuristics offer a computationally more efficient approach but can't guarantee optimality \cite{tu_overview_2023}.
-RL has emerged as a promising approach for handling the complex and dynamic nature of shared micromobility systems, although it introduces its individual challenges related to complexity.
-Furthermore, the existing simulation tools for shared micromobility reveal a common trade-off between high-fidelity traffic simulation, specialized operational tools, and computational performance, leading to the most recent research developing custom simulators.
+In contrast, heuristics or meta-heuristics offer a computationally more efficient approach but can't guarantee optimality.
+RL has emerged as a promising approach for handling the complex and dynamic nature of shared micromobility systems, although it introduces its individual challenges related to complexity \cite{chouaki_review_2025}.
+Furthermore, the existing simulation tools for shared micromobility reveal a common trade-off between high-fidelity traffic simulation, specialized operational tools, and computational performance, leading to the most recent research developing custom simulators \cite{sanchez_simulation_2022, rocchetta_optimization_2025}.
 \\
 
 From this comprehensive review, several distinct research gaps emerge. 
 The most significant gap is the independent treatment of rebalancing modes.
-Almost all examined research papers propose a system to optimize user-based or operator-based rebalancing in isolation, without a comprehensive framework that incorporates both rebalancing approaches.
+The majority of examined research papers propose a system to optimize user-based or operator-based rebalancing in isolation, without a comprehensive framework that incorporates both rebalancing approaches \cite{emami_integrated_2024}.
 
 Furthermore, a multitude of existing solutions, particularly those based on mathematical optimization or heuristics, follow a static nature \cite{jimenez-merono_optimization_2024}.
-They propose a rebalancing plan for an entire day, which is insufficient for shared micromobility systems, as demand experiences high fluctuations within a day, which such static rebalancing plans fail to account for.
+They propose a rebalancing plan for an entire day, which is insufficient for shared micromobility systems, as demand experiences high fluctuations within a day, which such static rebalancing plans fail to account for \cite{li_dynamic_2018}.
 Therefore, a clear requirement for rebalancing strategies is to develop dynamic solutions that can adjust to those demand fluctuations.
 
-A third, more fundamental problem in this field is the use of historical data for driving the 
-training and evaluation simulations.
-This leads to the problem of censored demand \cite{gammelli_estimating_2020, xie_censored_2023}.
-Demand datasets only log completed trips.
-They fail to capture unmet demand, where a user cannot find an available vehicle within their acceptable walking radius.
+A third, more fundamental problem in this field is the reliance on historical data to drive the training and evaluation simulations.
+This leads to the problem of censored demand \cite{gammelli_estimating_2020}.
+Demand datasets only log completed trips, thereby failing to capture unmet demand, where a user cannot find an available vehicle within their acceptable walking radius.
 Consequently, most models are optimized against an incomplete and biased demand model \cite{gammelli_estimating_2020}.
 Addressing this data problem is a complex task, especially under the data availability conditions this thesis is facing (see \autoref{sec:design-data}).
 
