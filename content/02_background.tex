@@ -159,7 +159,7 @@ The \gls{mab} is a simplified \gls{rl} problem that lacks states, forcing the ag
 An \gls{mab} agent has k arms, each representing an action the agent can choose from.
 Notably, the agent has no state representation of the environment it is interacting with.
 This means the \gls{mab} agent can try out each action and choose based on the previous rewards it has received from exploring the different actions.
-That way, the \gls{mab} agent can learn the underlying probability distributions for the reward of each action.
+By doing so, the \gls{mab} agent can learn the underlying probability distributions for the reward of each action.
 When the \gls{mab} agent has explored the actions sufficiently, it can exploit this information to maximize its total reward.
 The \gls{mab} theory describes the trade-off between exploration and exploitation by exploring the different actions to estimate their reward distributions.
 The agent uses the information it has gained to maximize its total reward, which is its primary goal \cite{sutton_reinforcement_2018}.
@@ -176,7 +176,7 @@ Numerous algorithms have been developed for \gls{mab} agents to balance explorat
 \subsubsection{$\mathbf{\varepsilon}$-greedy}
 The $\varepsilon$-greedy algorithm is a relatively straightforward approach to strike a balance between exploration and exploitation \cite{sutton_reinforcement_2018}.
 The agent chooses a random arm with the probability of $\varepsilon$.
-In the other cases, e.g., $1-\varepsilon$, the agent exploits the current best arm, which has the highest estimated reward.
+In the other cases, i.e., $1-\varepsilon$, the agent exploits the current best arm, which has the highest estimated reward.
 The algorithm is presented in equation \ref{eq:epsilon-greedy}, where $c$ controls the trade-off between exploration and exploitation \cite{sutton_reinforcement_2018}.
 
 \begin{equation}\label{eq:epsilon-greedy}

@@ -215,7 +215,7 @@ The subset of zones for a given community $c$ is defined as:
 \end{table}
 
 \subsection{State Variables}\label{sec:design-problem_definition-states}
-The formulated rebalancing problem distinguishes between forecasted demand ($\hat P_z(t)$, $\hat D_z(t)$), which forms part of the state representation used for decision-making, and actual demand ($P_z(t)$, $P_z(t)$), which drives the simulation used for training and evaluation.
+The formulated rebalancing problem distinguishes between forecasted demand ($\hat P_z(t)$, $\hat D_z(t)$), which forms part of the state representation used for decision-making, and actual demand ($P_z(t)$, $D_z(t)$), which drives the simulation used for training and evaluation.
 All performance metrics, such as the satisfied demand, are computed against the actual demand values.
 
 \subsection{Rebalancing actions}\label{sec:design-problem_definition-actions}
@@ -393,7 +393,7 @@ The action space for each component $a_c(t)$ is discrete and identical across co
 The \gls{rdc} aims to select actions that balance supply across all communities.
 Although ideal actions may intrinsically maintain the total fleet size, the \gls{rdc} can select a set of actions that, when aggregated, would result in a change in the total number of vehicles.
 The rebalancing algorithm, which is part of the simulation environment, is responsible for managing such scenarios.
-If necessary, this algorithm scales the raw action values (quotas) proportionally to ensure that the total fleet size remains constant, thereby preserving the \gls{rdc}'s intended rebalancing direction while sticking to operational constraints.
+If necessary, this algorithm scales the raw action values (quotas) proportionally to ensure that the total fleet size remains constant, thereby preserving the \gls{rdc}'s intended rebalancing direction while adhering to operational constraints.
 
 \paragraph{Reward ($\mathcal{R}^{RDC}_t$)}
 The \gls{rdc}'s performance is quantified by a reward function designed to guide the agent towards effective rebalancing strategies.
@@ -608,12 +608,12 @@ This simplification is necessary for the simulation environment.
 
 \subsubsection{Algorithm and Architecture}
 A \glsfirst{ppo} \cite{schulman_proximal_2017} algorithm is implemented for the User-Incentive Coordinators.
-The selection of \gls{ppo} is made, as it can effectively handle continuous action spaces required for fine-grained setting of incentive intensities.
+PPO was selected as it can effectively handle the continuous action spaces required for a fine-grained setting of incentive intensities.
+Additionally, PPO is renowned for its training stability and sample efficiency \cite{schulman_proximal_2017}.
+This makes it a more practical and reliable choice than more sensitive off-policy algorithms, particularly when training multiple agents in a complex and dynamic environment \cite{schulman_high-dimensional_2018}.
 
-This algorithm allocates incentives to specific zones within a community to encourage users to drop-off vehicles in these targeted zones rather than their originally intended destinations.
-The implementation leverages the Stable Baselines3 library, which provides a robust and stable implementation of the \gls{ppo} algorithm \cite{raffin_stable-baselines3_2021}.
-The \gls{ppo} algorithm is an on-policy actor-critic method recognized for its stability and robust performance.
-\gls{ppo} is a policy gradient method which has been further discussed in \autoref{sec:background-reinforcement_learning-pgm}.
+This algorithm, an on-policy actor-critic method as discussed in \autoref{sec:background-reinforcement_learning-pgm}, allocates incentives to specific zones within a community to encourage users to drop-off vehicles in these targeted zones.
+The implementation leverages the \gls{sb3} library, which provides a robust and stable implementation of the \gls{ppo} algorithm~\cite{raffin_stable-baselines3_2021}.
 
 The implementation uses a \glsfirst{mlp} architecture with separate networks for the policy (\textit{actor}) and value (\textit{critic}) functions.
 Utilizing separate networks can improve stability by preventing the learning objectives of the policy and value functions from interfering with each other's gradients.

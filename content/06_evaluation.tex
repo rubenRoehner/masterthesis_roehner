@@ -139,10 +139,10 @@ Each trial in every round was run for 50,000 timesteps.
     \item 
         The initial round identified promising search areas using broad hyperparameter ranges.
         For the first two rounds, the parameters were divided into three logical groups: \gls{ppo} Core, Architecture, and Stability.
-        The initial round consisted of 30 trials.
+        The initial round consisted of 50 trials.
     \item 
         The second round refined the search by narrowing or expanding the parameter ranges based on the initial outcomes, following the same logic as the \gls{rdc} optimization.
-        The second round again consisted of 30 trials.
+        The second round consisted of 50 trials, similar to the previous round.
     \item 
         The final round optimized all 15 parameters simultaneously to fine-tune the configuration, thereby accounting for any cross-group parameter dependencies.
         To account for the increase in complexity, the final round consisted of 100 trials.
@@ -334,7 +334,7 @@ Notably, in the oversupply scenario, the addition of the \gls{uic} agents even r
 The \texttt{HRL Incentive Only} model underperforms relative to other strategies, suggesting, within the framework, user-based incentives alone are insufficient to achieve a balanced state and may be more effective as a fine-tuning mechanism on top of a globally balanced system.
 
 The performance ranking of the models remains mostly consistent across the different fleet sizes.
-The error bars confirm that the \texttt{HRL Manual Only} models provide a statistically significant improvement over the \texttt{No Rebalancing} baseline, particularly in the undersupply scenario.
+The error bars confirm that the \texttt{HRL Manual Only} models provide a statistically significant improvement over the \texttt{No Rebalancing} and \texttt{Greedy Heuristic} baselines, particularly in the undersupply scenario.
 Ultimately, these results underscore the need for further improvement of the fully integrated HRL framework.
 While the high-level agent is effective in isolation, the successful combination of both agents remains a significant challenge for future research.
 
@@ -463,12 +463,18 @@ Consequently, the performance decline in the integrated HRL framework arises not
 
 Evidence from the evaluation suggests that the low-level UICs introduce inefficiencies that the high-level RDC must then counteract.
 For instance, in the balanced 900-vehicle scenario, the \texttt{HRL Both Enabled} model incurred a higher manual rebalancing cost (7.62 relocations/hour) for a lower SDR (79.8\%) compared to the \texttt{HRL Manual Only} model (6.87 relocations/hour for 84.4\% SDR).
+The behavior of the UIC-driven incentive strategy further highlights this cost ineffectiveness.
+The HRL models that incorporated the UIC agents (\texttt{HRL Both Enabled} and \texttt{HRL Incentive Only}) consistently induced a mean of approximately 11 relocations per hour.
+Notably, this rate remained insensitive to variations in fleet size, indicating that the agents learned a static policy rather than one that adapts to changing environments.
 This implies the RDC was spending additional resources to correct imbalances at least partially induced by the UICs' actions.
 The core issue, therefore, is not a failure of individual agent learning but a structural limitation in the integration of their learned policies.
+During HO, both the RDC and UIC agents consistently preferred larger decay factors, which primarily supports the RDC's long-term strategic role.
+For the UICs, whose purpose is more short-term, this bias may have limited their effectiveness, thereby contributing to the integrated framework's weaker overall performance.
 
 One potential factor contributing to the suboptimal performance of the UIC agents is their extensive state-action space.
 The UICs are responsible for deciding whether to provide an incentive in each zone of their community, and if so, determining the appropriate incentive level.
 With approximately 30-40 zones per community, the dimensionality of the state-action space for each UIC agent becomes substantial, a well-known challenge in RL \cite{sutton_reinforcement_2018}.
+This hypothesis is supported by the HO process, where the selection of the largest offered hidden layer size reveals that the UIC agents were operating at the limits of their learning capacity.
 One additional challenge for the UICs is accurately choosing the levels of incentives.
 The agents must select an incentive high enough to motivate the desired number of users but not so high that it causes local oversupply.
 The UICs cannot directly control how many vehicles should be rebalanced or to how many users the incentive is offered.
