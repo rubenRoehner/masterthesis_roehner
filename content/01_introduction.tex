@@ -2,13 +2,13 @@
 
 \section{Motivation}\label{sec:introduction-motivation}
 Shared micromobility services, such as electric scooter sharing, are a large, growing part of urban and suburban mobility \cite{oeschger_micromobility_2020}.
-Shared micromobility offers an ecologically friendly and convenient way to bridge short distances \cite{liao_electric_2022}.
-They address the common problem of the \textit{first and last mile gap} \cite{liao_electric_2022}, which describes the distance between public transport stations and the trip's origin and destination.
+Shared micromobility offers an ecologically friendly and convenient way to bridge short distances.
+They address the common problem of the \textit{first and last mile gap}, which describes the distance between public transport stations and the trip's origin and destination \cite{liao_electric_2022}.
 The growing popularity of micromobility sharing services stems from their flexibility, ease of use, low environmental impact, and the potential to reduce private car rides \cite{jaber_preferences_2023}.
-However, this popularity brings significant challenges for service providers aiming to maintain high service quality \cite{wu_challenges_2020}.
-The spatiotemporal dynamics of urban mobility, particularly the flow patterns of commuters, systematically create significant fleet imbalances within micromobility systems \cite{wu_challenges_2020}.
+However, this popularity brings significant challenges for service providers aiming to maintain high service quality.
+The spatiotemporal dynamics of urban mobility, particularly the flow patterns of commuters, systematically create significant fleet imbalances within micromobility systems.
 These imbalances lead to a poor user experience, as evident in the unavailability and overcrowding of vehicles \cite{wu_challenges_2020}.
-To counteract these effects, operators employ rebalancing strategies \cite{dellamico_bike_2014}.
+To counteract these effects, operators employ rebalancing strategies.
 Rebalancing is a common approach to maintaining a balanced fleet of vehicles and, therefore, providing a high service quality.
 Rebalancing refers to the process of relocating vehicles from low-demand areas to high-demand areas to increase satisfied user demand \cite{dellamico_bike_2014}.
 This can be achieved through two primary modes: operator-based rebalancing, where service crews manually move vehicles using trucks, and user-based rebalancing, where users are incentivized to start or end their trips at specific, over- or under-supplied locations \cite{emami_integrated_2024}.
@@ -19,14 +19,13 @@ Various rebalancing methods exist, but current approaches suffer from significan
 Traditional strategies, particularly those based on mathematical optimization, struggle to scale for large real-world systems due to the exponential growth in computational complexity inherent in solving routing and allocation problems \cite{wu_challenges_2020, jimenez-merono_optimization_2024}.
 Moreover, heuristic and optimization methods often depend on static or pre-computed demand models, which can limit their responsiveness to sudden changes in demand caused by public events or other real-time dynamics \cite{jimenez-merono_optimization_2024}.
 Demand can peak unexpectedly due to public events or similar factors, which static rebalancing strategies are unable to account for.
-This makes such approaches slow to adapt to the highly dynamic nature of urban mobility.
-Additionally, such strategies struggle to scale for large real-world systems.
+This makes such approaches slow to adapt to the highly dynamic nature of urban mobility \cite{jimenez-merono_optimization_2024}.
+Additionally, such strategies struggle to scale for large real-world systems \cite{wu_challenges_2020}.
 
 \glsfirst{rl} approaches have emerged due to the significant relevance of artificial intelligence.
-They offer more dynamic strategies than traditional approaches.
+They offer more dynamic strategies than traditional approaches \cite{chouaki_review_2025}.
 However, a critical research gap remains: the vast majority of existing studies address operator-based and user-based rebalancing in isolation, without integrating them into a unified framework \cite{emami_integrated_2024}.
-This research gap is significant because the rebalancing problem naturally follows a hierarchy.
-It involves both strategic decisions regarding fleet distribution between city districts and tactical decisions for specific regions.
+This research gap is significant because the rebalancing problem naturally follows a hierarchy, involving both strategic decisions regarding fleet distribution between city districts and tactical decisions for specific regions.
 This structure supports the implementation of Hierarchical Reinforcement Learning (HRL) \cite{pateria_hierarchical_2021}, which is explicitly designed to decompose problems into interconnected sub-policies.
 This clear separation between the two rebalancing approaches overlooks the potential of a combined strategy that can benefit from the advantages of both approaches while mitigating their limitations when properly combined.
 Furthermore, many \gls{rl} rebalancing strategies focus on either city-wide \cite{skordilis_modular_2021} or local neighborhood \cite{li_dynamic_2018} optimization, but both rely on each other, which, combined, could significantly enhance service quality.\\
