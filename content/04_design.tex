@@ -74,7 +74,7 @@ In contrast, the Bolt dataset was largely unaffected, retaining 96.4\% of its da
         \caption{Bolt}
         \label{fig:demand_map_bolt}
         \end{subfigure}
-    \caption{Geographical Filtering of Raw E-Scooter Event Data. The maps illustrate the spatial distribution of inferred e-scooter events before filtering, with the geographical bounding box for the city of Stuttgart shown in red. Panel (a) shows the initial, unfiltered data for the provider Voi. Panel (b) shows the Bolt provider data. This filtering step was crucial for isolating the analysis to the urban core of Stuttgart.}
+    \caption{Geographical Filtering of Raw E-Scooter Event Data. The maps illustrate the spatial distribution of inferred e-scooter events before filtering, with the geographical bounding box for the city of Stuttgart shown in red. Panel (a) shows the initial, unfiltered data for the provider Voi. Panel (b) shows the Bolt provider data.}
     \label{fig:demand_map_reduction}
 \end{figure}
 
@@ -95,7 +95,7 @@ Third, as a global standard, H3 ensures that the grid is predefined worldwide, s
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.66\linewidth]{content/figures/Grid_Community_Stucture.png}
-    \caption{Hierarchical Grid Structure for the Stuttgart Service Area. This map displays the two-layer spatial aggregation scheme used in this thesis, based on the H3 hexagonal grid system \cite{uber_h3_2018}. The smaller, colored hexagons represent fine-grained zones (H3 resolution 8), which are grouped into the larger communities outlined in black (H3 resolution 6). The color within each small hexagon indicates the relative density of pick-up and drop-off events. This hierarchical structure provides the spatial foundation for the proposed multi-level rebalancing framework.}
+    \caption{Hierarchical Grid Structure for the Stuttgart Service Area. This map displays the two-layer spatial aggregation scheme used in this thesis, based on the H3 hexagonal grid system \cite{uber_h3_2018}. The smaller, colored hexagons represent fine-grained zones (H3 resolution 8), which are grouped into the larger communities outlined in black (H3 resolution 6). The color within each small hexagon indicates the relative density of pick-up and drop-off events.}
     \label{fig:data_grid_community_structure}
 \end{figure}
 
@@ -349,7 +349,7 @@ These coordinators aim to promote an equal distribution of vehicles by offering 
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=.9\linewidth]{content/figures/hrl_architecture.pdf}
-    \caption{The Two-Tier \glsfirst{hrl} Framework. This diagram illustrates the conceptual architecture of the proposed \gls{hrl} framework, which decomposes the rebalancing problem into two distinct levels. Tier 1 consists of a single, high-level \glsfirst{rdc} who performs strategic, operator-based rebalancing between communities. Tier 2 consists of multiple low-level \glsentryfullpl{uic}, each responsible for tactical, user-based rebalancing within a single community. This hierarchical decomposition allows the framework to address both large-scale and local imbalances simultaneously.}
+    \caption{The Two-Tier \glsfirst{hrl} Framework. This diagram illustrates the conceptual architecture of the proposed \gls{hrl} framework, which decomposes the rebalancing problem into two distinct levels. Tier 1 consists of a single, high-level \glsfirst{rdc} who performs strategic, operator-based rebalancing between communities. Tier 2 consists of multiple low-level \glsentryfullpl{uic}, each responsible for tactical, user-based rebalancing within a single community.}
     \label{fig:hrl-architecture}
 \end{figure}
 
@@ -438,7 +438,7 @@ The specific values for the weighting factors and the methodology for their sele
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/rdc_mdp.pdf}
-    \caption{\glsfirst{mdp} for the \glsfirst{rdc}. This figure provides a detailed schematic of the \gls{mdp} formulation for the high-level \gls{rdc} agent. The state ($\mathcal{S}^{RDC}_t$) includes community-level vehicle counts and demand forecasts. The action ($\mathcal{A}^{RDC}_t$) is a vector of discrete rebalancing quotas for each community. The reward ($\mathcal{R}^{RDC}_t$) is a composite function of the \gls{sdr}, rebalancing cost, and inter-community imbalance. This \gls{mdp} formalizes the \gls{rdc}'s strategic decision-making problem of maintaining a balanced vehicle supply across the entire service area.}
+    \caption{\glsfirst{mdp} for the \glsfirst{rdc}. This figure provides a detailed schematic of the \gls{mdp} formulation for the high-level \gls{rdc} agent. The state ($\mathcal{S}^{RDC}_t$) includes community-level vehicle counts and demand forecasts. The action ($\mathcal{A}^{RDC}_t$) is a vector of discrete rebalancing quotas for each community. The reward ($\mathcal{R}^{RDC}_t$) is a composite function of the \gls{sdr}, rebalancing cost, and inter-community imbalance.}
     \label{fig:rdc_mdp}
 \end{figure}
 
@@ -450,7 +450,7 @@ Alternative architectures, such as a single network predicting a composite actio
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/mh-dqn-architecture.pdf}
-    \caption{The \glsfirst{mh-dqn} Architecture for the \gls{rdc}. This diagram illustrates the neural network architecture for the \gls{rdc} agent. A normalized input state is first processed by a series of shared layers that learn a common feature representation for the entire system. This shared representation is then fed into multiple independent \textit{heads,} where each \textit{head} is a smaller neural network that outputs the Q-values for the discrete rebalancing actions of a single community. This multi-head design allows the agent to efficiently learn correlated but distinct policies for each community from a unified system state.}
+    \caption{The \glsfirst{mh-dqn} Architecture for the \gls{rdc}. This diagram illustrates the neural network architecture for the \gls{rdc} agent. A normalized input state is first processed by a series of shared layers that learn a common feature representation for the entire system. This shared representation is then fed into multiple independent \textit{heads,} where each \textit{head} is a smaller neural network that outputs the Q-values for the discrete rebalancing actions of a single community.}
     \label{fig:mdh-architecture}
 \end{figure}
 
@@ -688,7 +688,7 @@ The \gls{dtw} metric \cite{berndt_using_1994}, on the other hand, measures the s
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.8\linewidth]{content/figures/IrConv-LSTM-Neighbors.pdf}
-    \caption{Comparison of Standard and Irregular Convolution Kernels. This figure contrasts the kernels of a standard convolutional layer with the proposed irregular convolution. Regular convolution (left) operates on a fixed grid of direct spatial neighbors. In contrast, Irregular Convolution (right) operates on \textit{semantic neighbors} that are not necessarily adjacent but show similar historical demand patterns, as measured by metrics like \glsfirst{dtw}. This approach allows the Demand Forecasting Model to capture non-local spatial dependencies that are common in urban mobility \cite{li_improving_2023}.}
+    \caption{Comparison of Standard and Irregular Convolution Kernels. This figure contrasts the kernels of a standard convolutional layer with the proposed irregular convolution. Regular convolution (left) operates on a fixed grid of direct spatial neighbors. In contrast, Irregular Convolution (right) operates on \textit{semantic neighbors} that are not necessarily adjacent but show similar historical demand patterns, as measured by metrics like \glsfirst{dtw} \cite{li_improving_2023}.}
     \label{fig:irconv-neighbors}
 \end{figure}
 
@@ -713,7 +713,7 @@ Each of these three parallel streams feeds its sequence of historical demand dat
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=0.7\linewidth]{content/figures/IrConv-LSTM-Architecture.pdf}
-    \caption{Architecture of the \glsfirst{irconvlstm} Demand Forecasting Network. This diagram shows the architecture of the \gls{irconvlstm} network used for demand forecasting, adapted from Li et al. \cite{li_improving_2023}. The model processes historical demand data through three parallel streams—Closeness, Period, and Trend—which capture short-term, daily, and two-week patterns, respectively. Each stream uses a block of \gls{irconv} layers to extract spatial features and an \gls{lstm} layer to model temporal dependencies, before their outputs are fused to produce the final forecast. This multi-stream architecture enables the model to learn and integrate demand dynamics across multiple time scales simultaneously.}
+    \caption{Architecture of the \glsfirst{irconvlstm} Demand Forecasting Network. This diagram shows the architecture of the \gls{irconvlstm} network used for demand forecasting, adapted from Li et al. \cite{li_improving_2023}. The model processes historical demand data through three parallel streams—Closeness, Period, and Trend—which capture short-term, daily, and two-week patterns, respectively. Each stream uses a block of \gls{irconv} layers to extract spatial features and an \gls{lstm} layer to model temporal dependencies, before their outputs are fused to produce the final forecast.}
     \label{fig:irconv-architecture}
 \end{figure}
 

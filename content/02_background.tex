@@ -9,7 +9,7 @@ Finally, \autoref{sec:background-mathematical_optimization} presents traditional
 
 \section{Micromobility Sharing Services}\label{sec:background-mss}
 Shared micromobility is a transportation service offering users short-term rentals of light vehicles, such as electric scooters (e-scooters) and electric bikes (e-bikes), within a defined operational area \cite{oeschger_micromobility_2020}.
-Micromobility sharing services offer customers a flexible and environmentally friendly alternative to traditional individual transportation.
+Micromobility sharing services offer customers a flexible and environmentally friendly alternative to traditional individual transportation \cite{jaber_preferences_2023}.
 Due to their compactness, motor assistance, and sufficient speed for urban travel, e-scooters and e-bikes have become the predominant vehicles for these services \cite{liao_electric_2022}. 
 
 Both vehicle types enjoy popularity, yet they serve distinct purposes.
@@ -17,19 +17,19 @@ E-scooters are typically used for shorter journeys, averaging around 1.8 kilomet
 
 From an environmental perspective, e-scooters and e-bikes offer a promising path toward reducing urban carbon emissions and air pollution, especially when powered by renewable energy \cite{shen_enhancing_2024}.
 Recent studies in the United States have shown that private electric scooters have replaced approximately 34\% of car trips, while electric bicycles have replaced between 5\% and 17\% of such trips \cite{liao_electric_2022}.
-The high substitution rates observed for private electric micromobility suggest that the deployment of shared micromobility services can effectively encourage a modal shift from high-emission automobile travel to low-emission shared micromobility alternatives.
+The high substitution rates observed for private electric micromobility suggest that the deployment of shared micromobility services can effectively encourage a modal shift from high-emission automobile travel to low-emission shared micromobility alternatives \cite{shen_enhancing_2024, liao_electric_2022}.
 
 The commercial success of a micromobility sharing service is closely tied to user satisfaction, which depends on vehicle availability \cite{wu_challenges_2020}.
 Vehicle availability defines whether a trip request can be served or not.
-Users of micromobility sharing services are generally willing to walk a certain distance to access an available vehicle \cite{jaber_preferences_2023}.
-This threshold is commonly referred to as the acceptable walking radius and depends on several factors, including the trip purpose and the intended trip length.
+Users of micromobility sharing services are generally willing to walk a certain distance to access an available vehicle.
+This threshold is commonly referred to as the acceptable walking radius and depends on several factors, including the trip purpose and the intended trip length \cite{jaber_preferences_2023}.
 When a user finds an available vehicle within this acceptable walking area, their demand is considered met or satisfied.
 Conversely, if no vehicle is available inside this area, the demand is considered unmet or unsatisfied.
-Therefore, the primary goal of service providers in enhancing user satisfaction is to minimize unmet demand and maximize satisfied demand.
-Fleet rebalancing \cite{dellamico_bike_2014} is a key strategy employed to meet this objective by aligning vehicle supply with user needs.
+Therefore, the primary goal of service providers in enhancing user satisfaction is to minimize unmet demand and maximize satisfied demand \cite{wu_challenges_2020}.
+Fleet rebalancing is a key strategy employed to meet this objective by aligning vehicle supply with user needs \cite{dellamico_bike_2014}.
 
 \subsection{Rebalancing}\label{sec:background-mss-rebalancing}
-Rebalancing \cite{dellamico_bike_2014} is the process of repositioning vehicles from areas of high supply (or low demand) to areas of high demand (or low supply) to correct imbalances in the fleet distribution.
+Rebalancing is the process of repositioning vehicles from areas of high supply (or low demand) to areas of high demand (or low supply) to correct imbalances in the fleet distribution \cite{dellamico_bike_2014}.
 The primary goal of rebalancing is to increase satisfied demand by moving vehicles proactively to locations where they are most needed.
 Rebalancing strategies often rely on demand forecasts to anticipate areas with higher imbalances between user demand and vehicle supply.
 Consequently, rebalancing strategies are highly dependent on the accuracy of demand forecasts \cite{jimenez-merono_optimization_2024}.
@@ -48,33 +48,33 @@ In terms of scheduling rebalancing operations, these strategies are broadly cate
 The two predominant methods for executing these strategies, user-based and operator-based rebalancing, are discussed in the following sections \cite{emami_integrated_2024}.
 
 \subsubsection{User-based Rebalancing}
-User-based rebalancing \cite{emami_integrated_2024} leverages users to perform rebalancing tasks.
-Operators typically incentivize users, often with discounts or credits, to pick-up or drop-off vehicles at specific locations that help balance the fleet.
+User-based rebalancing leverages users to perform rebalancing tasks \cite{emami_integrated_2024}.
+Operators typically incentivize users, often with discounts or credits, to pick-up or drop-off vehicles at specific locations that help balance the fleet \cite{emami_integrated_2024}.
 This method is cost-effective, but its efficacy is constrained by the users' willingness to adjust their routes in response to incentives \cite{jaber_preferences_2023}.
 Therefore, the operator's control over the outcome of user-based rebalancing is indirect and limited \cite{emami_integrated_2024}.
 
 \subsubsection{Operator-based Rebalancing}
-Operator-based rebalancing \cite{dellamico_bike_2014} is performed by a dedicated crew of service workers who use specialized vehicles, such as vans or trucks, to perform relocations.
+Operator-based rebalancing is performed by a dedicated crew of service workers who use specialized vehicles, such as vans or trucks, to perform relocations \cite{emami_integrated_2024}.
 These trucks are often equipped with battery charging technologies and spare batteries, allowing them to perform maintenance tasks while relocating vehicles \cite{lee_battery_2024}.
-This method is more expensive than user-based rebalancing due to labor and equipment costs.
+This method is more expensive than user-based rebalancing due to labor and equipment costs \cite{jaber_preferences_2023}.
 The primary advantage is the reliable control over the fleet distribution, as this method doesn't depend on user participation \cite{dellamico_bike_2014}.
 Given the distinct advantages and disadvantages of each approach, service providers must determine the optimal mix of strategies for their specific operational context.
-Typically, a combined approach creates efficient and robust solutions, but needs fine-tuning based on the specific requirements \cite{mahmoodian_design_2019}.
+Typically, a combined approach creates efficient and robust solutions, but needs fine-tuning based on the specific requirements \cite{mahmoodian_design_2019, emami_integrated_2024}.
 
 \section{Reinforcement Learning (RL)}\label{sec:background-reinforcement_learning}
-\glsfirst{rl} is a machine learning paradigm in which an agent learns to make optimal decisions through sequential interactions with an environment \cite{sutton_reinforcement_2018}.
+\glsfirst{rl} is a machine learning paradigm in which an agent learns to make optimal decisions through sequential interactions with an environment.
 At each discrete timestep $t$, the agent observes the environment's state $\mathcal{S}$, selects an action from an available set $\mathcal{A}$, and receives a numerical reward $R$ as feedback.
 The agent's objective is to maximize the cumulative reward, or return, over time.
-This learning process is guided by a policy, denoted as $\pi$, which is a strategy that maps states to actions \cite{zhang_dive_2023}.
-Through a process of trial and error, the agent iteratively refines its policy to discover which actions yield the most reward in particular states.
+This learning process is guided by a policy, denoted as $\pi$, which is a strategy that maps states to actions.
+Through a process of trial and error, the agent iteratively refines its policy to discover which actions yield the most reward in particular states \cite{sutton_reinforcement_2018, zhang_dive_2023}.
 The agent-environment interaction loop is illustrated in \autoref{fig:mdp-diagram} \cite{sutton_reinforcement_2018}.
 
 \subsection{Markov Decision Process (MDP) and Dynamic Programming (DP)}\label{sec:background-reinforcement_learning-mdp}
-A fundamental framework in the field of \gls{rl} is the \glsfirst{mdp} \cite{zhang_dive_2023}.
+A fundamental framework in the field of \gls{rl} is the \glsfirst{mdp}.
 An \gls{mdp} is defined by a tuple consisting of four components (see equation \ref{eq:mdp}).
-Decision-making in environments where outcomes are not entirely in control of the agent can be modeled using such an \gls{mdp} \cite{sutton_reinforcement_2018}.
-Problems formulated as \glspl{mdp} can be solved using techniques such as \gls{dp} \cite{sutton_reinforcement_2018}.
-\gls{dp} is a technique for solving complex models by dividing the problem into multiple sub-problems and using estimates to find an optimal policy that solves the problem \cite{zhang_dive_2023}.
+Decision-making in environments where outcomes are not entirely in control of the agent can be modeled using such an \gls{mdp}.
+Problems formulated as \glspl{mdp} can be solved using techniques such as \gls{dp}.
+\gls{dp} is a technique for solving complex models by dividing the problem into multiple sub-problems and using estimates to find an optimal policy that solves the problem \cite{sutton_reinforcement_2018, zhang_dive_2023}.
 
 \begin{equation}\label{eq:mdp}
     MDP : (\mathcal{S}; \mathcal{A}; P; R)
@@ -90,13 +90,13 @@ Problems formulated as \glspl{mdp} can be solved using techniques such as \gls{d
 \begin{figure}
     \centering
     \includegraphics[width=.9\linewidth]{content/figures/Markov_diagram.png}
-    \caption{The Reinforcement Learning Agent-Environment Interaction Loop. This diagram illustrates the fundamental cycle of a \glsfirst{mdp}. At each discrete timestep $t$, the agent observes the environment's current state ($\mathcal{S}_t$) and selects an action ($\mathcal{A}_t$). In response, the environment transitions to a new state ($\mathcal{S}_{t+1}$) and provides a numerical reward ($R_{t+1}$) to the agent. This feedback loop forms the basis of trial-and-error learning, as the agent's objective is to learn a policy that maximizes the cumulative reward over time \cite{sutton_reinforcement_2018}.}
+    \caption{The Reinforcement Learning Agent-Environment Interaction Loop. This diagram illustrates the fundamental cycle of a \glsfirst{mdp}. At each discrete timestep $t$, the agent observes the environment's current state ($\mathcal{S}_t$) and selects an action ($\mathcal{A}_t$). In response, the environment transitions to a new state ($\mathcal{S}_{t+1}$) and provides a numerical reward ($\mathcal{R}_{t+1}$) to the agent \cite{sutton_reinforcement_2018}.}
     \label{fig:mdp-diagram}
 \end{figure}
 
 The Markov property is a fundamental assumption when working with \glspl{mdp} \cite{sutton_reinforcement_2018}.
 This property states that the next state depends only on the current state and the action taken, and not on the sequence of states and actions that preceded them.
-This assumption significantly simplifies the modeling process by ensuring that the current state provides all necessary information for optimal decision-making \cite{zhang_dive_2023}.
+This assumption significantly simplifies the modeling process by ensuring that the current state provides all necessary information for optimal decision-making \cite{sutton_reinforcement_2018, zhang_dive_2023}.
 
 \subsubsection{Value Functions}
 Key functions for solving \glspl{mdp} are the state-value function presented in equation \ref{eq:state-value-function} and the action-value function presented in equation \ref{eq:action-value-function} \cite{zhang_dive_2023}.
@@ -117,7 +117,7 @@ Here, $\gamma \in [0, 1]$ is the discount factor, which balances the importance 
 \subsubsection{Bellman Equations}
 The previously defined state-value and action-value functions accurately describe the rewards associated with a given state, policy, and action.
 However, solving these equations directly is computationally complex and requires a complete model of the environment's dynamics ($\mathcal{P}$ and $\mathcal{R}$), which is often unavailable \cite{sutton_reinforcement_2018}.
-Therefore, the Bellman Equations describe an iterative approach for calculating the state-value function (see equation \ref{eq:bellman-state-value-function}) and the action-value function (see equation \ref{eq:bellman-action-value-function}) \cite{zhang_dive_2023}.
+Therefore, the Bellman Equations describe an iterative approach for calculating the state-value function (see equation \ref{eq:bellman-state-value-function}) and the action-value function (see equation \ref{eq:bellman-action-value-function}).
 They decompose the value of a state or state-action pair into the sum of the immediate reward and the discounted value of the successor states.
 This recursive property is fundamental to many \gls{rl} algorithms \cite{zhang_dive_2023}.
 
@@ -130,21 +130,21 @@ q_\pi(s, a) = \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \ga
 \end{equation}
 
 \subsubsection{Policy Iteration}
-Dynamic Programming (DP) employs two main algorithms to solve \glspl{mdp}: policy iteration and value iteration \cite{sutton_reinforcement_2018}.
+Dynamic Programming (DP) employs two main algorithms to solve \glspl{mdp}: policy iteration and value iteration.
 They utilize the previously defined Bellman Equations and their recursive approach.
-Policy Iteration alternates between the two steps: Policy Evaluation and Policy Improvement \cite{zhang_dive_2023}.
+Policy Iteration alternates between the two steps: Policy Evaluation and Policy Improvement \cite{sutton_reinforcement_2018}.
 Policy Evaluation estimates the effectiveness of the policy in every state.
 Therefore, the State-Value function (see equation \ref{eq:bellman-state-value-function}) is calculated for the current policy $\pi$ for every state.
-After evaluating the current policy, the next step is to improve it, which is done by solving equation \ref{eq:policy-improvement}.
+After evaluating the current policy, the next step is to improve it, which is done by solving equation \ref{eq:policy-improvement} \cite{zhang_dive_2023}.
 
 \begin{equation}\label{eq:policy-improvement}
 \pi'(s) = \arg\max_{a \in \mathcal{A}} \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma v_\pi(s') \right]
 \end{equation}
 
 \subsubsection{Value Iteration}
-On the other hand, value iteration attempts to solve \glspl{mdp} by directly updating the value function, rather than using the two-step process employed in policy iteration \cite{zhang_dive_2023}.
+On the other hand, value iteration attempts to solve \glspl{mdp} by directly updating the value function, rather than using the two-step process employed in policy iteration.
 Value iteration repeatedly applies the Bellman optimality equation until this function converges and an optimal state-value function $v^*(s)$ is found (see equation \ref{eq:bellman-optimality}).
-With this optimal state-value function, an optimal policy can be obtained with the equation \ref{eq:value-iteration-optimal-policy}.
+With this optimal state-value function, an optimal policy can be obtained with the equation \ref{eq:value-iteration-optimal-policy} \cite{sutton_reinforcement_2018, zhang_dive_2023}.
 
 \begin{equation}\label{eq:bellman-optimality}
     v_{k+1}(s) = \max_{a \in \mathcal{A}} \sum_{s' \in \mathcal{S}} P(s' \mid s, a) \left[ R(s, a, s') + \gamma v_k(s') \right]
@@ -155,7 +155,7 @@ With this optimal state-value function, an optimal policy can be obtained with t
 \end{equation}
 
 \subsection{Multi-Armed Bandits (MAB)}
-The \gls{mab} is a simplified \gls{rl} problem that lacks states, forcing the agent to focus exclusively on the exploration-exploitation dilemma \cite{sutton_reinforcement_2018}.
+The \gls{mab} is a simplified \gls{rl} problem that lacks states, forcing the agent to focus exclusively on the exploration-exploitation dilemma.
 An \gls{mab} agent has k arms, each representing an action the agent can choose from.
 Notably, the agent has no state representation of the environment it is interacting with.
 This means the \gls{mab} agent can try out each action and choose based on the previous rewards it has received from exploring the different actions.
@@ -174,7 +174,7 @@ This estimated reward is denoted as $Q_t(a)$ and is presented in equation \ref{e
 Numerous algorithms have been developed for \gls{mab} agents to balance exploration and exploitation.
 
 \subsubsection{$\mathbf{\varepsilon}$-greedy}
-The $\varepsilon$-greedy algorithm is a relatively straightforward approach to strike a balance between exploration and exploitation \cite{sutton_reinforcement_2018}.
+The $\varepsilon$-greedy algorithm is a relatively straightforward approach to strike a balance between exploration and exploitation.
 The agent chooses a random arm with the probability of $\varepsilon$.
 In the other cases, i.e., $1-\varepsilon$, the agent exploits the current best arm, which has the highest estimated reward.
 The algorithm is presented in equation \ref{eq:epsilon-greedy}, where $c$ controls the trade-off between exploration and exploitation \cite{sutton_reinforcement_2018}.
@@ -188,7 +188,7 @@ A_t =
 \end{equation}
 
 \subsubsection{Upper Confidence Bound (UCB)}
-The \glsfirst{ucb} is a widely used algorithm for balancing exploration and exploitation in \gls{mab} settings \cite{sutton_reinforcement_2018}.
+The \glsfirst{ucb} is a widely used algorithm for balancing exploration and exploitation in \gls{mab} settings.
 This approach selects the arm based on the highest estimated reward and the uncertainty associated with those estimates.
 Therefore, the \gls{ucb} algorithm improves estimates based on the variance of each estimate.
 The algorithm is presented in equation \ref{eq:upper-confidence-bound} \cite{sutton_reinforcement_2018}.
@@ -198,8 +198,8 @@ A_t \doteq \arg\max_a \left[ Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}} \right]
 \end{equation}
 
 \subsection{Q-Learning}
-Q-learning is a foundational model-free \gls{rl} algorithm, meaning it can learn an optimal policy without requiring a model of the environment's dynamics ($P$ and $R$) \cite{zhang_dive_2023}.
-Q-Learning is an off-policy algorithm, meaning two distinct policies are used \cite{sutton_reinforcement_2018}.
+Q-learning is a foundational model-free \gls{rl} algorithm, meaning it can learn an optimal policy without requiring a model of the environment's dynamics ($P$ and $R$).
+Q-Learning is an off-policy algorithm, meaning two distinct policies are used.
 This algorithm optimizes the target policy, while a different behavior policy is used for exploration.
 In contrast, on-policy algorithms like SARSA use a single policy, which is used for exploration and serves as the target policy to be optimized \cite{sutton_reinforcement_2018}.
 In Q-Learning, the approach is to optimize the quality function iteratively.
@@ -227,7 +227,7 @@ A common issue in Q-learning is the overestimation of action values.
 \gls{ddqn} addresses this by decoupling the action selection from the target value calculation, using the online network to select the best action and the target network to evaluate it \cite{hasselt_deep_2016}.
 
 \subsection{Policy Gradient Methods}\label{sec:background-reinforcement_learning-pgm}
-In contrast to value-based methods, such as Q-Learning, which estimate the optimal value function and derive it from their policy, policy gradient methods directly optimize the policy \cite{sewak_policy-approximation_2022}.
+In contrast to value-based methods, such as Q-Learning, which estimate the optimal value function and derive it from their policy, policy gradient methods directly optimize the policy.
 Therefore, these methods utilize a parameterized policy whose parameters, $\theta$, are iteratively updated to maximize rewards.
 A performance measure is introduced to update these policy parameters, representing the actual value function for the policy $\pi_\theta$.
 This performance function $J(\theta)$ is then differentiated by the policy parameters $\theta$ and can be used to update the policy in such a way as to optimize the value function and maximize rewards.
@@ -245,9 +245,9 @@ The update rule and performance measure are defined as follows:
 Where $\nabla_\theta J(\theta_t)$ is the policy gradient, which indicates the direction of the steepest increase in expected return.
 
 \subsubsection{Actor-critic Methods}
-Standard policy gradient methods often struggle with high variance in the gradient estimates and overall sample inefficiency \cite{sewak_policy-approximation_2022}.
+Standard policy gradient methods often struggle with high variance in the gradient estimates and overall sample inefficiency.
 This leads to a slow and unstable learning process.
-Therefore, actor-critic methods were introduced to address these issues of standard policy gradient methods \cite{sewak_policy-approximation_2022}.
+Therefore, actor-critic methods were introduced to address these issues of standard policy gradient methods.
 Actor-critic methods utilize two components: the \textit{actor} learns the policy, and the \textit{critic} learns to estimate the value function for the given policy.
 In every step, both the \textit{actor} and the \textit{critic} receive the new state, and only the \textit{critic} receives the reward.
 The \textit{critic} estimates the state-value function based on the reward and the state.
@@ -256,10 +256,10 @@ The \textit{critic} also updates its state-value approximation based on this TD-
 A widespread approach for actor-critic methods is to use the advantage $A(s, a)=q(s, a) - v(s)$ as the feedback to the \textit{actor}, which results in lower variance and even more stable training \cite{sewak_policy-approximation_2022}.
 
 \subsubsection{Proximal Policy Optimization (PPO)}
-\glsfirst{ppo} is a state-of-the-art actor-critic method designed to enhance training stability and sample efficiency \cite{schulman_proximal_2017}.
+Schulman et al. \cite{schulman_proximal_2017} introduced \glsfirst{ppo}, a state-of-the-art actor-critic method designed to enhance training stability and sample efficiency.
 \gls{ppo} achieves this by optimizing a clipped surrogate objective function.
 This objective function constrains the policy update in a simple way to not differ too much from the previous policy.
-This avoids destructively large policy updates, making \gls{ppo} more robust and easier to implement than other methods while maintaining state-of-the-art performance \cite{schulman_proximal_2017}.
+This avoids destructively large policy updates, making \gls{ppo} more robust and easier to implement than other methods while maintaining state-of-the-art performance.
 
 \subsection{Multi-Agent Reinforcement Learning (MARL)}
 The previously discussed \gls{rl} algorithms involve only one agent learning through interaction with the environment \cite{busoniu_multi-agent_2008}.
@@ -322,11 +322,11 @@ These approaches strike a balance between ease of use and the scalability and co
 
 
 \section{Heuristics}\label{sec:background-heuristics}
-A heuristic is a problem-solving approach, similar to a rule of thumb, that attempts to find a satisfactory solution fast \cite{russell_modern_1995}.
-This is particularly relevant for complex problems, where finding an exact optimal solution is computationally impossible or too time-consuming \cite{russell_modern_1995}.
+A heuristic is a problem-solving approach, similar to a rule of thumb, that attempts to find a satisfactory solution fast.
+This is particularly relevant for complex problems, where finding an exact optimal solution is computationally impossible or too time-consuming.
 While heuristics offer such a significant computational performance advantage, they do not guarantee global optimality \cite{russell_modern_1995}. 
 
-The most common heuristic is the greedy heuristic, which operates by making the locally optimal choice at each step, i.e., greedily choosing the action with the most significant immediate reward \cite{russell_modern_1995}.
+The most common heuristic is the greedy heuristic, which operates by making the locally optimal choice at each step, i.e., greedily choosing the action with the most significant immediate reward.
 Greedy treats every choice individually, without considering future or previous decisions.
 This simple approach makes the greedy heuristic computationally efficient.
 However, it lacks complexity, resulting in globally suboptimal solutions \cite{russell_modern_1995}.
@@ -335,32 +335,32 @@ For example, matching a set of supply locations to a set of demand locations.
 This allows for more informed local choices, which often yield better overall solutions than a simple greedy algorithm but come at the cost of increased computational complexity \cite{wu_challenges_2020}.
 
 \subsection{Metaheuristic Optimization}
-Metaheuristics are a class of optimization techniques that aim to enhance heuristics by guiding their actions to improve the search space and discover more optimal solutions than can be found solely with the heuristics themselves \cite{russell_modern_1995}.
-Metaheuristics manage the trade-off between exploration and exploitation to overcome local optima and discover more optimal solutions \cite{russell_modern_1995}.
+Metaheuristics are a class of optimization techniques that aim to enhance heuristics by guiding their actions to improve the search space and discover more optimal solutions than can be found solely with the heuristics themselves.
+Metaheuristics manage the trade-off between exploration and exploitation to overcome local optima and discover more optimal solutions .
 These methods are often inspired by natural processes, such as evolution or swarm intelligence, and typically operate on a population of candidate solutions \cite{russell_modern_1995}.
 
 \subsubsection{Genetic Algorithms (GAs)}
 \glsentryfullpl{ga} are a class of metaheuristics inspired by the principles of biological evolution \cite{holland_adaptation_1992}.
 \glspl{ga} improve a population of candidate solutions iteratively to identify a near-optimal solution.
 Each candidate is evaluated by a fitness function, which quantifies its suitability relative to the optimization objective. 
-The algorithm generates a new population in each generation through three primary operators: 
+The algorithm generates a new population in each generation through three primary operators \cite{holland_adaptation_1992}: 
 
 \begin{itemize}
-    \item \textbf{Selection:} Candidate solutions are probabilistically chosen during selection based on their fitness value, ensuring that higher-performing candidates are more likely to contribute to subsequent generations \cite{holland_adaptation_1992}. 
-    \item \textbf{Crossover:} The crossover operator then recombines elements from pairs of selected candidates to create new solutions \cite{holland_adaptation_1992}.
-    \item \textbf{Mutation:} At the same time, the mutation operator randomly modifies individual candidates to preserve genetic diversity and prevent premature convergence \cite{holland_adaptation_1992}. 
+    \item \textbf{Selection:} Candidate solutions are probabilistically chosen during selection based on their fitness value, ensuring that higher-performing candidates are more likely to contribute to subsequent generations. 
+    \item \textbf{Crossover:} The crossover operator then recombines elements from pairs of selected candidates to create new solutions .
+    \item \textbf{Mutation:} At the same time, the mutation operator randomly modifies individual candidates to preserve genetic diversity and prevent premature convergence. 
 \end{itemize}
 
 This iterative process, involving the selection, crossover, and mutation operators, is repeated across multiple generations until the fitness function converges to a stable optimum or a predefined termination criterion is met.
 
 \subsubsection{Ant Colony Optimization (ACO)}
-\glsfirst{aco} is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants \cite{dorigo_ant_1997}.
+\glsfirst{aco} is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants.
 The optimization problem is modeled as a graph, where the nodes represent the problem's components and the edges represent possible connections or choices.
 Artificial \textit{ants} then traverse this graph to construct candidate solutions.
-As the ants build these solutions, they deposit artificial pheromones along their chosen paths \cite{dorigo_ant_1997}.
+As the ants build these solutions, they deposit artificial pheromones along their chosen paths.
 Paths corresponding to superior solutions receive more potent pheromones.
 In subsequent iterations, the ants are probabilistically attracted to paths with higher concentrations of pheromones, thereby exploiting known good routes.
-At the same time, a degree of stochastic exploration is maintained to allow the ants to discover novel paths \cite{dorigo_ant_1997}.
+At the same time, a degree of stochastic exploration is maintained to allow the ants to discover novel paths.
 This mechanism makes \gls{aco} well-suited for solving routing and scheduling problems, as well as other combinatorial optimization problems that can be naturally represented as graphs \cite{dorigo_ant_1997}.
 
 \subsection{Summary}
@@ -380,31 +380,31 @@ Conversely, \glspl{ga} and \gls{aco} provide more robust frameworks that are bet
 
 \section{Mathematical Optimization}\label{sec:background-mathematical_optimization}
 Mathematical optimization uses a fundamentally different approach than \gls{rl} and heuristics.
-Mathematical optimization \cite{boyd_convex_2004} approaches problems by formulating them as mathematical expressions consisting of objective functions and constraints that can be solved mathematically.
+Mathematical optimization approaches problems by formulating them as mathematical expressions consisting of objective functions and constraints that can be solved mathematically.
 This approach contrasts with the previously discussed \gls{rl} and heuristic methods, employing a trial-and-error approach.
-Formulating a mathematical expression based on real-world problems comes with some challenges and limitations \cite{boyd_convex_2004}.
-A simplified model of the environment is often formulated due to the high complexity of real-world scenarios, which cannot be formulated as a mathematical expression in a feasible amount of time \cite{boyd_convex_2004}.
+Formulating a mathematical expression based on real-world problems comes with some challenges and limitations.
+A simplified model of the environment is often formulated due to the high complexity of real-world scenarios, which cannot be formulated as a mathematical expression in a feasible amount of time.
 \glsfirst{lp} and \glsfirst{milp} are the most common approaches for formulating problems in the field of mathematical optimization \cite{boyd_convex_2004}.
 
 \subsection{Linear Programming (LP)}
-\glsfirst{lp} is an optimization technique that is used to solve mathematical expressions for decision-making problems \cite{boyd_convex_2004}.
+\glsfirst{lp} is an optimization technique that is used to solve mathematical expressions for decision-making problems.
 In the context of \gls{lp}, objective functions and constraints are linear, and their variables are continuous.
-This restriction, however, limits the scope of applications of the \gls{lp} approach when confronted with complex real-world scenarios \cite{boyd_convex_2004}.
+This restriction, however, limits the scope of applications of the \gls{lp} approach when confronted with complex real-world scenarios.
 A variety of algorithms exist to solve \glspl{lp} for optimal solutions, but the most common are the simplex algorithm and the \glsfirst{ipm} \cite{boyd_convex_2004}.
 
 \begin{itemize}
-    \item The simplex algorithm \cite{boyd_convex_2004} utilizes a convex-shaped polytope, defined by the intersections of the \gls{lp} constraints.
+    \item The simplex algorithm utilizes a convex-shaped polytope, defined by the intersections of the \gls{lp} constraints.
     The algorithm starts with a base solution located at one of the vertices of the polytope.
     Thereafter, the algorithm systematically moves from one vertex to the adjacent vertex, which provides the most significant improvement in terms of the objective function.
-    This iterative process continues until no neighboring vertex improves the objective function value, at which point the algorithm achieves optimality.
-    \item The \gls{ipm} \cite{boyd_convex_2004} takes a different path, traversing through the interior of the feasible region.
+    This iterative process continues until no neighboring vertex improves the objective function value, at which point the algorithm achieves optimality \cite{boyd_convex_2004}.
+    \item The \gls{ipm} takes a different path, traversing through the interior of the feasible region.
     It uses barrier functions to ensure it remains within the constraint boundaries and calculates a gradient to determine the direction of traversal.
-    As the algorithm progresses, the influence of the barriers is reduced, allowing convergence to an optimal solution.
+    As the algorithm progresses, the influence of the barriers is reduced, allowing convergence to an optimal solution \cite{boyd_convex_2004}.
 \end{itemize}
 
-While the simplex algorithm is efficient in practice for many problems, its worst-case time complexity can be exponential \cite{boyd_convex_2004}.
-In contrast, \glspl{ipm} have polynomial-time complexity, making them more robust for very large-scale \glspl{lp} \cite{boyd_convex_2004}.
-While \gls{ipm} scales better, it comes with more computational overhead \cite{boyd_convex_2004}.
+While the simplex algorithm is efficient in practice for many problems, its worst-case time complexity can be exponential.
+In contrast, \glspl{ipm} have polynomial-time complexity, making them more robust for very large-scale \glspl{lp}.
+While \gls{ipm} scales better, it comes with more computational overhead.
 In summary, the simplex method is more suited for solving smaller or repetitive \glspl{lp}, while \gls{ipm} is better suited for larger and more complex \glspl{lp} \cite{boyd_convex_2004}.
 
 
@@ -412,9 +412,9 @@ In summary, the simplex method is more suited for solving smaller or repetitive 
 \glsfirst{milp} is an extension of \gls{lp} that allows some decision variables to be restricted to integer values \cite{vielma_mixed_2015}.
 This greatly enhances the modeling capabilities of the framework, enabling the direct representation of discrete choices, such as binary (0/1) decisions.
 
-\gls{milp} problems are NP-hard and are typically solved using algorithms such as branch-and-cut \cite{vielma_mixed_2015}.
+\gls{milp} problems are NP-hard and are typically solved using algorithms such as branch-and-cut.
 This method solves a series of \gls{lp} relaxations, where the integer constraints are temporarily ignored, to establish bounds on the optimal solution.
 The algorithm then systematically branches on integer variables, creating a tree of subproblems.
 It uses \textit{cuts}, or additional constraints, to prune branches of the tree that cannot yield an optimal solution.
-While effective for moderately complex problems, the computational time of these algorithms can grow exponentially with the problem size, making them unsuitable for finding exact solutions to very large or time-sensitive systems \cite{vielma_mixed_2015}.
+While effective for moderately complex problems, the computational time of these algorithms can grow exponentially with the problem size, making them unsuitable for finding exact solutions to very large or time-sensitive systems.
 For such systems, however, \gls{milp} can still be applied to subproblems or used with heuristic methods to find high-quality approximate solutions \cite{vielma_mixed_2015}.
