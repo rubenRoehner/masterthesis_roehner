@@ -127,10 +127,13 @@ A learning rate scheduler updates the learning rate linearly every \texttt{RDC\_
 
 Finally, the agent's parameters are updated accordingly.
 Using soft updates with the factor \texttt{RDC\_tau}, based on the current target network ($\theta_t^-$) and the current policy network ($\theta_t$), new values for the target network $\theta_{t+1}^-$ are calculated as follows \cite{hasselt_deep_2016}:
-$\theta_{t+1}^- = \tau \theta_{t} + (1-\tau)\theta_t^-$
-The \texttt{epsilon} value of the $\epsilon$-greedy strategy is annealed using the following formula:
-$\epsilon = \max(\epsilon_{min}, \epsilon_{start} \cdot (\delta_{\epsilon}^{n_{step}}))$
-, where $n_{step}$ is the current step count and $\delta_{\epsilon}$ the epsilon decay factor \texttt{RDC\_epsilon\_decay}.
+\begin{equation}
+    \theta_{t+1}^- = \tau \theta_{t} + (1-\tau)\theta_t^-
+\end{equation}
+The \texttt{epsilon} value of the $\epsilon$-greedy strategy is annealed using the following formula, where $n_{step}$ is the current step count and $\delta_{\epsilon}$ the epsilon decay factor \texttt{RDC\_epsilon\_decay}: 
+\begin{equation}
+    \epsilon = \max(\epsilon_{min}, \epsilon_{start} \cdot (\delta_{\epsilon}^{n_{step}}))
+\end{equation}
 Lastly, the priorities of the \gls{per} are updated using the newly calculated \glspl{td-error} by the \texttt{update\_priorities} function from the \texttt{ReplayBuffer}.
 
 The learning progress of the \gls{rdc} agent over the course of the final training run is visualized in \autoref{fig:rdc_training_curves}.

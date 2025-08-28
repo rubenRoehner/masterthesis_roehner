@@ -29,11 +29,12 @@ The initial phase of CICA involves clustering multiple service area regions, eac
 A Minimal Spanning Tree (MST) approximates routing costs between areas.
 In contrast, operational costs within each region are estimated based on the number of battery swaps and rebalancing operations, taking into account the state of charge and regional demand.
 Imbalances between the available scooters and demand are also incorporated through a penalty term.
+
 The second phase comprises three distinct steps. 
 Initially, the algorithm generates an optimal sequence of regions to visit for each cluster.
 Subsequently, the algorithm assigns specific operations for each of the stops within the previously generated sequences, such as pick-up, drop-off, and battery swap. 
 This is done iteratively until the constraints are exceeded or the estimated demand is fully met. 
-In the final step, the sequences with the highest profit are chosen. 
+In the final step, the sequences with the highest profit are chosen.
 The results demonstrate that the proposed CICA algorithm consistently delivers near-optimal solutions, outperforming baselines in both effectiveness and efficiency, due to its reduced computational time.
 \\
 
@@ -52,6 +53,7 @@ In contrast, more complex problems are addressed using a hybrid Ant Colony Optim
 This hybrid approach comprises two stages. 
 The \gls{aco} generates promising routes during the initial stage based on pheromone trails and visibility factors. 
 In the following stage, the \gls{ilp} solver optimizes the pick-up and drop-off operations.
+
 In summary, this work proposes a more complex demand forecasting model, a Monte Carlo simulation, and an SGARCH model. 
 However, this approach heavily depends on historical data, which does not account for demand dynamics and fluctuations and only provides a static planning horizon. 
 Consequently, this approach exhibits limited responsiveness to unpredictable demand.
@@ -64,6 +66,7 @@ The probability of users choosing to drop-off at a location different from their
 This willingness function quantifies the gain a user receives from dropping off at a specific location rather than adhering to their anticipated route.
 This function incorporates factors such as the incentive level, additional walking time, and designated drop-off locations.
 Utilizing a logit model, this willingness function calculates the probability that a user will accept the offered incentive.
+
 Emami and Ramezani modeled the problem as a Mixed Binary Rebalancing Problem (MBRP).
 The objective of this model is to minimize the cost function, which comprises truck travel costs, battery swapping costs, user incentive expenses, and a penalty for unmet demand.
 This MBRP is formulated as a Mixed Binary Linear Program (MBLP).
@@ -261,7 +264,8 @@ The core methodology begins with a two-stage clustering process, called Inter-In
 Each cluster is then treated independently to reduce complexity. 
 The second stage incorporates predictive modeling through two components: an O-model, which uses a similarity-based k-nearest neighbor approach to forecast pick-up demand, and an I-model, which predicts drop-off demand by probabilistically tracking bike transitions across regions. 
 A central element of their approach is a deep Q-learning-based framework, in which individual service vehicles, modeled as agents, utilize historical observations and real-time predictive insights to determine optimal repositioning actions.
-This implicitly coordinates their actions by considering each other's states and planned moves. 
+This implicitly coordinates their actions by considering each other's states and planned moves.
+
 Evaluation results demonstrate the effectiveness of this approach, which significantly reduces unmet demand compared to heuristic repositioning strategies. 
 However, the proposed model also reveals limitations. 
 While the authors implement spatio-temporal pruning heuristics to reduce computational complexity, scalability remains constrained by the exponential growth of state-action spaces as system size increases. 
@@ -311,7 +315,6 @@ Developing and evaluating rebalancing frameworks is challenging due to the compl
 Consequently, high-fidelity simulation environments can be utilized to evaluate rebalancing methods before they are deployed in the real world.
 Simulation enables safe and repeatable testing of rebalancing frameworks under various scenarios.
 This section introduces the most commonly used simulation frameworks for evaluating rebalancing frameworks.
-\\
 
 \subsubsection{SUMO}
 The \gls{sumo} is an open-source, microscopic traffic simulation platform widely used in mobility research \cite{alvarez_lopez_simulation_2025}.
@@ -319,7 +322,6 @@ The \gls{sumo} is an open-source, microscopic traffic simulation platform widely
 Due to its modular, open-source nature, \gls{sumo} is highly extensible.
 An external control API \gls{traci} enables users to observe and manipulate the simulation state via Python scripts, which opens up numerous opportunities, such as incorporating rebalancing algorithms.
 While \gls{sumo} provides a high-fidelity representation of urban mobility suitable for evaluating performance under realistic conditions, it does not natively support agent-based modeling of users or vehicles, which must be implemented externally via \gls{traci}.
-\\
 
 \subsubsection{ODySSEUS}
 ODySSEUS is a simulation environment developed specifically for the operations of shared micromobility systems \cite{smartdatapolito_smartdatapolitoodysseus_2022}.
@@ -329,7 +331,6 @@ Its main strength lies in modeling operational complexities, such as peak demand
 
 Losapio et al. \cite{losapio_smart_2022} employed an ODySSEUS-based environment to evaluate their \gls{esb-dqn} rebalancing framework, wrapping the simulator in a gym-compatible interface for training.
 However, they noted that using ODySSEUS directly for training resulted in an overly long and expensive training process \cite{losapio_smart_2022}.
-\\
 
 \subsubsection{MATSim}
 \gls{matsim} is an open-source, activity-based simulator that models travel demand and network loading at a macroscopic city scale \cite{horni_introducing_2016}.
@@ -338,15 +339,16 @@ Consequently, its level of detail is coarser than \gls{sumo}'s, with traffic flo
 
 \gls{matsim} has been utilized in several studies for evaluating rebalancing algorithms \cite{chouaki_review_2025}.
 While its flexible architecture allows for custom modules, its Java-based implementation presents integration challenges for \gls{rl} frameworks, which are predominantly developed in Python \cite{horni_introducing_2016}.
-\\
 
 \subsubsection{Summary}
 Several platforms have been utilized in recent research to simulate shared micromobility fleets, facilitating the testing and evaluation of various rebalancing strategies.
 \gls{sumo} is a microscopic traffic simulator that enables high-fidelity analysis of detailed vehicle interactions, energy consumption (especially relevant for electric fleets, considering factors such as elevation \cite{freymann_integrating_2024}), and the localized traffic impacts of rebalancing operations.
 However, implementing specific service logic and rebalancing strategies typically requires custom development via its \gls{traci} interface \cite{alvarez_lopez_simulation_2025}.
+
 ODySSEUS provides a specialized environment explicitly focused on the operational dynamics of shared fleets, leveraging real-world data to model and optimize fleet performance metrics, such as vehicle availability and rebalancing efficiency \cite{smartdatapolito_smartdatapolitoodysseus_2022}.
 This makes it particularly suitable for data-driven analysis from a service provider's perspective.
 Nevertheless, ODySSEUS simulates at a higher abstraction level than \gls{sumo}, which affects the realism of simulations performed using ODySSEUS.
+
 In contrast, \gls{matsim} employs a large-scale, agent-based, mesoscopic approach centered on modeling traveler behavior and activity planning \cite{horni_introducing_2016}.
 The program's strength lies in simulating how changes in service attributes affect user mode choice, overall travel patterns, demand satisfaction, and the system's balance.
 This makes it ideal for strategic analysis and exploring user responses to incentives.

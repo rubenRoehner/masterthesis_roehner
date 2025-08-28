@@ -89,7 +89,7 @@ Problems formulated as \glspl{mdp} can be solved using techniques such as \gls{d
 
 \begin{figure}
     \centering
-    \includegraphics[width=.9\linewidth]{content/figures/Markov_diagram.png}
+    \includegraphics[width=.75\linewidth]{content/figures/Markov_diagram.png}
     \caption{The Reinforcement Learning Agent-Environment Interaction Loop. This diagram illustrates the fundamental cycle of a \glsfirst{mdp}. At each discrete timestep $t$, the agent observes the environment's current state ($\mathcal{S}_t$) and selects an action ($\mathcal{A}_t$). In response, the environment transitions to a new state ($\mathcal{S}_{t+1}$) and provides a numerical reward ($\mathcal{R}_{t+1}$) to the agent \cite{sutton_reinforcement_2018}.}
     \label{fig:mdp-diagram}
 \end{figure}
@@ -117,6 +117,7 @@ Here, $\gamma \in [0, 1]$ is the discount factor, which balances the importance 
 \subsubsection{Bellman Equations}
 The previously defined state-value and action-value functions accurately describe the rewards associated with a given state, policy, and action.
 However, solving these equations directly is computationally complex and requires a complete model of the environment's dynamics ($\mathcal{P}$ and $\mathcal{R}$), which is often unavailable \cite{sutton_reinforcement_2018}.
+
 Therefore, the Bellman Equations describe an iterative approach for calculating the state-value function (see equation \ref{eq:bellman-state-value-function}) and the action-value function (see equation \ref{eq:bellman-action-value-function}).
 They decompose the value of a state or state-action pair into the sum of the immediate reward and the discounted value of the successor states.
 This recursive property is fundamental to many \gls{rl} algorithms \cite{zhang_dive_2023}.

@@ -56,7 +56,7 @@ Each blue point corresponds to an individual trial, and the solid red line track
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/RDC_history_plot.png}
-    \caption{Aggregated Optimization History for the \gls{rdc} Agent. This plot visualizes the results from the entire three-round hyperparameter optimization process for the \gls{rdc} agent, comprising 500 total trials. Each blue dot represents the final objective value for a single trial, while the red line tracks the best objective value achieved up to that point in the optimization. The plot shows consistent improvement across the rounds, demonstrating the effectiveness of the coarse-to-fine search strategy.}
+    \caption{Aggregated Optimization History for the \gls{rdc} Agent. This plot visualizes the results from the entire three-round hyperparameter optimization process for the \gls{rdc} agent, comprising 500 total trials. Each blue dot represents the final objective value for a single trial, while the red line tracks the best objective value achieved up to that point in the optimization.}
     \label{fig:ho-rdc-history}
 \end{figure}
 
@@ -94,6 +94,7 @@ While good results are possible at other sizes, the smallest (64) and largest (1
 \end{figure}
 
 The resulting optimal hyperparameter configuration is presented in \autoref{tab:rdc_final_hyperparameters}.
+The final value of \texttt{RDC\_lr\_step\_size} was adjusted to account for the difference between the length of the HO trial and the final training length.
 Detailed parameter descriptions are provided in the implementation chapter (see \autoref{tab:rdc_hyperparameters_description}), while the search spaces for each optimization round are defined in the appendix (\cref{tab:rdc_ho_first_round,tab:rdc_ho_second_round,tab:rdc_ho_final_round}).
 The slice plots for all hyperparameters are presented in \autoref{fig:rdc-full-slice-plot}.
 
@@ -126,7 +127,7 @@ The slice plots for all hyperparameters are presented in \autoref{fig:rdc-full-s
         \texttt{RDC\_weight\_gini} & Gini coefficient penalty weight & $7.0$ \\
         \bottomrule
     \end{tabularx}
-    \caption{Final Optimized Hyperparameter Configuration for the \gls{rdc}. This table presents the final set of optimal hyperparameter values for the \gls{rdc} agent. These values were determined through the three-round, coarse-to-fine hyperparameter optimization process using the Optuna framework. This configuration was used for the final evaluation of the \gls{rdc}.}
+    \caption{Final Optimized Hyperparameter Configuration for the \gls{rdc}. This table presents the final set of optimal hyperparameter values for the \gls{rdc} agent. These values were determined through the three-round, coarse-to-fine hyperparameter optimization process using the Optuna framework. This configuration was used for the final evaluation of the \gls{rdc}. }
     \label{tab:rdc_final_hyperparameters}
 \end{table}
 
@@ -158,7 +159,7 @@ This phenomenon is likely due to the reduced amount of manual tuning before runn
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_history_plot.png}
-    \caption{Aggregated Optimization History for the \gls{uic} Agent. This plot shows the aggregated results from the multi-round hyperparameter optimization for the \gls{uic} agent. Each blue dot represents the result of a single trial, and the red line indicates the best performance achieved over time. The distinct step-wise improvements in the best-so-far objective value suggest that the \gls{ppo} agent's performance is highly sensitive to specific combinations of hyperparameters that were discovered in later, more focused optimization rounds.}
+    \caption{Aggregated Optimization History for the \gls{uic} Agent. This plot shows the aggregated results from the multi-round hyperparameter optimization for the \gls{uic} agent. Each blue dot represents the result of a single trial, and the red line indicates the best performance achieved over time. The distinct step-wise improvements in the best-so-far objective value suggest that the \gls{ppo} agent's performance is highly sensitive to specific combinations of hyperparameters.}
     \label{fig:ho-uic-history}
 \end{figure}
 
@@ -173,7 +174,7 @@ This indicates that the agent benefits from strongly prioritizing long-term rewa
 Finally, the \texttt{UIC\_ent\_coef}, which controls the exploration–exploitation trade-off, indicates that most of the best-performing configurations are concentrated near the lower bound (below 0.0002).
 This suggests that only a minimal entropy bonus is needed to prevent convergence to suboptimal strategies, allowing the agent to quickly exploit promising policies once they are discovered.
 
-\begin{figure}[!htb]
+\begin{figure}
     \centering
     \includegraphics[width=\linewidth]{content/figures/UIC_focused_slice_plot.png}
     \caption{Focused Slice Plot of Critical \gls{uic} Hyperparameters. This figure displays slice plots for the four most critical hyperparameters for the \gls{ppo}-based \gls{uic} agent: learning rate (\texttt{UIC\_lr}), number of steps (\texttt{UIC\_n\_steps}), discount factor (\texttt{UIC\_gamma}), and entropy coefficient (\texttt{UIC\_ent\_coef}). The plots show the objective value achieved for each value of a given hyperparameter across all trials. These visualizations clearly indicate optimal regions, such as a preference for moderately low learning rates, a high discount factor close to $\sim1.0$, specific step sizes around 512 or 2048, and a very small entropy bonus, confirming that the agent benefits from stable updates, long-term planning, and minimal forced exploration.}

@@ -45,11 +45,6 @@ The most immediate need is to address the performance limitations of the low-lev
         The problem scope for a single UIC agent, which must manage incentive levels across all zones within a community, may be too complex for the \gls{ppo} algorithm to solve effectively due to the large state and action spaces.
         A more effective approach could be to deepen the hierarchy by decomposing the user-incentive strategy itself into two levels.
         This would involve a new mid-level agent setting broad incentive goals for the community, while multiple low-level agents would execute these goals with fine-grained actions in more manageable sub-regions.
-
-%    \item \textbf{Incorporation of External-Data:}
-%        Both the \gls{hrl} agents and the demand forecasting module could be enhanced by integrating external data sources that influence mobility patterns.
-%        Typical external data sources include real-time weather data, public transport schedules, information about public events, Point of Interest (POI) data, and land use data.
-%        These external data sources can cause significant demand fluctuations, which could be anticipated by the models if included.
 \end{itemize}
 
 \subsection{Enhancing Simulation}
@@ -86,10 +81,4 @@ Future work could expand the scope of this framework by integrating other operat
     \item \textbf{Operator Vehicle Routing:}
         As stated in \autoref{sec:design-problem_definition}, this work explicitly excluded the \glsfirst{vrp} to focus on the rebalancing problem, due to the scope of this thesis and the many implementations already published.
         By incorporating the \gls{vrp} for the operator-based rebalancing, the suggested rebalancing quotas by the \gls{rdc} agent could be fulfilled using \gls{vrp} algorithms.
-%    \item \textbf{Dynamic Fleet Management:}
-%        The current implementation of the simulation environment forces a constant fleet size based on the mean of the observed \gls{gbfs} data.
-%        Many sharing services operate a depot from which e-scooters can be picked up or dropped off.
-%        A vehicle that needs to be maintained or repaired can be dropped off there.
-%        Additionally, to overcome periods of high demand, additional vehicles can be collected from such depots.
-%        This is especially useful for public events, where there is a significant increase in demand over a short period of time.
 \end{itemize}

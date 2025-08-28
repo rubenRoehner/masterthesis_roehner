@@ -618,6 +618,7 @@ The implementation leverages the \gls{sb3} library, which provides a robust and 
 The implementation uses a \glsfirst{mlp} architecture with separate networks for the policy (\textit{actor}) and value (\textit{critic}) functions.
 Utilizing separate networks can improve stability by preventing the learning objectives of the policy and value functions from interfering with each other's gradients.
 By isolating the \textit{actor} and the \textit{critic} into two distinct models, each network is updated with its own loss, thereby eliminating inferences between the two loss signals.
+
 Both networks consist of three hidden layers, using the same network parameters, which are described in \autoref{sec:implementation_uic}.
 For each zone in its community, the \textit{actor} network outputs the mean and standard deviation parameters of a Gaussian distribution.
 The continuous incentive for each zone is then sampled from the resulting distribution.
@@ -645,6 +646,7 @@ This mechanism prevents large policy updates that could potentially cause instab
 The constraint is controlled by a clip range parameter, which is annealed over the training process.
 Therefore, larger exploratory updates are allowed at the beginning of the training process.
 Gradually decreasing the value of this parameter results in more granular updates at the end of the process.
+\\
 
 Additionally, to further stabilize training, \gls{gae} is used \cite{schulman_high-dimensional_2018}.
 \gls{gae} computes a weighted average of the advantage estimates over multiple timesteps, rather than relying on a single-step advantage value.
