@@ -4,7 +4,7 @@ This chapter details the design of the proposed rebalancing framework.
 
 \section{Data}\label{sec:design-data}
 The data underlying this thesis was collected from a \glsfirst{gbfs} \cite{mobilitydata_specification_2024} feed that publishes the live locations of e-scooters from sharing services operating in Baden-Württemberg \cite{mobidata_bw_gebundelte_2022}.
-These services utilize a free-floating approach \cite{oeschger_micromobility_2020}, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations.
+These services utilize a free-floating approach, permitting users to pick-up and drop-off vehicles at any location within the operating area, without restriction to specific parking stations.
 This section details the collection, preprocessing, and exploratory analysis of the \gls{gbfs} data used to develop this \gls{hrl} framework. 
 
 
@@ -12,13 +12,13 @@ This section details the collection, preprocessing, and exploratory analysis of 
 To capture a comprehensive view of e-scooter usage, data was acquired from the \gls{gbfs} feeds of two of the leading service providers in Stuttgart: Bolt and Voi.
 The data was collected by crawling the public feed, creating detailed time-series snapshots of all available vehicles.
 These snapshots were stored as JSON files for later use.
-The initial data collection interval was set to 15 minutes as a conservative, precautionary measure.
+The initial data collection interval was set to 5 minutes as a conservative, precautionary measure.
 Public data APIs, including the \gls{gbfs} feed used in this work, often employ rate-limiting mechanisms to protect their services from excessive traffic and ensure high availability for all users.
 To avoid the risk of the data collection script being automatically flagged or blocked, a longer interval has been choosen to guarantee the establishment of a stable data pipeline.
-After confirming the reliability of this process over an initial period, the sampling rate was later refined and reduced to 5 minutes to capture vehicle dynamics with greater temporal resolution.
+After confirming the reliability of this process over an initial period, the sampling rate was later refined and reduced to 1 minute to capture vehicle dynamics with greater temporal resolution.
 The subsequent data processing steps address this variation in sampling frequency.
 Because the final analysis relies on event data aggregated into one-hour time bins, the differences in the underlying snapshot frequency are normalized.
-While the 15-minute interval may theoretically under-capture very short trips compared to the 5-minute data, this effect is considered negligible for the hourly resolution used in the demand analysis and model training.
+While the 5-minute interval may theoretically under-capture very short trips compared to the 1-minute data, this effect is considered insignificant for the hourly resolution used in the demand analysis and model training.
 This process was conducted continuously over a 128-day period, from February 11, 2025, to June 18, 2025.
 
 The \gls{gbfs} format, a standard for publishing shared micromobility vehicle data, provides several key attributes for each vehicle.
@@ -51,7 +51,7 @@ A complete list of the data fields extracted from the feed is presented in \auto
 
 \subsection{Data Preprocessing}
 The primary goal of preprocessing was to transform the raw location snapshots into a dataset of discrete pick-up and drop-off events.
-A methodological limitation of the \gls{gbfs} feed is the randomization of vehicle identifiers for user anonymization, which prevents the direct tracking of individual trips.
+A limitation of the \gls{gbfs} feed is the randomization of vehicle identifiers for user anonymization, which prevents the direct tracking of individual trips.
 To overcome this, an inferential approach was adopted: by comparing consecutive snapshots, the disappearance of a vehicle ID from one frame to the next was classified as a pick-up.
 In contrast, the appearance of a new ID was classified as a drop-off.
 This inference can result in errors, for instance, vehicles taken offline for maintenance may be misidentified as trip pick-ups, and newly deployed vehicles as drop-offs.
@@ -81,8 +81,8 @@ In contrast, the Bolt dataset was largely unaffected, retaining 96.4\% of its da
 
 Finally, the cleaned event data was aggregated to create a structured dataset for model training.
 For spatial aggregation, a two-layer hierarchical approach was implemented using the H3 hexagonal grid system \cite{uber_h3_2018}.
-The finest spatial unit, a \textit{zone}, was defined using H3 resolution 8, resulting in 291 distinct zones across the operating area.
-These zones were then grouped into larger \textit{communities} at H3 resolution 6, producing a total of 9 communities.
+The finest spatial unit, a \textit{zone}, was defined using H3 resolution 8, resulting in 291 distinct zones, each with an edge length of approximately 530 meters, across the operating area.
+These zones were then grouped into larger \textit{communities} at H3 resolution 6, producing a total of nine communities with an edge length of approximately 3.7 kilometers.
 This hierarchical structure allows for analysis at both a granular and a regional level.
 Temporally, events within each zone were aggregated into one-hour time bins.
 
@@ -94,7 +94,7 @@ Third, as a global standard, H3 ensures that the grid is predefined worldwide, s
 
 \begin{figure}[!htb]
     \centering
-    \includegraphics[width=0.66\linewidth]{content/figures/Grid_Community_Stucture.png}
+    \includegraphics[width=0.7\linewidth]{content/figures/Grid_Community_Stucture.png}
     \caption{Hierarchical Grid Structure for the Stuttgart Service Area. This map displays the two-layer spatial aggregation scheme used in this thesis, based on the H3 hexagonal grid system \cite{uber_h3_2018}. The smaller, colored hexagons represent fine-grained zones (H3 resolution 8), which are grouped into the larger communities outlined in black (H3 resolution 6). The color within each small hexagon indicates the relative density of pick-up and drop-off events.}
     \label{fig:data_grid_community_structure}
 \end{figure}
@@ -154,18 +154,18 @@ In the afternoon and evening, a clear vehicle deficit occurs as pick-ups consist
 These imbalances also manifest spatially, creating distinct demand hotspots that fluctuate over time.
 For example, during the morning commute hours (3:00–8:00), a clear pattern emerges where zones in the city center accumulate a net surplus of vehicles, while those in outlying residential areas show a net deficit, as illustrated in \autoref{fig:demand_net_imbalance_map_morning}.
 Conversely, evening hours exhibit the opposite pattern: a net deficit of vehicles occurs in the city center as a net surplus builds up in residential zones (\autoref{fig:demand_net_imbalance_map_evening}).
-These observed imbalances, detailed in \autoref{fig:demand_net_imbalance_map}, underscore the critical need for a predictive rebalancing model to maintain service quality.
+These observed imbalances, detailed in \autoref{fig:demand_net_imbalance_map}, underscore the need for a predictive rebalancing model to maintain service quality.
 
 \section{Problem Definition}\label{sec:design-problem_definition}
 This section formalizes the fleet rebalancing problem of a free-floating e-scooter sharing system.
 The problem definition considers both operator-based rebalancing, performed by service workers, and user-based rebalancing, performed by users guided by incentives.
 The rebalancing mechanisms addressed are operator-based relocations between communities and user-based relocations within communities, which are achieved through incentives.
 The routing problem of service vehicles performing operator-based rebalancing is not addressed in this work, as the focus is on developing a framework for strategic decision-making rather than the operational \gls{vrp}.
-The \gls{vrp} for rebalancing is a well-studied field \cite{emami_integrated_2024, lee_battery_2024, jimenez-merono_optimization_2024, paparella_optimization-based_2023, sanchez_simulation_2022}.
+The \gls{vrp} for rebalancing is a well-studied field \cite{emami_integrated_2024, jimenez-merono_optimization_2024, lee_battery_2024, sanchez_simulation_2022, paparella_optimization-based_2023}.
 It is assumed that an existing \gls{vrp} solver can be used to implement the strategic decisions made by the framework.
 
 The \gls{soc} of the vehicles is also not modeled in the simulation.
-This simplification is due to limited data availability, and is a common approach in recent literature \cite{cederle_fairness-oriented_2025, villa-zapata_incorporating_2024, schofield_handling_2021, pan_deep_2019}.
+This simplification is due to limited data availability, and is a common approach in recent literature \cite{villa-zapata_incorporating_2024, cederle_fairness-oriented_2025, pan_deep_2019, schofield_handling_2021}.
 As detailed in \autoref{sec:design-data}, only the trip start and endpoints are available, and no full trip data.
 Therefore, modeling whole trips in the simulation, which is necessary to update the \gls{soc} accordingly, isn't directly possible with the available data.
 In \autoref{sec:conclusion-future_work}, possible solutions for incorporating the \gls{soc} into the simulation despite these data limitations are discussed.
@@ -189,7 +189,7 @@ The subset of zones for a given community $c$ is defined as:
         $\mathcal{C}$   & The set of communities \\
         $\mathcal{Z}$   & The set of zones. \\
         $\mathcal{N}$   & Fleet size, i.e., total number of e-scooters available to the service. \\
-        $\mathcal{T}$   & The set of time steps. \\
+        $\mathcal{T}$   & The set of timesteps. \\
         $\mathcal{Z}_c$ & The subset of zones corresponding to community $c$ \\
         \midrule
         $n_z(t)$        & The number of e-scooters available in zone $z$ at time $t$. \\
@@ -244,7 +244,7 @@ Y_{z\to z'}(t) \;=\; 0
 \subsection{System Dynamics}\label{sec:design-problem_definition-dynamics}
  
 \autoref{eq:rp-fleet-conservation} formulates the global fleet conservation.
-This constraint ensures that the total number of e-scooters across all zones remains constant at every time period $t$.
+This constraint ensures that the total number of e-scooters across all zones remains constant at every timestep $t$.
 
 \begin{equation}\label{eq:rp-fleet-conservation}
     \sum_{z \in \mathcal{Z}}n_z(t) = \mathcal{N}, \forall t\in \mathcal{T}
@@ -317,7 +317,7 @@ G_c(t) \;=\;
 \autoref{eq:pb-objective} defines the objective of the rebalancing problem.
 Its primary goal is to maximize the SDR while reducing the costs associated with operator- and user-based rebalancing.
 Additionally, an imbalance penalty based on the Gini coefficient is included to promote service equity.
-The objective is calculated over the whole simulation horizon, e.g., over all time steps $t$.
+The objective is calculated over the whole simulation horizon, e.g., over all timesteps $t$.
 This equation serves as a high-level, conceptual formulation of the overall system's goals.
 It is intentionally presented as a simplified, unweighted sum to provide a clear and concise problem statement.
 This structure acts as an abstraction of the more detailed, operational reward functions that guide the individual \gls{rl} agents, which are described in the following sections.
@@ -343,7 +343,7 @@ The \gls{hrl} framework comprises two tiers.
 The first tier, the \glsfirst{rdc}, manages inter-community imbalances by determining the target number of vehicles for each defined community.
 These imbalances are addressed through operator-based rebalancing, where service workers collect vehicles from communities with an oversupply and redistribute them to communities experiencing an undersupply.
 The second tier consists of multiple \glsentryfullpl{uic}, each assigned to a specific community, to manage intra-community imbalances, i.e., imbalances within a single community.
-These coordinators aim to promote an equal distribution of vehicles by offering incentives to users for returning vehicles to designated undersupplied zones at the end of their trips.
+These coordinators aim to increase service quality by offering incentives to users for returning vehicles to designated undersupplied zones at the end of their trips.
 \autoref{fig:hrl-architecture} illustrates the architecture of this two-tier \gls{hrl} framework.
 
 \begin{figure}[!htb]
@@ -403,7 +403,7 @@ These components reflect the primary operational goals: maximizing service utili
 \begin{equation}\label{eq:rdc-reward}
     \mathcal{R}^{RDC}_t = \frac{w_{demand}^{RDC} \cdot R_{demand}^{RDC}(t) + w_{cost}^{RDC} \cdot R_{cost}^{RDC}(t) + w_{gini}^{RDC} \cdot R_{gini}^{RDC}(t)}{w_{demand}^{RDC}+ w_{cost}^{RDC}+ w_{gini}^{RDC}}
 \end{equation}
-where $w_{demand}^{RDC}$, $w_{cost}^{RDC}$, and $w_{gini}^{RDC}$ are non-negative weighting factors. Each component reward ($R_{demand}^{RDC}(t)$, $R_{cost}^{RDC}(t)$, $R_{gini}^{RDC}(t)$) is individually normalized to a range of [0, 1].
+where $w_{demand}^{RDC}$, $w_{cost}^{RDC}$, and $w_{gini}^{RDC}$ are non-negative weighting factors. Each reward component ($R_{demand}^{RDC}(t)$, $R_{cost}^{RDC}(t)$, $R_{gini}^{RDC}(t)$) is individually normalized to a range of [0, 1].
 The specific values for the weighting factors and the methodology for their selection are detailed in \autoref{sec:implementation_rdc}.
 
 \begin{subequations}
@@ -444,7 +444,7 @@ The specific values for the weighting factors and the methodology for their sele
 
 \subsubsection{Algorithm and Architecture}
 Given this \gls{mdp} formulation, a \gls{mh-dqn} is employed for the Regional Distribution Coordinator. \gls{mh-dqn} is a value-based reinforcement learning algorithm that utilizes deep neural networks to approximate the optimal action-value function, $Q*(s, a)$ \cite{mnih_human-level_2015}.
-The multi-head variant of the standard \gls{dqn} \cite{li_personalized_2024} is particularly suitable for the \gls{rdc} as it needs to output multiple, correlated rebalancing actions, one for each community, simultaneously.
+The multi-head variant of the standard \gls{dqn} is particularly suitable for the \gls{rdc} as it needs to output multiple, correlated rebalancing actions, one for each community, simultaneously \cite{li_personalized_2024}.
 Alternative architectures, such as a single network predicting a composite action vector or Q-values for all joint actions, were considered but deemed impractical due to the combinatorial explosion of the action space.
 
 \begin{figure}[!htb]
@@ -592,7 +592,7 @@ The \gls{uic} agent interacts with a simulated environment of the e-scooter shar
 This models the complex system dynamics of such sharing systems in a scoped and simplified manner for training performance reasons.
 
 Inputs to the \gls{uic}'s environment contain the forecasted pick-up and drop-off demands for all zones inside the community.
-These forecasted demands come from the Demand Forecasting Module, which is detailed in \autoref{sec:design-rl_framework-forecasting_module}.
+These forecasted demands come from the Demand Forecasting Module, which is described in \autoref{sec:design-rl_framework-forecasting_module}.
 The current vehicle counts per zone are part of the environment system state.
 
 Output from the \gls{uic} agent is a vector of continuous values for each zone in the range [0.0, 1.0] representing the incentive intensity for each zone part of the designated community.
@@ -651,7 +651,7 @@ Additionally, to further stabilize training, \gls{gae} is used \cite{schulman_hi
 This technique, therefore, produces more stable estimates of the advantage function, resulting in faster learning and more reliable policy gradients. 
 
 \subsection{Demand Forecasting Module}\label{sec:design-rl_framework-forecasting_module}
-The successful operation of the rebalancing algorithm is fundamentally dependent on its ability to anticipate future demand to proactively rebalance vehicles based on future demand.
+The successful operation of the rebalancing algorithm is fundamentally dependent on its ability to anticipate future demand to proactively rebalance vehicles based on future demand \cite{tolomei_benefits_2021}.
 Therefore, a dedicated Demand Forecasting Module that accurately predicts future demand is critical.
 By predicting future pick-up and drop-off events, this module enables the \gls{rl} agents to pre-position vehicles to meet anticipated demand.
 This results in a proactive rebalancing strategy that can respond actively to changes in demand.
@@ -669,21 +669,21 @@ This separation is motivated by the observed imbalances between pick-ups and dro
 The model selected for the Demand Forecasting Module is the \glsfirst{irconvlstm} network proposed by Li et al. \cite{li_improving_2023}.
 The selection of the \gls{irconvlstm} model as part of this rebalancing framework is based on its empirically validated performance, its publicly available open-source implementation, and its suitable architecture for modeling the complex dynamics of micromobility demand data.
 Due to the short time scope of this master's thesis, the focus of this work is on the rebalancing framework itself, which is why an open-source implementation for the Demand Forecasting Module is preferred.
-Li et al. \cite{li_improving_2023} demonstrated the high performance of the \gls{irconvlstm} model in an empirical study comparing the proposed model against several other forecasting models.
+Li et al. demonstrated the high performance of the \gls{irconvlstm} model in an empirical study comparing the proposed model against several other forecasting models.
 These included traditional time-series models like ARIMA, standalone deep-learning models like \gls{lstm} and \gls{gru}, and hybrid models like the CNN+LSTM model.
 The evaluation was conducted across five different cities using bike-sharing data.
 The \gls{irconvlstm} yielded the best performance, which is why this variant is used for this work.
-\gls{irconvlstm} consistently outperformed the other models across all benchmarks.\\
+\gls{irconvlstm} consistently outperformed the other models across all benchmarks \cite{li_improving_2023}.\\
 
 
 \subsubsection{Architecture}
 The core of this model are the \glsfirst{irconv} layers, which replace the standard kernels of a Convolutional layer with fixed spatial kernels with semantic kernels based on semantic neighbors.
-\gls{irconv} layers operate on the central cell and its top $N$ semantic neighbours.
+\gls{irconv} layers operate on the central cell and its top $N$ semantic neighbors.
 This allows the prediction to incorporate the historical demand development of zones with similar demand patterns.
-To identify these semantic neighbours, two metrics were proposed: \gls{pcc} and \gls{dtw}.
+To identify these semantic neighbors, two metrics were proposed: \gls{pcc} and \gls{dtw}.
 The \gls{pcc} measures the linear correlation between the historical time series of two cells.
 The \gls{dtw} metric \cite{berndt_using_1994}, on the other hand, measures the similarity between two temporal sequences.
-\autoref{fig:irconv-neighbors} illustrates these differences between standard kernels used in \glspl{cnn} and semantic neighbour kernels used in IrConv layers.
+\autoref{fig:irconv-neighbors} illustrates these differences between standard kernels used in \glspl{cnn} and semantic neighbor kernels used in IrConv layers.
 
 \begin{figure}[!htb]
     \centering

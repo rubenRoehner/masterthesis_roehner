@@ -28,7 +28,7 @@ This behavior directly conflicted with the intended operational goals.
 To address this, the reward weights were chosen manually through targeted short-run experiments with different weight configurations.
 This manual tuning ensured that the reward structure encouraged active rebalancing while balancing the trade-offs between demand satisfaction, operational costs, and fleet balance.
 Furthermore, identical reward weights were selected for both the \gls{rdc} and \gls{uic} agents to align their objectives and prevent them from working in a counterproductive way during joint operation.
-The final chosen weights are documented in \autoref{tab:rdc_final_hyperparameters} and \autoref{tab:uic_final_hyperparameters}.
+The final chosen weights are documented in \cref{tab:rdc_final_hyperparameters,tab:uic_final_hyperparameters}.
 
 \subsection{Regional Distribution Coordinator (RDC)}\label{sec:evaluation-ho-rdc}
 The \gls{rdc} agent, based on a \gls{mh-dqn} architecture with \gls{per}, has 17 distinct hyperparameters.
@@ -270,7 +270,7 @@ The third baseline is a greedy heuristic designed to test whether the \gls{hrl} 
     \item \textbf{Second-Tier (User-based Rebalancing):}
         The second-tier heuristic determines incentive levels for each zone within a community.
         It calculates the ratio of vehicle supply to expected demand for each zone.
-        If this ratio is below a threshold of 0.8, a maximal incentive is offered to encourage users to drop-off vehicles in that zone.
+        If this ratio is below a threshold of 0.8, a maximum incentive is offered to encourage users to drop-off vehicles in that zone.
         If the ratio exceeds the threshold or no demand is expected, no incentive is offered.
 \end{itemize}
 
@@ -459,7 +459,8 @@ A key insight from the development process is that the agents can adapt their st
 Training the UICs in a simulation environment with an active RDC improved the combined HRL framework's performance by 10-15\% compared to a version with separately trained agents.
 However, these adapted agents showed slightly worse performance when evaluated in the UIC-only baseline.
 This demonstrates that the low-level UIC agents can adapt their policies to dynamic conditions created by the RDC's strategic vehicle relocations.
-Consequently, the performance decline in the integrated HRL framework arises not from a lack of ability to learn, but from a misalignment between the RDC's long-term strategy and the local optimizations of the UICs.
+Consequently, the decline in performance does not stem from the agents' inability to learn, but rather from their inability to coordinate.
+This causes the UICs' local rebalancing operations to conflict with the RDC's long-term strategy, resulting in mutual interference.
 
 Evidence from the evaluation suggests that the low-level UICs introduce inefficiencies that the high-level RDC must then counteract.
 For instance, in the balanced 900-vehicle scenario, the \texttt{HRL Both Enabled} model incurred a higher manual rebalancing cost (7.62 relocations/hour) for a lower SDR (79.8\%) compared to the \texttt{HRL Manual Only} model (6.87 relocations/hour for 84.4\% SDR).
@@ -475,6 +476,7 @@ One potential factor contributing to the suboptimal performance of the UIC agent
 The UICs are responsible for deciding whether to provide an incentive in each zone of their community, and if so, determining the appropriate incentive level.
 With approximately 30-40 zones per community, the dimensionality of the state-action space for each UIC agent becomes substantial, a well-known challenge in RL \cite{sutton_reinforcement_2018}.
 This hypothesis is supported by the HO process, where the selection of the largest offered hidden layer size reveals that the UIC agents were operating at the limits of their learning capacity.
+
 One additional challenge for the UICs is accurately choosing the levels of incentives.
 The agents must select an incentive high enough to motivate the desired number of users but not so high that it causes local oversupply.
 The UICs cannot directly control how many vehicles should be rebalanced or to how many users the incentive is offered.
@@ -482,7 +484,7 @@ Consequently, if the selected incentive levels are excessively high, too many us
 Conversely, if the incentives are set too low, no users accept the offer, and no rebalancing occurs.
 This fine-grained trade-off, which must be managed for each zone, proves to be particularly difficult.
 
-One potential improvement would be to decrease the operational timestep for the UICs. Currently, the agents determine incentive levels for a 60-minute scope.
+A potential improvement would be to decrease the operational timestep for the UICs. Currently, the agents determine incentive levels for a 60-minute scope.
 By reducing this interval to, for example, 15 minutes, the UICs could more accurately address imbalances within their respective communities.
 This modification would result in more constructive interaction with the RDC.
 Such a change better illustrates the agents' intended roles in the HRL framework: the RDC would manage long-term, strategic distribution, while the UICs would execute short-term, tactical adjustments for immediate gains.

@@ -4,7 +4,7 @@ The following chapter outlines the implementation of the core components from th
 All computational tasks, including data preparation, training of the agents/models, hyperparameter optimization, and evaluation, were performed on a machine provided by the KEIM application centre, part of the University of Esslingen and the Fraunhofer IAO.
 This machine is powered by an Intel Core i7-6850K CPU (six cores, each at 3.60 GHz), four NVIDIA GeForce GTX 1080 Ti graphics cards (each with 12 GB of VRAM), and 64 GB of RAM.
 
-\section{Regional Distribution Coordinator}\label{sec:implementation_rdc}
+\section{Regional Distribution Coordinator (RDC)}\label{sec:implementation_rdc}
 The \glsfirst{rdc} defines the \gls{rl} agent of the first level of the proposed \gls{hrl} framework (see \autoref{sec:design-rl_framework}).
 The central component of the agent is the \texttt{RegionalDistributionCoordinator} class, which defines the agent itself.
 The agent utilizes an \gls{mh-dqn}, defined by the class \texttt{MultiHeadDQN}, to choose rebalancing quotas, thereby tackling inter-community imbalances in the system through manual rebalancing by service workers.
@@ -77,7 +77,7 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
 
 \begin{enumerate}
     \item \textbf{Action execution:}
-        The \texttt{step()} method accepts an action vector $A_t^{RDC}$ as input.
+        The \texttt{step()} method accepts an action vector $\mathcal{A}_t^{RDC}$ as input.
         This vector contains the chosen rebalancing quotas from the \gls{rdc} agent.
         To ensure vehicle conservation, as defined in the rebalancing problem (\autoref{sec:design-problem_definition}), these quotas are scaled so that the sum of all quotas is zero, while maintaining the intended flow.
     \item \textbf{Rebalancing Simulation:}
@@ -92,7 +92,7 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
     \item \textbf{Observation and Reward Calculation:}
         After both rebalancing and demand are simulated, the reward for the timestep is calculated.
         As detailed in \autoref{sec:design-rl_framework-rdc}, the reward consists of the SDR, a penalty for the number of vehicles rebalanced, and the Gini coefficient to reward equally distributed vehicles.
-        Then, a new state observation $S_{t+1}^{RDC}$ is created based on the updated vehicle counts and newly forecasted demand.
+        Then, a new state observation $\mathcal{S}_{t+1}^{RDC}$ is created based on the updated vehicle counts and newly forecasted demand.
         The method then returns the complete experience tuple \texttt{(state, action, reward, next\_state, done)}.
 \end{enumerate}
 
@@ -111,10 +111,10 @@ These weights are computed using the \texttt{RDC\_per\_beta} for controlling the
 The \texttt{RDC\_per\_beta} is annealed over the course of \texttt{RDC\_per\_beta\_frames} training steps to a final value of 1.0.
 
 After sampling experiences from the replay buffer, the Q-values are estimated for each head of the \gls{mh-dqn}.
-The policy network calculates the current Q-values based on the actions $a_c^{RDC}(t)$ taken in the observed state $S_t^{RDC}$.
+The policy network calculates the current Q-values based on the actions $a_c^{RDC}(t)$ taken in the observed state $\mathcal{S}_t^{RDC}$.
 The target Q-value $Y_t$ is then computed using the Double DQN update rule \cite{hasselt_deep_2016}:
 \begin{equation}\label{eq:ddqn-target}
-    Y_t = R_{t+1} + \gamma Q(S_{t+1},\arg\max_{a} Q(S_{t+1},a;\theta_t);\theta_t^-)
+    Y_t = \mathcal{R}_{t+1} + \gamma Q(\mathcal{S}_{t+1},\arg\max_{a} Q(\mathcal{S}_{t+1},a;\theta_t);\theta_t^-)
 \end{equation}
 
 The loss is calculated using the Huber loss, which has been selected due to its robustness \cite{huber_robust_1964}.
@@ -130,7 +130,7 @@ Using soft updates with the factor \texttt{RDC\_tau}, based on the current targe
 $\theta_{t+1}^- = \tau \theta_{t} + (1-\tau)\theta_t^-$
 The \texttt{epsilon} value of the $\epsilon$-greedy strategy is annealed using the following formula:
 $\epsilon = \max(\epsilon_{min}, \epsilon_{start} \cdot (\delta_{\epsilon}^{n_{step}}))$
-, where $n_{step}$ is the current step count.
+, where $n_{step}$ is the current step count and $\delta_{\epsilon}$ the epsilon decay factor \texttt{RDC\_epsilon\_decay}.
 Lastly, the priorities of the \gls{per} are updated using the newly calculated \glspl{td-error} by the \texttt{update\_priorities} function from the \texttt{ReplayBuffer}.
 
 The learning progress of the \gls{rdc} agent over the course of the final training run is visualized in \autoref{fig:rdc_training_curves}.
@@ -143,7 +143,7 @@ The plot displays the episodic reward, which shows a clear upward trend before c
     \label{fig:rdc_training_curves}
 \end{figure}
 
-\section{User-Incentive Coordinator}\label{sec:implementation_uic}
+\section{User-Incentive Coordinator (UIC)}\label{sec:implementation_uic}
 The \glsfirst{uic}, which constitutes the second tier of the \gls{hrl} framework, is implemented in the \texttt{UserIncentiveCoordinator} class.
 It utilizes the \gls{ppo} algorithm from the \gls{sb3} library \cite{schulman_proximal_2017, raffin_stable-baselines3_2021}.
 
@@ -190,7 +190,7 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
         This action is a vector containing the incentive levels for each zone corresponding to the community.
     \item \textbf{Rebalancing Simulation:}
         The rebalancing actions are simulated first.
-        First, the intended drop-offs from users are taken into account, and for each drop-off event, the simulation determines whether an incentive is offered.
+        Therefore, the intended drop-offs from users are taken into account, and for each drop-off event, the simulation determines whether an incentive is offered.
         This incentive offer is based on analyzing the incentive levels for each neighboring zone.
         If a neighboring zone has a higher incentive level than the intended initial drop-off zone, an incentive is offered.
         If all neighboring zones have a lower incentive level, then no incentive is offered.
@@ -208,7 +208,7 @@ The \texttt{step()} function defines the core logic of the simulation, which is 
         The demand is simulated sequentially, continuously updating the vehicle counts for the entire 60-minute step.
     \item \textbf{Observation and Reward Calculation:}
         Lastly, the reward is calculated based on the number of rebalanced vehicles, the satisfied demand, and the distribution of vehicles (see \autoref{sec:design-rl_framework-uic}).
-        Then, a new state observation is created, and the method returns the complete experience tuple ($S_t^{UIC}$, $A_t^{UIC}$, $R_t^{UIC}$, $S_{t+1}^{UIC}$, $done^{UIC}$).
+        Then, a new state observation is created, and the method returns the complete experience tuple ($\mathcal{S}_t^{UIC}$, $\mathcal{A}_t^{UIC}$, $\mathcal{R}_t^{UIC}$, $\mathcal{S}_{t+1}^{UIC}$, $done^{UIC}$).
 \end{enumerate}
 
 \subsection{Training procedure}
@@ -217,35 +217,35 @@ This procedure unfolds in two primary phases: experience collection and policy o
 
 Initially, during the experience collection phase, the agent interacts with the \texttt{EScooterUICEnv} environment to gather a batch of experiences.
 This rollout is conducted over a number of timesteps defined by the \texttt{UIC\_n\_steps} hyperparameter.
-At each timestep $t$, the agent observes the current state $S_t$, samples an action $A_t$ based on its existing policy $\pi_{\theta_{old}}$, and executes this action.
-The resultant experience tuple, denoted as ($S_t, A_t, R_t, S_{t+1}, \text{done}$), is systematically stored in a \texttt{RolloutBuffer} for subsequent processing.
+At each timestep $t$, the agent observes the current state $S_t$, samples an action $\mathcal{A}_t$ based on its existing policy $\pi_{\theta_{old}}$, and executes this action.
+The resultant experience tuple, denoted as ($\mathcal{S}_t, \mathcal{A}_t, \mathcal{R}_t, \mathcal{S}_{t+1}, \text{done}$), is systematically stored in a \texttt{RolloutBuffer} for subsequent processing.
 
 Following the collection of experiences, the training process transitions to calculating the advantage estimates and returns necessary for the policy update.
 The advantage $\hat{A}_t$ is computed for each timestep using \gls{gae}, which relies on the \gls{td-error}, $\delta_t$:
 
 \begin{equation}
-    \delta_t = R_t + \gamma^{\text{UIC}} \cdot V_{\phi}(S_{t+1}) \cdot (1 - \text{done}) - V_{\phi}(S_t)
+    \delta_t = \mathcal{R}_t + \gamma \cdot V_{\phi}(\mathcal{S}_{t+1}) \cdot (1 - \text{done}) - V_{\phi}(\mathcal{S}_t)
     \label{eq:uic_td_error_revised}
 \end{equation}
 
-Here, $\gamma^{\text{UIC}}$ represents the discount factor, a hyperparameter specified as \texttt{UIC\_gamma}.
-The \gls{gae} advantage, $\hat{A}_t$, is then calculated as the discounted sum of these \glspl{td-error}, where the hyperparameter $\lambda_{\text{GAE}}^{\text{UIC}}$ (\texttt{UIC\_gae\_lambda}) modulates the trade-off between bias and variance \cite{schulman_high-dimensional_2018}:
+Here, $\gamma$ represents the discount factor, a hyperparameter specified as \texttt{UIC\_gamma}.
+The \gls{gae} advantage, $\hat{A}_t$, is then calculated as the discounted sum of these \glspl{td-error}, where the hyperparameter $\lambda_{\text{GAE}}$ (\texttt{UIC\_gae\_lambda}) modulates the trade-off between bias and variance \cite{schulman_high-dimensional_2018}:
 
 \begin{equation}
-    \hat{A}_t = \sum_{l=0}^{N-1} (\gamma^{\text{UIC}} \lambda_{\text{GAE}}^{\text{UIC}})^l \delta_{t+l}
+    \hat{A}_t = \sum_{l=0}^{N-1} (\gamma \lambda_{\text{GAE}})^l \delta_{t+l}
     \label{eq:uic_gae_revised}
 \end{equation}
 
-The target value for the value function update, $G_t$, is subsequently derived from the advantage estimate and the current value function output, $V_{\phi}(S_t)$, such that $G_t = \hat{A}_t + V_{\phi}(S_t)$.\\
+The target value for the value function update, $G_t$, is subsequently derived from the advantage estimate and the current value function output, $V_{\phi}(\mathcal{S}_t)$, such that $G_t = \hat{A}_t + V_{\phi}(\mathcal{S}_t)$.\\
 
-The core learning phase is encapsulated within the \gls{ppo}-specific \texttt{train()} method, which initiates an optimization loop.
+The core learning phase is encapsulated within the \gls{ppo}-specific \texttt{train()} method, which initiates an optimization loop \cite{raffin_stable-baselines3_2021}.
 This loop iterates over the entire \texttt{RolloutBuffer} for a predefined number of epochs (\texttt{UIC\_n\_epochs}), shuffling the collected data and partitioning it into mini-batches of size \texttt{UIC\_batch\_size}.
 For each mini-batch, the composite \gls{ppo} loss function, $L_{\text{total}}$, is evaluated.
 This requires re-computing action log-probabilities, state-values, and the policy entropy with the current network parameters.
 The total loss integrates three weighted components: the policy loss ($L^{\text{CLIP}}$), the value function loss ($L^{\text{VF}}$), and an entropy bonus ($S$) \cite{schulman_proximal_2017}:
 
 \begin{equation}
-    L_{\text{total}}(\theta, \phi) = L^{\text{CLIP}}(\theta) - c_{VF} \cdot L^{\text{VF}}(\phi) + c_{ent} \cdot S[\pi_{\theta}](S_t)
+    L_{\text{total}}(\theta, \phi) = L^{\text{CLIP}}(\theta) - c_{VF} \cdot L^{\text{VF}}(\phi) + c_{ent} \cdot S[\pi_{\theta}](\mathcal{S}_t)
     \label{eq:uic_total_loss_revised}
 \end{equation}
 
@@ -258,7 +258,7 @@ Finally, a learning rate scheduler updates the learning rate according to a pred
 
 The learning process of the \gls{uic} agents is demonstrated in \autoref{fig:uic_reward_curve}.
 The figure illustrates the episodic average reward for one representative \gls{uic} agent.
-The reward curve demonstrates a consistent upward trend that eventually plateaus, suggesting that the agents successfully learned to optimize their local incentive strategies.
+The reward curve demonstrates a consistent upward trend, suggesting that the agents successfully learned to optimize their local incentive strategies.
 
 \begin{figure}[!htb]
     \centering
@@ -269,18 +269,19 @@ The reward curve demonstrates a consistent upward trend that eventually plateaus
 
 \section{Demand Forecasting Module}\label{sec:implementation_demand-forecasting-module}
 A requirement for the effective operation of the \gls{rdc} and \glspl{uic} is an accurate forecast of future demand.
-This is provided by the Demand Forecasting Module, which is detailed in this section.
-This Demand Forecasting Module is built upon the implementation by Li et al. \cite{li_improving_2023}.
-For the scope of this thesis, the original hyperparameters from Li et al. \cite{li_improving_2023} were adopted under the assumption of reasonable transferability.
+This is provided by the Demand Forecasting Module, the implementation of which is detailed in this section.
+This Demand Forecasting Module is built upon the implementation by Li et al. \cite{li_improving_2023}, whose design was discussed in \autoref{sec:design-rl_framework-forecasting_module}.
+For the scope of this thesis, the original hyperparameters from Li et al. were adopted under the assumption of reasonable transferability.
 A complete hyperparameter optimization for the forecasting module was considered out of scope, but is noted as a potential area for future improvement.
 This pragmatic decision was made to prioritize the project's core contribution, which is the design and evaluation of the HRL framework itself.
 However, it is crucial to acknowledge that forecasting performance is critical for the agents' decision-making.
 Non-optimal hyperparameters for the Stuttgart dataset could potentially impact the overall performance.
-To prepare the demand data, the preprocessed trip data was cleaned by adding missing time steps, filling null values with zero demand, and sorting community IDs.
-The final data structure for the model input was a tensor of shape $(|\mathcal{Z}|, T_{input}, 1)$, where $T_{input}$ is the number of historical timesteps and the third dimension represents the demand.
+
+To prepare the demand data, the preprocessed trip data was cleaned by adding missing timesteps, filling null values with zero demand, and sorting community IDs.
+The final data structure for the model input was a tensor of shape $(|\mathcal{Z}|, T_{input}, 1)$, where $T_{input}$ is the number of historical timesteps and the third dimension represents the scalar demand.
 The full implementation of this process is detailed in the Jupyter Notebook \url{prepare_demand_forecasting_data.ipynb}.
 A similarity matrix is required to define the kernels for each zone.
-This similarity matrix is generated by calculating a similarity metric based on the \gls{dtw} distance \cite{berndt_using_1994} between the demand of all zones, resulting in a matrix of size $(|\mathcal{Z}| \times |\mathcal{Z}|)$ \cite{li_improving_2023}.
+This similarity matrix is generated by calculating a similarity metric based on the \gls{dtw} distance between the demand of all zones, resulting in a matrix of size $(|\mathcal{Z}| \times |\mathcal{Z}|)$ \cite{li_improving_2023}.
 Based on this distance parameter (\texttt{dtw\_dist}), the similarity is calculated (see \autoref{eq:irconvlstm-similarity}).
 \gls{dtw} was chosen instead of \gls{pcc} due to its superior performance results \cite{li_improving_2023}.
 

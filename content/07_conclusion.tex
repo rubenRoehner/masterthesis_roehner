@@ -19,7 +19,7 @@ This architecture featured:
 
 Second, this framework was fully implemented in Python using a custom simulation environment driven by real-world data, fulfilling \hyperref[goal:implementation]{Goal 2} as described in \autoref{sec:implementation}.
 Finally, the framework was evaluated against multiple baselines (\hyperref[goal:evaluation]{Goal 3}).
-This evaluation partially accomplished its objective by demonstrating the \gls{rdc}'s effectiveness while simultaneously highlighting the limitations of the current \gls{uic} strategy, thereby underscoring the need for further refinement of the user-incentive component.
+This evaluation partially accomplished its objective by demonstrating the \gls{rdc}'s effectiveness while simultaneously highlighting the limitations of the current \gls{uic} strategy, thereby underscoring the need for further refinement of the UICs.
 
 \section{Future Work}\label{sec:conclusion-future_work}
 Based on the key finding that the current two-tier structure created harmful interference driven by the underperformance of the UICs, the most critical avenues for future work involve improving the algorithmic framework and enhancing the simulation's realism to better capture user behavior.
@@ -60,13 +60,13 @@ Future research could significantly enhance the realism of the evaluation.
         Given that the simple linear user model likely contributed to the \glspl{uic}' poor performance, a critical area for improvement is the development of more sophisticated user choice models.
         Instead of a static function, a model could be learned directly from trip data to better capture the complex factors influencing user decisions, such as walking distance, cost savings, and trip purpose.
     \item \textbf{Incorporating Latent Demand:}
-        The demand utilized in this study is historical observed demand, which is biased or censored, meaning that it only contains a portion of the actual demand, as only satisfied demand is quantified through the \gls{gbfs} data.
+        The demand utilized in this study is historical observed demand, which is biased, meaning that it only contains a portion of the actual demand, as only satisfied demand is quantified through the \gls{gbfs} data.
         Incorporating an uncensored demand model produces more realistic possibilities for increasing satisfied demand by addressing the unsatisfied demand not reflected in historical demand data.
         Gammeli et al. \cite{gammelli_estimating_2020} developed a model based on Gaussian Processes to estimate the uncensored demand that is not present in historical demand data.
     \item \textbf{High-Fidelity Simulation:}
         As noted in the literature review, there exists a research gap for implementing a high-fidelity simulator for testing shared micromobility services under real conditions.
         Simulators like \gls{sumo} \cite{alvarez_lopez_simulation_2025} and \gls{matsim} \cite{horni_introducing_2016} provide macroscopic traffic models to simulate the complex dynamics of urban mobility.
-        Developing such a simulator would allow for the evaluation of rebalancing strategies under realistic traffic congestion, travel time variations, and interactions with other modes of transport.
+        Developing such a simulator would allow for the training and evaluation of rebalancing strategies under realistic traffic congestion, travel time variations, and interactions with other modes of transport.
         This would address the oversimplification present in many current simulation environments.
 \end{itemize}
 

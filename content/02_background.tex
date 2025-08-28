@@ -17,7 +17,7 @@ E-scooters are typically used for shorter journeys, averaging around 1.8 kilomet
 
 From an environmental perspective, e-scooters and e-bikes offer a promising path toward reducing urban carbon emissions and air pollution, especially when powered by renewable energy \cite{shen_enhancing_2024}.
 Recent studies in the United States have shown that private electric scooters have replaced approximately 34\% of car trips, while electric bicycles have replaced between 5\% and 17\% of such trips \cite{liao_electric_2022}.
-The high substitution rates observed for private electric micromobility suggest that the deployment of shared micromobility services can effectively encourage a modal shift from high-emission automobile travel to low-emission shared micromobility alternatives \cite{shen_enhancing_2024, liao_electric_2022}.
+The high substitution rates observed for private electric micromobility suggest that the deployment of shared micromobility services can effectively encourage a modal shift from high-emission automobile travel to low-emission shared micromobility alternatives \cite{liao_electric_2022, shen_enhancing_2024}.
 
 The commercial success of a micromobility sharing service is closely tied to user satisfaction, which depends on vehicle availability \cite{wu_challenges_2020}.
 Vehicle availability defines whether a trip request can be served or not.
@@ -59,11 +59,11 @@ These trucks are often equipped with battery charging technologies and spare bat
 This method is more expensive than user-based rebalancing due to labor and equipment costs \cite{jaber_preferences_2023}.
 The primary advantage is the reliable control over the fleet distribution, as this method doesn't depend on user participation \cite{dellamico_bike_2014}.
 Given the distinct advantages and disadvantages of each approach, service providers must determine the optimal mix of strategies for their specific operational context.
-Typically, a combined approach creates efficient and robust solutions, but needs fine-tuning based on the specific requirements \cite{mahmoodian_design_2019, emami_integrated_2024}.
+Typically, a combined approach creates efficient and robust solutions, but needs fine-tuning based on the specific requirements \cite{emami_integrated_2024, mahmoodian_design_2019}.
 
 \section{Reinforcement Learning (RL)}\label{sec:background-reinforcement_learning}
 \glsfirst{rl} is a machine learning paradigm in which an agent learns to make optimal decisions through sequential interactions with an environment.
-At each discrete timestep $t$, the agent observes the environment's state $\mathcal{S}$, selects an action from an available set $\mathcal{A}$, and receives a numerical reward $R$ as feedback.
+At each discrete timestep $t$, the agent observes the environment's state $\mathcal{S}$, selects an action from an available set $\mathcal{A}$, and receives a numerical reward $\mathcal{R}$ as feedback.
 The agent's objective is to maximize the cumulative reward, or return, over time.
 This learning process is guided by a policy, denoted as $\pi$, which is a strategy that maps states to actions.
 Through a process of trial and error, the agent iteratively refines its policy to discover which actions yield the most reward in particular states \cite{sutton_reinforcement_2018, zhang_dive_2023}.
@@ -77,14 +77,14 @@ Problems formulated as \glspl{mdp} can be solved using techniques such as \gls{d
 \gls{dp} is a technique for solving complex models by dividing the problem into multiple sub-problems and using estimates to find an optimal policy that solves the problem \cite{sutton_reinforcement_2018, zhang_dive_2023}.
 
 \begin{equation}\label{eq:mdp}
-    MDP : (\mathcal{S}; \mathcal{A}; P; R)
+    MDP : (\mathcal{S}; \mathcal{A}; \mathcal{P}; \mathcal{R})
 \end{equation}
 
 \begin{itemize}
     \item $\mathcal{S}$: A finite set of states, known as the state space, representing all possible configurations of the environment.
     \item $\mathcal{A}$: A finite set of actions, known as the action space, that the agent can perform.
-    \item $P(s' \mid s, a)$: The state transition function defines the probabilities for being in state $s$ and transitioning through action $a$ into the new state $s'$.
-    \item $R(s, a, s')$: The reward function assigns each possible state transition a reward value. This immediate reward is given when transitioning from state $s$ to state $s'$ by the action $a$.
+    \item $\mathcal{P}(s' \mid s, a)$: The state transition function defines the probabilities for being in state $s$ and transitioning through action $a$ into the new state $s'$.
+    \item $\mathcal{R}(s, a, s')$: The reward function assigns each possible state transition a reward value. This immediate reward is given when transitioning from state $s$ to state $s'$ by the action $a$.
 \end{itemize}
 
 \begin{figure}
@@ -155,10 +155,10 @@ With this optimal state-value function, an optimal policy can be obtained with t
 \end{equation}
 
 \subsection{Multi-Armed Bandits (MAB)}
-The \gls{mab} is a simplified \gls{rl} problem that lacks states, forcing the agent to focus exclusively on the exploration-exploitation dilemma.
+The \gls{mab} is a simplified \gls{rl} model that lacks states, forcing the agent to focus exclusively on the exploration-exploitation dilemma.
 An \gls{mab} agent has k arms, each representing an action the agent can choose from.
 Notably, the agent has no state representation of the environment it is interacting with.
-This means the \gls{mab} agent can try out each action and choose based on the previous rewards it has received from exploring the different actions.
+This means the \gls{mab} agent can explore each action and choose based on the previous rewards it has received from exploring the different actions.
 By doing so, the \gls{mab} agent can learn the underlying probability distributions for the reward of each action.
 When the \gls{mab} agent has explored the actions sufficiently, it can exploit this information to maximize its total reward.
 The \gls{mab} theory describes the trade-off between exploration and exploitation by exploring the different actions to estimate their reward distributions.
@@ -174,10 +174,10 @@ This estimated reward is denoted as $Q_t(a)$ and is presented in equation \ref{e
 Numerous algorithms have been developed for \gls{mab} agents to balance exploration and exploitation.
 
 \subsubsection{$\mathbf{\varepsilon}$-greedy}
-The $\varepsilon$-greedy algorithm is a relatively straightforward approach to strike a balance between exploration and exploitation.
+The $\varepsilon$-greedy algorithm is a straightforward approach to strike the balance between exploration and exploitation.
 The agent chooses a random arm with the probability of $\varepsilon$.
 In the other cases, i.e., $1-\varepsilon$, the agent exploits the current best arm, which has the highest estimated reward.
-The algorithm is presented in equation \ref{eq:epsilon-greedy}, where $c$ controls the trade-off between exploration and exploitation \cite{sutton_reinforcement_2018}.
+The algorithm is presented in equation \ref{eq:epsilon-greedy} \cite{sutton_reinforcement_2018}.
 
 \begin{equation}\label{eq:epsilon-greedy}
 A_t =
@@ -191,7 +191,7 @@ A_t =
 The \glsfirst{ucb} is a widely used algorithm for balancing exploration and exploitation in \gls{mab} settings.
 This approach selects the arm based on the highest estimated reward and the uncertainty associated with those estimates.
 Therefore, the \gls{ucb} algorithm improves estimates based on the variance of each estimate.
-The algorithm is presented in equation \ref{eq:upper-confidence-bound} \cite{sutton_reinforcement_2018}.
+The algorithm is presented in equation \ref{eq:upper-confidence-bound}, where $c$ controls the trade-off between exploration and exploitation \cite{sutton_reinforcement_2018}.
 
 \begin{equation}\label{eq:upper-confidence-bound}
 A_t \doteq \arg\max_a \left[ Q_t(a) + c \sqrt{\frac{\ln t}{N_t(a)}} \right]
@@ -214,25 +214,25 @@ With this update rule, the algorithm iteratively updates the action-value functi
 \subsection{Deep-Q-Networks (DQN)}\label{sec:background-reinforcement_learning-dqn}
 Traditional Q-learning struggles with high-dimensional or continuous state spaces, as maintaining a tabular representation of Q-values becomes infeasible \cite{mnih_human-level_2015}.
 \glsentryfullpl{dqn} address this problem by using neural networks instead.
-In \gls{dqn}, a deep neural network approximates the Q-value function $q(s, a;\theta)$, with network weights $\theta$ \cite{mnih_human-level_2015}.
+In \gls{dqn}, a deep neural network approximates the Q-value function $q(s, a;\theta)$, with network weights $\theta$.
 The network takes the state as input and outputs estimated Q-values for each possible action.
-By training this network, the agent can generalize past experiences to new, unseen states.
+By training this network, the agent can generalize past experiences to new, unseen states \cite{mnih_human-level_2015}.
 
 \gls{dqn} introduced several key innovations that significantly improved performance and stability.
 One key innovation is \textit{Experience Replay}, which stabilizes training by storing transitions (e.g., $(s_t, a_t, s_{t+1}, r_{t+1})$) in a replay memory and sampling mini-batches from it uniformly.
 This breaks the temporal correlations between consecutive experiences \cite{mnih_human-level_2015}.
 To further stabilize learning, a second \textit{target network} with parameters $\theta^-$ is used, which is a periodically updated copy of the online network.
-This target network is used for calculating the Q-learning targets, which prevents the targets from fluctuating rapidly and destabilizes training \cite{mnih_human-level_2015}.
+This target network is used to calculate Q-learning targets, preventing them from fluctuating rapidly and destabilizing the training process \cite{mnih_human-level_2015}.
 A common issue in Q-learning is the overestimation of action values.
 \gls{ddqn} addresses this by decoupling the action selection from the target value calculation, using the online network to select the best action and the target network to evaluate it \cite{hasselt_deep_2016}.
 
 \subsection{Policy Gradient Methods}\label{sec:background-reinforcement_learning-pgm}
 In contrast to value-based methods, such as Q-Learning, which estimate the optimal value function and derive it from their policy, policy gradient methods directly optimize the policy.
 Therefore, these methods utilize a parameterized policy whose parameters, $\theta$, are iteratively updated to maximize rewards.
-A performance measure is introduced to update these policy parameters, representing the actual value function for the policy $\pi_\theta$.
+A performance function is introduced to update these policy parameters, representing the actual value function for the policy $\pi_\theta$.
 This performance function $J(\theta)$ is then differentiated by the policy parameters $\theta$ and can be used to update the policy in such a way as to optimize the value function and maximize rewards.
 This approach is particularly effective for continuous or high-dimensional action spaces and can learn stochastic policies naturally \cite{sewak_policy-approximation_2022}.
-The update rule and performance measure are defined as follows:
+The update rule and performance function are defined as follows:
 
 \begin{equation}\label{eq:policy-gradient-update-rule}
     \theta_{t+1} = \theta_t + \alpha \nabla_\theta J(\theta_t)
@@ -262,12 +262,12 @@ This objective function constrains the policy update in a simple way to not diff
 This avoids destructively large policy updates, making \gls{ppo} more robust and easier to implement than other methods while maintaining state-of-the-art performance.
 
 \subsection{Multi-Agent Reinforcement Learning (MARL)}
-The previously discussed \gls{rl} algorithms involve only one agent learning through interaction with the environment \cite{busoniu_multi-agent_2008}.
+The previously discussed \gls{rl} algorithms involve only one agent learning through interaction with the environment.
 \gls{marl} extends this by introducing a setting involving multiple agents that interact or compete against each other.
 \gls{marl} involves a much more complex setting through the interaction of multiple agents.
 Therefore, the state is not only influenced by the actions of one agent, but the agents need to account for changes in the state due to the actions of the other agents.
 Often, a channel for communication is established between the agents.
-This communication can be implicit through observation or explicit as part of the agent's actions.
+This communication can be implicit through observation or explicit as part of the agent's actions \cite{busoniu_multi-agent_2008}.
 
 An \gls{mdp} cannot formalize \gls{marl} due to the lack of support for multiple agents.
 Therefore, numerous approaches have been introduced to formalize \gls{marl} models.
@@ -276,16 +276,16 @@ In MG, each agent has its own set of actions and its own reward function.
 The state space and the state transition probabilities are shared between all agents.
 The reward functions should be chosen based on the type of interaction between the agents.
 A zero-sum reward is often used for competitive agents, where one's gain in reward is another's loss.
-For a cooperative task, a shared reward is often recommended.
+For a cooperative task, a shared reward is often recommended \cite{busoniu_multi-agent_2008}.
 
 
 \subsection{Hierarchical Reinforcement Learning (HRL)}
 \glsfirst{hrl} addresses the challenges of solving complex, long-horizon tasks by decomposing them into a hierarchy of simpler sub-problems \cite{pateria_hierarchical_2021}.
 Instead of learning a single, monolithic policy to map high-level states to low-level actions, \gls{hrl} introduces multiple levels of control.
-The most common structure is a two-level hierarchy consisting of a high-level policy (often called a manager or meta-controller) and one or more low-level policies (often called workers or controllers) \cite{pateria_hierarchical_2021}.
+The most common structure is a two-level hierarchy consisting of a high-level policy (often referred to as a manager) and one or more low-level policies (often referred to as workers) \cite{pateria_hierarchical_2021}.
 The high-level policy operates at a coarse temporal scale, observing the environment's state and selecting a \textit{goal} or sub-task for the low-level policy to accomplish.
 The low-level policy then operates at a finer temporal scale, taking primitive actions in the environment to achieve the specified goal, after which control returns to the high-level policy.
-This division of labor allows the framework to learn policies at different levels of abstraction simultaneously.
+This division of labor allows the framework to learn policies at different levels of abstraction simultaneously \cite{pateria_hierarchical_2021}.
 
 This hierarchical decomposition yields several significant benefits, most notably temporal abstraction and improved exploration \cite{pateria_hierarchical_2021}.
 Temporal abstraction enables the high-level policy to make decisions over extended periods without needing to specify every primitive action, thereby drastically reducing the complexity of the planning horizon.
@@ -298,20 +298,20 @@ While powerful, the design of \gls{hrl} frameworks introduces its own set of cha
 A foundational approach to formalizing this hierarchy is the options framework introduced by Sutton et al. \cite{sutton_between_1999}, where multi-step actions, or \textit{options,} are learned as temporally extended sub-policies.
 However, a key challenge in \gls{hrl} is defining these subtasks or goals \cite{pateria_hierarchical_2021}.
 In many cases, they must be predefined by a human expert with significant domain knowledge.
-While research into automatic goal discovery exists, it remains an open problem \cite{pateria_hierarchical_2021}.
-Furthermore, designing the reward structure for both levels of the hierarchy is a non-trivial task \cite{pateria_hierarchical_2021}.
+While research into automatic goal discovery exists, it remains an open problem.
+Furthermore, designing the reward structure for both levels of the hierarchy is a non-trivial task.
 The low-level policy requires intrinsic motivation (rewards for achieving goals), whereas extrinsic rewards from the environment drive the high-level policy.
-Despite these challenges, \gls{hrl} provides a powerful paradigm for tackling problems with a clear hierarchical structure, such as the strategic and operational decisions involved in fleet optimization.
+Despite these challenges, \gls{hrl} provides a powerful paradigm for tackling problems with a clear hierarchical structure, such as the strategic and operational decisions involved in fleet optimization \cite{pateria_hierarchical_2021}.
 
 \subsection{Summary}
 This section has provided an overview of RL, from its theoretical foundations in MDPs to advanced, practical algorithms.
 Multi-armed bandits, which address the exploration–exploitation dilemma in isolation without state transitions, offer an intuitive framework for understanding decision trade-offs.
-However, due to the simplicity of these models, their application is limited to isolated decision-making problems.
+However, due to the simplicity of these models, their application is limited to isolated decision-making problems \cite{sutton_reinforcement_2018}.
 Q-learning, a model-free and off-policy algorithm, learns optimal action value functions by iteratively updating estimates based on observed rewards.
 While Q-learning is effective in discrete environments, it faces challenges in scalability and often suffers from overestimation bias \cite{hasselt_deep_2016}.
 \gls{dqn} utilizes deep neural networks to approximate Q-values from high-dimensional inputs, thereby enhancing generalization for complex real-world tasks at the expense of increased computational complexity \cite{mnih_human-level_2015}.
 In contrast, policy gradient methods optimize the policy directly and are particularly well-suited for continuous action spaces.
-Their ability to learn stochastic policies is essential for adapting to rapidly changing environments.
+Their ability to learn stochastic policies is essential for adapting to rapidly changing environments \cite{sewak_policy-approximation_2022}.
 
 \gls{marl} extends these methodologies to settings involving multiple interacting agents, though it introduces additional challenges such as scalability problems \cite{busoniu_multi-agent_2008}.
 Finally, \gls{hrl} further decomposes complex tasks into hierarchical subtasks through abstraction, allowing high-level policies to set sub-goals for lower-level controllers, thereby improving learning efficiency. 
@@ -336,7 +336,7 @@ This allows for more informed local choices, which often yield better overall so
 
 \subsection{Metaheuristic Optimization}
 Metaheuristics are a class of optimization techniques that aim to enhance heuristics by guiding their actions to improve the search space and discover more optimal solutions than can be found solely with the heuristics themselves.
-Metaheuristics manage the trade-off between exploration and exploitation to overcome local optima and discover more optimal solutions .
+Metaheuristics manage the trade-off between exploration and exploitation to overcome local optima and discover more optimal solutions.
 These methods are often inspired by natural processes, such as evolution or swarm intelligence, and typically operate on a population of candidate solutions \cite{russell_modern_1995}.
 
 \subsubsection{Genetic Algorithms (GAs)}
@@ -347,11 +347,11 @@ The algorithm generates a new population in each generation through three primar
 
 \begin{itemize}
     \item \textbf{Selection:} Candidate solutions are probabilistically chosen during selection based on their fitness value, ensuring that higher-performing candidates are more likely to contribute to subsequent generations. 
-    \item \textbf{Crossover:} The crossover operator then recombines elements from pairs of selected candidates to create new solutions .
+    \item \textbf{Crossover:} The crossover operator then recombines elements from pairs of selected candidates to create new solutions.
     \item \textbf{Mutation:} At the same time, the mutation operator randomly modifies individual candidates to preserve genetic diversity and prevent premature convergence. 
 \end{itemize}
 
-This iterative process, involving the selection, crossover, and mutation operators, is repeated across multiple generations until the fitness function converges to a stable optimum or a predefined termination criterion is met.
+This iterative process, involving the selection, crossover, and mutation operators, is repeated across multiple generations until the fitness function converges to a stable optimum or a predefined termination criterion is met \cite{holland_adaptation_1992}.
 
 \subsubsection{Ant Colony Optimization (ACO)}
 \glsfirst{aco} is a metaheuristic based on swarm intelligence that mimics the foraging behavior of ants.
@@ -360,20 +360,20 @@ Artificial \textit{ants} then traverse this graph to construct candidate solutio
 As the ants build these solutions, they deposit artificial pheromones along their chosen paths.
 Paths corresponding to superior solutions receive more potent pheromones.
 In subsequent iterations, the ants are probabilistically attracted to paths with higher concentrations of pheromones, thereby exploiting known good routes.
-At the same time, a degree of stochastic exploration is maintained to allow the ants to discover novel paths.
-This mechanism makes \gls{aco} well-suited for solving routing and scheduling problems, as well as other combinatorial optimization problems that can be naturally represented as graphs \cite{dorigo_ant_1997}.
+At the same time, a degree of stochastic exploration is maintained to allow the ants to discover unexplored paths.
+This mechanism makes \gls{aco} well-suited for solving routing and scheduling problems, as well as other optimization problems that can be naturally represented as graphs \cite{dorigo_ant_1997}.
 
 \subsection{Summary}
 Heuristic and metaheuristic methods offer a range of approaches to optimization problems, each with its distinct advantages and limitations.
 Simple heuristics, such as the greedy heuristic, operate by making a locally optimal choice at each decision point, providing fast and computationally inexpensive solutions.
 However, this results in suboptimal global performance.
 Greed-and-match heuristics improve upon this by incorporating matching strategies, which help enhance overall solution quality.
-However, they also introduce additional computational overhead and complexity compared to simple heuristics.
+However, they also introduce additional computational overhead and complexity compared to simple heuristics \cite{russell_modern_1995}.
 
 In contrast, metaheuristics such as \glspl{ga} and \gls{aco} offer more robust frameworks for navigating complex search spaces.
 \glspl{ga} leverage evolutionary principles to evolve a population of solutions.
 \gls{aco} mimics the pheromone-based foraging behavior of ant swarms, where artificial ants traverse a graph representing the problem space.
-However, they often require significantly more computational resources to avoid premature convergence and maintain genetic diversity.
+However, they often require significantly more computational resources to avoid premature convergence and maintain genetic diversity \cite{holland_adaptation_1992, dorigo_ant_1997}.
 
 In summary, while greedy and greed-and-match heuristics offer simplicity and speed, they may not be sufficient to address global optimization challenges.
 Conversely, \glspl{ga} and \gls{aco} provide more robust frameworks that are better equipped to handle complex, dynamic problem spaces, but at the cost of a significant increase in computational complexity.
@@ -390,12 +390,12 @@ A simplified model of the environment is often formulated due to the high comple
 \glsfirst{lp} is an optimization technique that is used to solve mathematical expressions for decision-making problems.
 In the context of \gls{lp}, objective functions and constraints are linear, and their variables are continuous.
 This restriction, however, limits the scope of applications of the \gls{lp} approach when confronted with complex real-world scenarios.
-A variety of algorithms exist to solve \glspl{lp} for optimal solutions, but the most common are the simplex algorithm and the \glsfirst{ipm} \cite{boyd_convex_2004}.
+A variety of algorithms exist to solve \glspl{lp} for optimal solutions, but the most common ones are the simplex algorithm and the \glsfirst{ipm} \cite{boyd_convex_2004}.
 
 \begin{itemize}
     \item The simplex algorithm utilizes a convex-shaped polytope, defined by the intersections of the \gls{lp} constraints.
     The algorithm starts with a base solution located at one of the vertices of the polytope.
-    Thereafter, the algorithm systematically moves from one vertex to the adjacent vertex, which provides the most significant improvement in terms of the objective function.
+    Then, the algorithm systematically moves from one vertex to the adjacent vertex, which provides the most significant improvement in terms of the objective function.
     This iterative process continues until no neighboring vertex improves the objective function value, at which point the algorithm achieves optimality \cite{boyd_convex_2004}.
     \item The \gls{ipm} takes a different path, traversing through the interior of the feasible region.
     It uses barrier functions to ensure it remains within the constraint boundaries and calculates a gradient to determine the direction of traversal.
@@ -405,11 +405,11 @@ A variety of algorithms exist to solve \glspl{lp} for optimal solutions, but the
 While the simplex algorithm is efficient in practice for many problems, its worst-case time complexity can be exponential.
 In contrast, \glspl{ipm} have polynomial-time complexity, making them more robust for very large-scale \glspl{lp}.
 While \gls{ipm} scales better, it comes with more computational overhead.
-In summary, the simplex method is more suited for solving smaller or repetitive \glspl{lp}, while \gls{ipm} is better suited for larger and more complex \glspl{lp} \cite{boyd_convex_2004}.
+In summary, the simplex method is more suitable for solving smaller or repetitive \glspl{lp}, while \gls{ipm} is better suited for larger and more complex \glspl{lp} \cite{boyd_convex_2004}.
 
 
 \subsection{Mixed Integer Linear Programming (MILP)}
-\glsfirst{milp} is an extension of \gls{lp} that allows some decision variables to be restricted to integer values \cite{vielma_mixed_2015}.
+\glsfirst{milp} is an extension of \gls{lp} that allows decision variables to be restricted to integer values \cite{vielma_mixed_2015}.
 This greatly enhances the modeling capabilities of the framework, enabling the direct representation of discrete choices, such as binary (0/1) decisions.
 
 \gls{milp} problems are NP-hard and are typically solved using algorithms such as branch-and-cut.
@@ -417,4 +417,4 @@ This method solves a series of \gls{lp} relaxations, where the integer constrain
 The algorithm then systematically branches on integer variables, creating a tree of subproblems.
 It uses \textit{cuts}, or additional constraints, to prune branches of the tree that cannot yield an optimal solution.
 While effective for moderately complex problems, the computational time of these algorithms can grow exponentially with the problem size, making them unsuitable for finding exact solutions to very large or time-sensitive systems.
-For such systems, however, \gls{milp} can still be applied to subproblems or used with heuristic methods to find high-quality approximate solutions \cite{vielma_mixed_2015}.
+For such systems, however, \gls{milp} can still be applied to subproblems or used with heuristics to find high-quality approximate solutions \cite{vielma_mixed_2015}.
