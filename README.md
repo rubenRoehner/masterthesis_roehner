@@ -6,6 +6,8 @@ This repository contains the LaTeX source and compiled PDF of my Master's Thesis
 
 ## 📄 Read the thesis
 
+[![Thesis cover preview](./masterthesis_roehner_final.jpg)](./masterthesis_roehner_final.pdf)
+
 → **[Download PDF](./masterthesis_roehner_final.pdf)**
 
 ## Abstract
